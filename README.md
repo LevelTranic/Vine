@@ -16,4 +16,18 @@
     <br/><br/>
 </div>
 
+<h2 align=center>About them</h2>
+Vine is a fork of <a href="https://github.com/MultiPaper/ShreddedPaper" target="_parent">ShreddedPaper</a>, redistributed under the <a href="https://github.com/LevelTranic/Vine?tab=GPL-3.0-1-ov-file#readme">GPL-3.0 license</a> . Supports multi-threading.
+
+LevelBukkit is a fork of <a href="https://github.com/LuminolMC/Luminol" target="_parent">Luminol</a>/<a href="https://github.com/PaperMC/Folia" target="_parent">Folia</a>, republished under the <a href="https://github.com/LevelTranic/LevelBukkit?tab=MIT-1-ov-file"> MIT license</a>. Multi-threading is supported.
+
+<div align=center>
+    <h2>Docs</h2>
+</div>
+
+- What is multithreading in Folia: [[1]](https://docs.papermc.io/folia/reference/overview)&nbsp;&nbsp;[[2]](https://docs.papermc.io/folia/reference/region-logic)
+- What is multithreading in ShreddedPaper: [[1]](https://github.com/MultiPaper/ShreddedPaper/blob/main/HOW_IT_WORKS.md)&nbsp;&nbsp;[[2]](https://github.com/MultiPaper/ShreddedPaper/blob/main/DEVELOPING_A_MULTITHREAD_PLUGIN.md)
+
+<br/><br/>
+
 > Not finished yet, don't use
