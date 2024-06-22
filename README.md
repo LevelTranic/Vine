@@ -30,4 +30,43 @@ LevelBukkit is a fork of <a href="https://github.com/LuminolMC/Luminol" target="
 
 <br/><br/>
 
+<div align=center>
+    <h2>Benchmark</h2>
+</div>
+The tests here are very simple.
+
+<b>Use</b>
+
+> Bot: [stress-test](https://github.com/PureGero/minecraft-stress-test)
+> 
+> Server: ShreddedPaper
+
+<b>Config</b>
+> Bot: Speed 0.6, Radius 1000000, Count 450
+> 
+> Server: Default
+
+> Jvm: java --add-opens java.base/java.nio=ALL-UNNAMED --add-modules=jdk.incubator.vector --add-opens java.base/sun.nio.ch=ALL-UNNAMED -Xms9000M -Xmx9000M -Dfile.encoding=UTF-8 -XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+UseFMA -XX:+UseVectorCmov -XX:+UseNewLongLShift -XX:+UseFastStosb -XX:+SegmentedCodeCache -XX:+OptimizeStringConcat -XX:+DoEscapeAnalysis -XX:+OmitStackTraceInFastThrow -XX:+AlwaysActAsServerClassMachine -XX:+DisableExplicitGC -XX:AllocatePrefetchStyle=3 -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:+UseXmmI2F -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:+PerfDisableSharedMem -XX:UseAVX=2 -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI -Dgraal.TuneInlinerExploration=1 -Dgraal.BaseTargetSpending=160 -Dgraal.OptWriteMotion=true -Dgraal.WriteableCodeCache=true -XX:+UseZGC -XX:AllocatePrefetchStyle=1 -XX:+ZGenerational -server -jar shreddedpaper-paperclip-1.20.6-R0.1-SNAPSHOT-mojmap.jar nogui
+
+> Java: openjdk 21.0.1 2023-10-17
+> 
+> OpenJDK Runtime Environment GraalVM CE 21.0.1+12.1 (build 21.0.1+12-jvmci-23.1-b19)
+> 
+> OpenJDK 64-Bit Server VM GraalVM CE 21.0.1+12.1 (build 21.0.1+12-jvmci-23.1-b19, mixed mode, sharing)
+
+> Platform:
+> Windows 11. i7-12700H, close all unnecessary processes
+
+![](assets/benchmark.png)
+
+> This CPU is already close to full load, the server uses up all the performance, 
+> and when I further increase the number of robots to 600, the tps dropped to 4-7 and thread errors started to occur.
+> 
+> On CPUs with more cores, such as AMD Threadripper, 
+> there may be a better experience, I personally think so.
+
+<br/><br/>
+
+------
+
 > Not finished yet, don't use
