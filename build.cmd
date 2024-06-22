@@ -1,0 +1,1 @@
+gradle applyPatches && gradle createMojmapBundlerJar && gradle createMojmapPaperclipJar

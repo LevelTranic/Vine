@@ -1,0 +1,62 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sat, 22 Jun 2024 20:54:50 +0800
+Subject: [PATCH] Rebrand
+
+
+diff --git a/src/main/java/org/bukkit/command/defaults/VersionCommand.java b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
+index 0ec64c622ebfaeb9bc607ba774620ccc7233021b..852161d3549ffe9afc5bb6184d9af8259ee1d9bb 100644
+--- a/src/main/java/org/bukkit/command/defaults/VersionCommand.java
++++ b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
+@@ -1,16 +1,7 @@
+ package org.bukkit.command.defaults;
+ 
+-import com.google.common.base.Charsets;
+ import com.google.common.base.Preconditions;
+ import com.google.common.collect.ImmutableList;
+-import com.google.common.io.Resources;
+-import com.google.gson.Gson;
+-import com.google.gson.JsonObject;
+-import com.google.gson.JsonSyntaxException;
+-import java.io.BufferedReader;
+-import java.io.IOException;
+-import java.net.URL;
+-import java.net.URLEncoder;
+ import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.HashSet;
+@@ -259,7 +250,7 @@ public class VersionCommand extends BukkitCommand {
+         // Purpur start
+         int distance = getVersionFetcher().distance();
+         final Component message = Component.join(net.kyori.adventure.text.JoinConfiguration.separator(Component.newline()),
+-            ChatColor.parseMM("<grey>Current ShreddedPaper Version: %s%s*", distance == 0 ? "<green>" : distance > 0 ? "<yellow>" : "<red>", Bukkit.getVersion()),
++            ChatColor.parseMM("<grey>Current Vine Server Version: %s%s*", distance == 0 ? "<green>" : distance > 0 ? "<yellow>" : "<red>", Bukkit.getVersion()),
+             // Purpur end
+             msg
+         );
+@@ -281,25 +272,4 @@ public class VersionCommand extends BukkitCommand {
+             versionLock.unlock();
+         }
+     }
+-
+-    private static int getDistance(@NotNull String repo, @NotNull String hash) {
+-        try {
+-            BufferedReader reader = Resources.asCharSource(
+-                    new URL("https://hub.spigotmc.org/stash/rest/api/1.0/projects/SPIGOT/repos/" + repo + "/commits?since=" + URLEncoder.encode(hash, "UTF-8") + "&withCounts=true"),
+-                    Charsets.UTF_8
+-            ).openBufferedStream();
+-            try {
+-                JsonObject obj = new Gson().fromJson(reader, JsonObject.class);
+-                return obj.get("totalCount").getAsInt();
+-            } catch (JsonSyntaxException ex) {
+-                ex.printStackTrace();
+-                return -1;
+-            } finally {
+-                reader.close();
+-            }
+-        } catch (IOException e) {
+-            e.printStackTrace();
+-            return -1;
+-        }
+-    }
+ }

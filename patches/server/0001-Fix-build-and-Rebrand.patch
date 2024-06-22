@@ -1,0 +1,660 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sat, 22 Jun 2024 20:50:14 +0800
+Subject: [PATCH] Fix build and Rebrand
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index bd224e1d9bfc49feca9f0291df839bed9d5842c4..5d820a579af1e6f85bf764bfe4973bf03a931c90 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -4,6 +4,8 @@ import java.time.Instant
+ plugins {
+     java
+     `maven-publish`
++    kotlin("jvm") version "2.0.0"
++    kotlin("plugin.serialization") version "2.0.0"
+ }
+ 
+ val log4jPlugins = sourceSets.create("log4jPlugins")
+@@ -13,7 +15,7 @@ configurations.named(log4jPlugins.compileClasspathConfigurationName) {
+ val alsoShade: Configuration by configurations.creating
+ 
+ dependencies {
+-    implementation(project(":shreddedpaper-api")) // Purpur // ShreddedPaper
++    implementation(project(":vine-api")) // Purpur // ShreddedPaper
+     // Paper start
+     implementation("org.jline:jline-terminal-jansi:3.21.0")
+     implementation("net.minecrell:terminalconsoleappender:1.3.0")
+@@ -65,6 +67,14 @@ dependencies {
+     implementation("io.papermc:reflection-rewriter-runtime:$reflectionRewriterVersion")
+     implementation("io.papermc:reflection-rewriter-proxy-generator:$reflectionRewriterVersion")
+     // Paper end - Remap reflection
++
++    // Vine start
++    implementation(kotlin("reflect"))
++    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
++    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.4.0")
++    implementation("org.jetbrains.kotlinx:atomicfu:0.24.0")
++    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
++    // Vine end
+ }
+ 
+ paperweight {
+@@ -84,14 +94,14 @@ tasks.jar {
+         val gitBranch = git("rev-parse", "--abbrev-ref", "HEAD").getText().trim() // Paper
+         attributes(
+             "Main-Class" to "org.bukkit.craftbukkit.Main",
+-            "Implementation-Title" to "ShreddedPaper", // Purpur // ShreddedPaper
++            "Implementation-Title" to "Vine", // ShreddedPaper // Vine
+             "Implementation-Version" to implementationVersion,
+             "Implementation-Vendor" to date, // Paper
+-            "Specification-Title" to "ShreddedPaper", // Purpur // ShreddedPaper
++            "Specification-Title" to "Vine", // ShreddedPaper // Vine
+             "Specification-Version" to project.version,
+-            "Specification-Vendor" to "ShreddedPaper Team", // Purpur // ShreddedPaper
+-            "Brand-Id" to "shreddedpaper:shreddedpaper", // Purpur // ShreddedPaper
+-            "Brand-Name" to "ShreddedPaper", // Purpur // ShreddedPaper
++            "Specification-Vendor" to "TranicSoft LevelPowered", // ShreddedPaper // Vine
++            "Brand-Id" to "levelpowered:vine", // ShreddedPaper // Vine
++            "Brand-Name" to "Vine", // ShreddedPaper // Vine
+             "Build-Number" to (build ?: ""),
+             "Build-Time" to Instant.now().toString(),
+             "Git-Branch" to gitBranch, // Paper
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index 430f462955f599907b5300809d312c79e2e24b33..22c9c5ef26229c57fb27776b5a49cc77dcdbe545 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -593,7 +593,7 @@ public class Metrics {
+             boolean logFailedRequests = config.getBoolean("logFailedRequests", false);
+             // Only start Metrics, if it's enabled in the config
+             if (config.getBoolean("enabled", true)) {
+-                Metrics metrics = new Metrics("ShreddedPaper", serverUUID, logFailedRequests, Bukkit.getLogger()); // Pufferfish // Purpur // ShreddedPaper
++                Metrics metrics = new Metrics("Vine", serverUUID, logFailedRequests, Bukkit.getLogger()); // Pufferfish // Purpur // ShreddedPaper // Vine
+ 
+                 metrics.addCustomChart(new Metrics.SimplePie("minecraft_version", () -> {
+                     String minecraftVersion = Bukkit.getVersion();
+@@ -603,7 +603,7 @@ public class Metrics {
+ 
+                 metrics.addCustomChart(new Metrics.SingleLineChart("players", () -> Bukkit.getOnlinePlayers().size()));
+                 metrics.addCustomChart(new Metrics.SimplePie("online_mode", () -> Bukkit.getOnlineMode() ? "online" : (io.papermc.paper.configuration.GlobalConfiguration.get().proxies.isProxyOnlineMode() ? "bungee" : "offline"))); // Purpur
+-                metrics.addCustomChart(new Metrics.SimplePie("shreddedpaper_version", () -> (org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() != null) ? org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() : "unknown")); // Purpur // ShreddedPaper
++                metrics.addCustomChart(new Metrics.SimplePie("vine_version", () -> (org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() != null) ? org.bukkit.craftbukkit.Main.class.getPackage().getImplementationVersion() : "unknown")); // ShreddedPaper // Vine
+ 
+                 metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
+                     Map<String, Map<String, Integer>> map = new HashMap<>();
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index 9fb833a04c902a54118d99284076ec4401f8799b..1994544bb3f1fda1d4049e3a8b04d33d8f9313bf 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -2,10 +2,7 @@ package com.destroystokyo.paper;
+ 
+ import com.destroystokyo.paper.util.VersionFetcher;
+ import com.google.common.base.Charsets;
+-import com.google.common.io.Resources;
+ import com.google.gson.Gson;
+-import com.google.gson.JsonArray;
+-import com.google.gson.JsonElement;
+ import com.google.gson.JsonObject;
+ import com.google.gson.JsonSyntaxException;
+ import com.mojang.logging.LogUtils;
+@@ -17,11 +14,9 @@ import java.net.HttpURLConnection;
+ import java.net.URI;
+ import java.util.Optional;
+ import java.util.OptionalInt;
+-import java.util.stream.StreamSupport;
+ import net.kyori.adventure.text.Component;
+ import net.kyori.adventure.text.event.ClickEvent;
+ import net.kyori.adventure.text.format.NamedTextColor;
+-import net.kyori.adventure.text.format.TextDecoration;
+ import org.checkerframework.checker.nullness.qual.NonNull;
+ import org.checkerframework.checker.nullness.qual.Nullable;
+ import org.checkerframework.framework.qual.DefaultQualifier;
+@@ -36,7 +31,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+     private static final int DISTANCE_ERROR = -1;
+     private static final int DISTANCE_UNKNOWN = -2;
+     // Purpur start
+-    private static final String DOWNLOAD_PAGE = "https://multipaper.io/shreddedpaper/download.html";
++    private static final String DOWNLOAD_PAGE = "https://github.com/LevelTranic/Vine/releases";
+     private static int distance = DISTANCE_UNKNOWN; public int distance() { return distance; }
+     // Purpur end
+ 
+@@ -52,7 +47,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+         if (build.buildNumber().isEmpty() && build.gitCommit().isEmpty()) {
+             updateMessage = text("You are running a development version without access to version information", color(0xFF5300));
+         } else {
+-            updateMessage = getUpdateStatusMessage("MultiPaper/ShreddedPaper", build); // Purpur
++            updateMessage = getUpdateStatusMessage("LevelTranic/Vine", build); // Purpur
+         }
+         final @Nullable Component history = this.getHistory();
+ 
+@@ -63,14 +58,11 @@ public class PaperVersionFetcher implements VersionFetcher {
+         //int distance = DISTANCE_ERROR; // Purpur - use field
+ 
+         final OptionalInt buildNumber = build.buildNumber();
+-        if (buildNumber.isPresent()) {
+-            distance = fetchDistanceFromSiteApi(build, buildNumber.getAsInt());
+-        } else {
+-            final Optional<String> gitBranch = build.gitBranch();
+-            final Optional<String> gitCommit = build.gitCommit();
+-            if (gitBranch.isPresent() && gitCommit.isPresent()) {
+-                distance = fetchDistanceFromGitHub(repo, gitBranch.get(), gitCommit.get());
+-            }
++
++        final Optional<String> gitBranch = build.gitBranch();
++        final Optional<String> gitCommit = build.gitCommit();
++        if (gitBranch.isPresent() && gitCommit.isPresent()) {
++            distance = fetchDistanceFromGitHub(repo, gitBranch.get(), gitCommit.get());
+         }
+ 
+         return switch (distance) {
+@@ -86,29 +78,6 @@ public class PaperVersionFetcher implements VersionFetcher {
+         };
+     }
+ 
+-    private static int fetchDistanceFromSiteApi(final ServerBuildInfo build, final int jenkinsBuild) {
+-        try {
+-            try (final BufferedReader reader = Resources.asCharSource(
+-                    URI.create("https://api.multipaper.io/v2/projects/shreddedpaper/versions/" + build.minecraftVersionId()).toURL(), // Purpur // ShreddedPaper
+-                Charsets.UTF_8
+-            ).openBufferedStream()) {
+-                final JsonObject json = new Gson().fromJson(reader, JsonObject.class);
+-                final JsonArray builds = json.getAsJsonArray("builds"); // Purpur // ShreddedPaper
+-                final int latest = StreamSupport.stream(builds.spliterator(), false)
+-                        .mapToInt(JsonElement::getAsInt)
+-                        .max()
+-                        .orElseThrow(); // ShreddedPaper
+-                return latest - jenkinsBuild;
+-            } catch (final JsonSyntaxException ex) {
+-                LOGGER.error("Error parsing json from ShreddedPaper's downloads API", ex); // Purpur // ShreddedPaper
+-                return DISTANCE_ERROR;
+-            }
+-        } catch (final IOException e) {
+-            LOGGER.error("Error while parsing version", e);
+-            return DISTANCE_ERROR;
+-        }
+-    }
+-
+     // Contributed by Techcable <Techcable@outlook.com> in GH-65
+     private static int fetchDistanceFromGitHub(final String repo, final String branch, final String hash) {
+         try {
+diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+index 9f512c6dd970d013a8dc5d8f4e37c5dce3f38bef..c0a494573cac1c6b0fbf97fba2d46b8dfb57addc 100644
+--- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
++++ b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
+@@ -17,7 +17,7 @@ public final class PaperConsole extends SimpleTerminalConsole {
+     @Override
+     protected LineReader buildReader(LineReaderBuilder builder) {
+         builder
+-                .appName("ShreddedPaper") // Purpur // ShreddedPaper
++                .appName("Vine") // ShreddedPaper // Vine
+                 .variable(LineReader.HISTORY_FILE, java.nio.file.Paths.get(".console_history"))
+                 .completer(new ConsoleCommandCompleter(this.server))
+                 .option(LineReader.Option.COMPLETE_IN_WORD, true);
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
+index fc73d25bbe14f6ac0bf5d370159447ebb9479011..04d80f34d5c32de7cc60189c507fdbe063947ddd 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
+@@ -31,7 +31,7 @@ public record ServerBuildInfoImpl(
+     private static final String ATTRIBUTE_GIT_COMMIT = "Git-Commit";
+ 
+     private static final String BRAND_PAPER_NAME = "Paper";
+-    private static final String BRAND_PURPUR_NAME = "ShreddedPaper"; // Purpur // ShreddedPaper
++    private static final String BRAND_PURPUR_NAME = "Vine"; // Purpur // ShreddedPaper // Vine
+ 
+     private static final String BUILD_DEV = "DEV";
+ 
+diff --git a/src/main/java/net/minecraft/CrashReport.java b/src/main/java/net/minecraft/CrashReport.java
+index 63f9c70666eaa90c68fa342e435bcfbd31ef73ae..f4e02f45f617094f91a7d51b86e47aa0f4320975 100644
+--- a/src/main/java/net/minecraft/CrashReport.java
++++ b/src/main/java/net/minecraft/CrashReport.java
+@@ -65,11 +65,8 @@ public class CrashReport {
+             crashReportBuilder.append("Thread: ").append(Thread.currentThread().getName()).append("\n");
+             crashReportBuilder.append("Stacktrace:\n");
+             StackTraceElement[] astacktraceelement = this.uncategorizedStackTrace;
+-            int i = astacktraceelement.length;
+-
+-            for (int j = 0; j < i; ++j) {
+-                StackTraceElement stacktraceelement = astacktraceelement[j];
+ 
++            for (StackTraceElement stacktraceelement : astacktraceelement) {
+                 crashReportBuilder.append("\t").append("at ").append(stacktraceelement);
+                 crashReportBuilder.append("\n");
+             }
+@@ -77,11 +74,7 @@ public class CrashReport {
+             crashReportBuilder.append("\n");
+         }
+ 
+-        Iterator iterator = this.details.iterator();
+-
+-        while (iterator.hasNext()) {
+-            CrashReportCategory crashreportsystemdetails = (CrashReportCategory) iterator.next();
+-
++        for (CrashReportCategory crashreportsystemdetails : this.details) {
+             crashreportsystemdetails.getDetails(crashReportBuilder);
+             crashReportBuilder.append("\n\n");
+         }
+@@ -127,7 +120,7 @@ public class CrashReport {
+         stringbuilder.append("---- Minecraft Crash Report ----\n");
+         // Purpur start
+         stringbuilder.append("// ");
+-        stringbuilder.append("// DO NOT REPORT THIS TO PAPER! REPORT TO SHREDDEDPAPER INSTEAD!"); // ShreddedPaper
++        stringbuilder.append("// DO NOT REPORT THIS TO PAPER! REPORT TO VINE INSTEAD!"); // ShreddedPaper // Vine
+         // Purpur end
+         stringbuilder.append("// ");
+         stringbuilder.append(CrashReport.getErrorComment());
+@@ -141,9 +134,7 @@ public class CrashReport {
+         stringbuilder.append(this.getExceptionMessage());
+         stringbuilder.append("\n\nA detailed walkthrough of the error, its code path and all known details is as follows:\n");
+ 
+-        for (int i = 0; i < 87; ++i) {
+-            stringbuilder.append("-");
+-        }
++        stringbuilder.append("-".repeat(87));
+ 
+         stringbuilder.append("\n\n");
+         this.getDetails(stringbuilder);
+@@ -171,9 +162,8 @@ public class CrashReport {
+                 outputstreamwriter = new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+                 outputstreamwriter.write(this.getFriendlyReport());
+                 this.saveFile = file;
+-                boolean flag1 = true;
+ 
+-                return flag1;
++                return true;
+             } catch (Throwable throwable) {
+                 CrashReport.LOGGER.error("Could not save crash report to {}", file, throwable);
+                 flag = false;
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 37e5665fbeaf76126019f05ad35b559bfc320e8c..a76e80af9c6a223fa487fb092f84b606c5542e8b 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -3,9 +3,6 @@ package net.minecraft.server;
+ import com.google.common.base.Preconditions;
+ import com.google.common.base.Splitter;
+ import com.google.common.collect.ImmutableList;
+-import co.aikar.timings.Timings;
+-import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+-import com.google.common.base.Stopwatch;
+ import com.google.common.collect.Lists;
+ import com.google.common.collect.Maps;
+ import com.google.common.collect.Sets;
+@@ -111,11 +108,9 @@ import net.minecraft.util.profiling.EmptyProfileResults;
+ import net.minecraft.util.profiling.ProfileResults;
+ import net.minecraft.util.profiling.ProfilerFiller;
+ import net.minecraft.util.profiling.ResultField;
+-import net.minecraft.util.profiling.SingleTickProfiler;
+ import net.minecraft.util.profiling.jfr.JvmProfiler;
+ import net.minecraft.util.profiling.jfr.callback.ProfiledDuration;
+ import net.minecraft.util.profiling.metrics.profiling.ActiveMetricsRecorder;
+-import net.minecraft.util.profiling.metrics.profiling.InactiveMetricsRecorder;
+ import net.minecraft.util.profiling.metrics.profiling.MetricsRecorder;
+ import net.minecraft.util.profiling.metrics.profiling.ServerMetricsSamplersProvider;
+ import net.minecraft.util.profiling.metrics.storage.MetricsPersister;
+@@ -964,7 +959,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+         shutdownThread = Thread.currentThread();
+         org.spigotmc.WatchdogThread.doStop(); // Paper
+         if (!isSameThread()) {
+-            MinecraftServer.LOGGER.info("Stopping main thread (Ignore any thread death message you see! - DO NOT REPORT THREAD DEATH TO SHREDDEDPAPER)"); // Purpur // ShreddedPaper
++            MinecraftServer.LOGGER.info("Stopping main thread (Ignore any thread death message you see! - DO NOT REPORT THREAD DEATH TO VINE)"); // Purpur // ShreddedPaper // Vine
+             while (this.getRunningThread().isAlive()) {
+                 this.getRunningThread().stop();
+                 try {
+diff --git a/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java b/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
+index 727a4e4d5f93bad6f9539e2d742baf77819fafd6..9aaa8989832c238c66eb8c21256309cc37c2f18d 100644
+--- a/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
++++ b/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
+@@ -56,7 +56,7 @@ public class MinecraftServerGui extends JComponent {
+             ;
+         }
+ 
+-        final JFrame jframe = new JFrame("ShreddedPaper Minecraft server"); // Purpur // ShreddedPaper
++        final JFrame jframe = new JFrame("Vine Minecraft server"); // Purpur // ShreddedPaper // Vine
+         final MinecraftServerGui servergui = new MinecraftServerGui(server);
+ 
+         jframe.setDefaultCloseOperation(2);
+@@ -64,7 +64,7 @@ public class MinecraftServerGui extends JComponent {
+         jframe.pack();
+         jframe.setLocationRelativeTo((Component) null);
+         jframe.setVisible(true);
+-        jframe.setName("ShreddedPaper Minecraft server"); // Paper - Improve ServerGUI // Purpur // ShreddedPaper
++        jframe.setName("Vine Minecraft server"); // Paper - Improve ServerGUI // Purpur // ShreddedPaper // Vine
+ 
+         // Paper start - Improve ServerGUI
+         try {
+@@ -76,7 +76,7 @@ public class MinecraftServerGui extends JComponent {
+         jframe.addWindowListener(new WindowAdapter() {
+             public void windowClosing(WindowEvent windowevent) {
+                 if (!servergui.isClosing.getAndSet(true)) {
+-                    jframe.setTitle("ShreddedPaper Minecraft server - shutting down!"); // Purpur // ShreddedPaper
++                    jframe.setTitle("Vine Minecraft server - shutting down!"); // Purpur // ShreddedPaper // Vine
+                     server.halt(true);
+                     servergui.runFinalizers();
+                 }
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+index e8437d039af0457fc6fc877def12f973ab263735..f1c32f16b763540862595035152c5ddce6dac7af 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
+@@ -1,8 +1,6 @@
+ package org.bukkit.craftbukkit.scheduler;
+ 
+-import co.aikar.timings.MinecraftTimings; // Paper
+ import com.google.common.base.Preconditions;
+-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+ import java.util.ArrayList;
+ import java.util.Comparator;
+ import java.util.Iterator;
+@@ -11,7 +9,6 @@ import java.util.PriorityQueue;
+ import java.util.concurrent.Callable;
+ import java.util.concurrent.ConcurrentHashMap;
+ import java.util.concurrent.Executor;
+-import java.util.concurrent.Executors;
+ import java.util.concurrent.Future;
+ import java.util.concurrent.atomic.AtomicInteger;
+ import java.util.concurrent.atomic.AtomicReference;
+@@ -504,7 +501,7 @@ public class CraftScheduler implements BukkitScheduler {
+                 this.parsePending();
+             } else {
+                 // this.debugTail = this.debugTail.setNext(new CraftAsyncDebugger(currentTick + CraftScheduler.RECENT_TICKS, task.getOwner(), task.getTaskClass())); // Paper
+-                task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to ShreddedPaper"); // Paper // Purpur // ShreddedPaper
++                task.getOwner().getLogger().log(Level.SEVERE, "Unexpected Async Task in the Sync Scheduler. Report this to Vine"); // Paper // Purpur // ShreddedPaper // Vine
+                 // We don't need to parse pending
+                 // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
+             }
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+index ed2f3845afed661a5f620efc071cd71c2bc7d613..4160edb7f1a3265084424cc94a1ad5f89fc55b8f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+@@ -11,7 +11,7 @@ public final class Versioning {
+     public static String getBukkitVersion() {
+         String result = "Unknown-Version";
+ 
+-        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/io.multipaper.shreddedpaper/shreddedpaper-api/pom.properties"); // Pufferfish // Purpur // ShreddedPaper
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/one.tranic.levelpowered.vine/vine-api/pom.properties"); // Pufferfish // Purpur // ShreddedPaper // Vine
+         Properties properties = new Properties();
+ 
+         if (stream != null) {
+diff --git a/src/main/java/org/spigotmc/WatchdogThread.java b/src/main/java/org/spigotmc/WatchdogThread.java
+index 3862ddfdb2581c3517d2ee174d56afa5ee1d6d97..43d74fb4fb2ea94276db50352ba1d7effd71e794 100644
+--- a/src/main/java/org/spigotmc/WatchdogThread.java
++++ b/src/main/java/org/spigotmc/WatchdogThread.java
+@@ -159,12 +159,12 @@ public final class WatchdogThread extends io.papermc.paper.util.TickThread // Pa
+                 if (isLongTimeout) {
+                 // Paper end
+                 log.log( Level.SEVERE, "------------------------------" );
+-                log.log( Level.SEVERE, "The server has stopped responding! This is (probably) not a ShreddedPaper bug." ); // Paper // Purpur // ShreddedPaper
++                log.log( Level.SEVERE, "The server has stopped responding! This is (probably) not a Vine bug." ); // Paper // Purpur // ShreddedPaper // Vine
+                 log.log( Level.SEVERE, "If you see a plugin in the Server thread dump below, then please report it to that author" );
+                 log.log( Level.SEVERE, "\t *Especially* if it looks like HTTP or MySQL operations are occurring" );
+                 log.log( Level.SEVERE, "If you see a world save or edit, then it means you did far more than your server can handle at once" );
+                 log.log( Level.SEVERE, "\t If this is the case, consider increasing timeout-time in spigot.yml but note that this will replace the crash with LARGE lag spikes" );
+-                log.log( Level.SEVERE, "If you are unsure or still think this is a ShreddedPaper bug, please report this to https://github.com/MultiPaper/ShreddedPaper/issues" ); // Purpur // ShreddedPaper
++                log.log( Level.SEVERE, "If you are unsure or still think this is a Vine bug, please report this to https://github.com/LevelTranic/Vine/issues" ); // Purpur // ShreddedPaper // Vine
+                 log.log( Level.SEVERE, "Be sure to include ALL relevant console errors and Minecraft crash reports" );
+                 log.log( Level.SEVERE, "ShreddedPaper version: " + Bukkit.getServer().getVersion() ); // Purpur // ShreddedPaper
+                 //
+@@ -188,12 +188,12 @@ public final class WatchdogThread extends io.papermc.paper.util.TickThread // Pa
+                 // Paper end
+                 } else
+                 {
+-                    log.log(Level.SEVERE, "--- DO NOT REPORT THIS TO SHREDDEDPAPER - THIS IS NOT A BUG OR A CRASH  - " + Bukkit.getServer().getVersion() + " ---"); // Purpur // ShreddedPaper
++                    log.log(Level.SEVERE, "--- DO NOT REPORT THIS TO VINE - THIS IS NOT A BUG OR A CRASH  - " + Bukkit.getServer().getVersion() + " ---"); // Purpur // ShreddedPaper // Vine
+                     log.log(Level.SEVERE, "The server has not responded for " + (currentTime - lastTick) / 1000 + " seconds! Creating thread dump");
+                 }
+                 // Paper end - Different message for short timeout
+                 log.log( Level.SEVERE, "------------------------------" );
+-                log.log( Level.SEVERE, "Server thread dump (Look for plugins here before reporting to ShreddedPaper!):" ); // Paper // Purpur // ShreddedPaper
++                log.log( Level.SEVERE, "Server thread dump (Look for plugins here before reporting to Vine!):" ); // Paper // Purpur // ShreddedPaper // Vine
+                 io.papermc.paper.chunk.system.scheduling.ChunkTaskScheduler.dumpAllChunkLoadInfo(isLongTimeout); // Paper - rewrite chunk system
+                 this.dumpTickingInfo(); // Paper - log detailed tick information
+                 WatchdogThread.dumpThread( ManagementFactory.getThreadMXBean().getThreadInfo( MinecraftServer.getServer().serverThread.getId(), Integer.MAX_VALUE ), log );
+@@ -214,7 +214,7 @@ public final class WatchdogThread extends io.papermc.paper.util.TickThread // Pa
+                     WatchdogThread.dumpThread( thread, log );
+                 }
+                 } else {
+-                    log.log(Level.SEVERE, "--- DO NOT REPORT THIS TO SHREDDEDPAPER - THIS IS NOT A BUG OR A CRASH ---"); // Purpur // ShreddedPaper
++                    log.log(Level.SEVERE, "--- DO NOT REPORT THIS TO VINE - THIS IS NOT A BUG OR A CRASH ---"); // Purpur // ShreddedPaper // Vine
+                 }
+ 
+                 log.log( Level.SEVERE, "------------------------------" );
+diff --git a/src/main/resources/logo.png b/src/main/resources/logo.png
+index 518591dd83289e041a16e2c2e7d7e7640d4b2e1b..446943bbc86f29bddf6965469da6e9dba1c29677 100644
+GIT binary patch
+literal 3728
+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
+
+literal 9260
+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
+HqBZh=dic2S
+
