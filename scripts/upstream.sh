@@ -5,7 +5,7 @@ exit_on_error() {
 
 git reset HEAD --hard
 
-oldHash=$(grep "spRef=" gradle.properties | cut -d "=" -f2)
+oldHash=$(grep "spRef = " gradle.properties | cut -d "=" -f2)
 newHash=$(curl -s https://api.github.com/repos/MultiPaper/ShreddedPaper/commits/main | jq -r .sha)
 
 if [ "$oldHash" = "$newHash" ]; then
