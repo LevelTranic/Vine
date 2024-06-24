@@ -40,6 +40,6 @@ git add gradle.properties
 ./gradlew rebuildPatches || exit_on_error "An error occurred when rebuilding patches!"
 ./gradlew createMojmapPaperclipJar || exit_on_error "An error occurred when building!"
 
-& scripts/upstreamCommit.ps1 $oldHash $newHash
+scripts/upstreamCommit.ps1 $oldHash $newHash
 
 Write-Host "Created new commit, please review before pushing."
