@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Mon, 24 Jun 2024 16:52:04 +0800
+Subject: [PATCH] Leaf: Fix-MC-183518
+
+Related MC issue: https://bugs.mojang.com/browse/MC-183518
+
+diff --git a/src/main/java/net/minecraft/util/thread/BlockableEventLoop.java b/src/main/java/net/minecraft/util/thread/BlockableEventLoop.java
+index 21d98fc8f006d1f445752f6ecd60e24dd6126272..864df43e14a14b87d9ba97286a11b9b828103276 100644
+--- a/src/main/java/net/minecraft/util/thread/BlockableEventLoop.java
++++ b/src/main/java/net/minecraft/util/thread/BlockableEventLoop.java
+@@ -150,8 +150,10 @@ public abstract class BlockableEventLoop<R extends Runnable> implements Profiler
+     }
+ 
+     public void waitForTasks() {
+-        Thread.yield();
+-        LockSupport.parkNanos("waiting for tasks", 100000L);
++        // Leaf start - Fix MC-183518
++        // Thread.yield();
++        LockSupport.parkNanos("waiting for tasks", 2000000L);
++        // Leaf end
+     }
+ 
+     protected void doRunTask(R task) {
