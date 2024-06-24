@@ -3,7 +3,7 @@ exit_on_error() {
     exit 1
 }
 
-git reset HEAD --hard
+# git reset HEAD --hard
 
 oldHash=$(grep "spRef = " gradle.properties | cut -d "=" -f2)
 newHash=$(curl -s https://api.github.com/repos/MultiPaper/ShreddedPaper/commits/main | jq -r .sha)
