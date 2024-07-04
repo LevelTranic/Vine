@@ -5,7 +5,7 @@ Subject: [PATCH] Fix build and Rebrand
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index bd224e1d9bfc49feca9f0291df839bed9d5842c4..2e8429e3542040196c8a04e9f7e0383e098c7031 100644
+index d67acf49205e6df94e3d65de624f2ddc6c34a44b..052bfd0b79bf6e1282a563950505df81f6333eb8 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -4,6 +4,8 @@ import java.time.Instant
@@ -26,7 +26,7 @@ index bd224e1d9bfc49feca9f0291df839bed9d5842c4..2e8429e3542040196c8a04e9f7e0383e
      // Paper start
      implementation("org.jline:jline-terminal-jansi:3.21.0")
      implementation("net.minecrell:terminalconsoleappender:1.3.0")
-@@ -65,7 +67,22 @@ dependencies {
+@@ -72,7 +74,22 @@ dependencies {
      implementation("io.papermc:reflection-rewriter-runtime:$reflectionRewriterVersion")
      implementation("io.papermc:reflection-rewriter-proxy-generator:$reflectionRewriterVersion")
      // Paper end - Remap reflection
@@ -49,7 +49,7 @@ index bd224e1d9bfc49feca9f0291df839bed9d5842c4..2e8429e3542040196c8a04e9f7e0383e
  
  paperweight {
      craftBukkitPackageVersion.set("v1_20_R4") // also needs to be updated in MappingEnvironment
-@@ -84,14 +101,14 @@ tasks.jar {
+@@ -91,14 +108,14 @@ tasks.jar {
          val gitBranch = git("rev-parse", "--abbrev-ref", "HEAD").getText().trim() // Paper
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
@@ -274,7 +274,7 @@ index 63f9c70666eaa90c68fa342e435bcfbd31ef73ae..f4e02f45f617094f91a7d51b86e47aa0
                  CrashReport.LOGGER.error("Could not save crash report to {}", file, throwable);
                  flag = false;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 37e5665fbeaf76126019f05ad35b559bfc320e8c..a76e80af9c6a223fa487fb092f84b606c5542e8b 100644
+index 5bc508995f11a7e5ee13b9288f3ad8b7816ba411..12d7d0959122a39a2714c84f7e8de45fa006433a 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -3,9 +3,6 @@ package net.minecraft.server;
@@ -299,7 +299,7 @@ index 37e5665fbeaf76126019f05ad35b559bfc320e8c..a76e80af9c6a223fa487fb092f84b606
  import net.minecraft.util.profiling.metrics.profiling.MetricsRecorder;
  import net.minecraft.util.profiling.metrics.profiling.ServerMetricsSamplersProvider;
  import net.minecraft.util.profiling.metrics.storage.MetricsPersister;
-@@ -964,7 +959,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -967,7 +962,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
          shutdownThread = Thread.currentThread();
          org.spigotmc.WatchdogThread.doStop(); // Paper
          if (!isSameThread()) {
