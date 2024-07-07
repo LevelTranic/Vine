@@ -1,0 +1,244 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 7 Jul 2024 16:23:28 +0800
+Subject: [PATCH] Leaf: Optimize Minecart collisions
+
+Original code by MrHua269 <wangxyper@163.com>
+You can find the original code on https://github.com/Winds-Studio/Leaf
+
+Skip tick collisions to to prevent lag causing by massive stacked Minecart
+Useful for anarchy server.
+
+diff --git a/src/main/java/net/minecraft/world/entity/EntitySelector.java b/src/main/java/net/minecraft/world/entity/EntitySelector.java
+index f1b9e83206cc67e6ef29ebe088351b0aaa5eb349..e0a51e269aa076def275710174d3654d07e1a7aa 100644
+--- a/src/main/java/net/minecraft/world/entity/EntitySelector.java
++++ b/src/main/java/net/minecraft/world/entity/EntitySelector.java
+@@ -63,6 +63,13 @@ public final class EntitySelector {
+     }
+     public static Predicate<Entity> pushable(Entity entity, boolean ignoreClimbing) {
+         // Paper end - Climbing should not bypass cramming gamerule
++
++        // Leaf start - Optimize Minecart collisions
++        if (entity instanceof net.minecraft.world.entity.vehicle.AbstractMinecart) {
++            return x -> true;
++        }
++        // Leaf end - Optimize Minecart collisions
++
+         PlayerTeam scoreboardteam = entity.getTeam();
+         Team.CollisionRule scoreboardteambase_enumteampush = scoreboardteam == null ? Team.CollisionRule.ALWAYS : scoreboardteam.getCollisionRule();
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
+index de2ea35a226c5f595a2ab53beda8238a806c2bad..66d98dbec18f1d497151a5678b08320e0511da4e 100644
+--- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
++++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
+@@ -3,9 +3,8 @@ package net.minecraft.world.entity.vehicle;
+ import com.google.common.collect.ImmutableList;
+ import com.google.common.collect.ImmutableMap;
+ import com.google.common.collect.Maps;
+-import com.google.common.collect.UnmodifiableIterator;
++// import com.google.common.collect.UnmodifiableIterator;
+ import com.mojang.datafixers.util.Pair;
+-import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+ import javax.annotation.Nullable;
+@@ -121,35 +120,20 @@ public abstract class AbstractMinecart extends VehicleEntity {
+     }
+ 
+     public static AbstractMinecart createMinecart(ServerLevel world, double x, double y, double z, AbstractMinecart.Type type, ItemStack stack, @Nullable Player player) {
+-        Object object;
+-
+-        switch (type.ordinal()) {
+-            case 1:
+-                object = new MinecartChest(world, x, y, z);
+-                break;
+-            case 2:
+-                object = new MinecartFurnace(world, x, y, z);
+-                break;
+-            case 3:
+-                object = new MinecartTNT(world, x, y, z);
+-                break;
+-            case 4:
+-                object = new MinecartSpawner(world, x, y, z);
+-                break;
+-            case 5:
+-                object = new MinecartHopper(world, x, y, z);
+-                break;
+-            case 6:
+-                object = new MinecartCommandBlock(world, x, y, z);
+-                break;
+-            default:
+-                object = new Minecart(world, x, y, z);
+-        }
++        Object object = switch (type.ordinal()) {
++            case 1 -> new MinecartChest(world, x, y, z);
++            case 2 -> new MinecartFurnace(world, x, y, z);
++            case 3 -> new MinecartTNT(world, x, y, z);
++            case 4 -> new MinecartSpawner(world, x, y, z);
++            case 5 -> new MinecartHopper(world, x, y, z);
++            case 6 -> new MinecartCommandBlock(world, x, y, z);
++            default -> new Minecart(world, x, y, z);
++        };
+ 
+         AbstractMinecart object1 = (AbstractMinecart) object; // CraftBukkit- decompile error
+ 
+         EntityType.createDefaultStackConfig(world, stack, player).accept(object1);
+-        return (AbstractMinecart) object1;
++        return object1;
+     }
+ 
+     @Override
+@@ -206,16 +190,12 @@ public abstract class AbstractMinecart extends VehicleEntity {
+             BlockPos blockposition = this.blockPosition();
+             BlockPos.MutableBlockPos blockposition_mutableblockposition = new BlockPos.MutableBlockPos();
+             ImmutableList<Pose> immutablelist = passenger.getDismountPoses();
+-            UnmodifiableIterator unmodifiableiterator = immutablelist.iterator();
+ 
+-            while (unmodifiableiterator.hasNext()) {
+-                Pose entitypose = (Pose) unmodifiableiterator.next();
++            for (Pose entitypose : immutablelist) {
+                 EntityDimensions entitysize = passenger.getDimensions(entitypose);
+                 float f = Math.min(entitysize.width(), 1.0F) / 2.0F;
+-                UnmodifiableIterator unmodifiableiterator1 = ((ImmutableList) AbstractMinecart.POSE_DISMOUNT_HEIGHTS.get(entitypose)).iterator();
+ 
+-                while (unmodifiableiterator1.hasNext()) {
+-                    int i = (Integer) unmodifiableiterator1.next();
++                for (int i : AbstractMinecart.POSE_DISMOUNT_HEIGHTS.get(entitypose)) {
+                     int[][] aint1 = aint;
+                     int j = aint.length;
+ 
+@@ -243,10 +223,8 @@ public abstract class AbstractMinecart extends VehicleEntity {
+             double d1 = this.getBoundingBox().maxY;
+ 
+             blockposition_mutableblockposition.set((double) blockposition.getX(), d1, (double) blockposition.getZ());
+-            UnmodifiableIterator unmodifiableiterator2 = immutablelist.iterator();
+ 
+-            while (unmodifiableiterator2.hasNext()) {
+-                Pose entitypose1 = (Pose) unmodifiableiterator2.next();
++            for (Pose entitypose1 : immutablelist) {
+                 double d2 = (double) passenger.getDimensions(entitypose1).height();
+                 int l = Mth.ceil(d1 - (double) blockposition_mutableblockposition.getY() + d2);
+                 double d3 = DismountHelper.findCeilingFrom(blockposition_mutableblockposition, l, (blockposition1) -> {
+@@ -386,15 +364,16 @@ public abstract class AbstractMinecart extends VehicleEntity {
+                 this.level().getCraftServer().getPluginManager().callEvent(new org.bukkit.event.vehicle.VehicleMoveEvent(vehicle, from, to));
+             }
+             // CraftBukkit end
+-            if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && this.getDeltaMovement().horizontalDistanceSqr() > 0.01D) {
++            // Leaf start - Optimize Minecart collision handling
++            // The logic below is used to get list of entities around Minecart
++            // and handle behaviors for their collisions with each other
++            if (!one.tranic.levelpowered.vine.config.VineConfig.Leaf.OptimizeMinecart.enabled || this.tickCount % one.tranic.levelpowered.vine.config.VineConfig.Leaf.OptimizeMinecart.skipTickCount == 0) {
++                if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && (one.tranic.levelpowered.vine.config.VineConfig.Leaf.OptimizeMinecart.enabled || this.getDeltaMovement().horizontalDistanceSqr() > 0.01D)) {
+                 List<Entity> list = this.level().getEntities((Entity) this, this.getBoundingBox().inflate(0.20000000298023224D, 0.0D, 0.20000000298023224D), EntitySelector.pushableBy(this));
+ 
+                 if (!list.isEmpty()) {
+-                    Iterator iterator = list.iterator();
+-
+-                    while (iterator.hasNext()) {
+-                        Entity entity = (Entity) iterator.next();
+ 
++                    for (Entity entity : list) {
+                         if (!(entity instanceof Player) && !(entity instanceof IronGolem) && !(entity instanceof AbstractMinecart) && !this.isVehicle() && !entity.isPassenger()) {
+                             // CraftBukkit start
+                             VehicleEntityCollisionEvent collisionEvent = new VehicleEntityCollisionEvent(vehicle, entity.getBukkitEntity());
+@@ -421,21 +400,19 @@ public abstract class AbstractMinecart extends VehicleEntity {
+                     }
+                 }
+             } else {
+-                Iterator iterator1 = this.level().getEntities(this, this.getBoundingBox().inflate(0.20000000298023224D, 0.0D, 0.20000000298023224D)).iterator();
+-
+-                while (iterator1.hasNext()) {
+-                    Entity entity1 = (Entity) iterator1.next();
+ 
+-                    if (!this.hasPassenger(entity1) && entity1.isPushable() && entity1 instanceof AbstractMinecart) {
+-                        // CraftBukkit start
+-                        VehicleEntityCollisionEvent collisionEvent = new VehicleEntityCollisionEvent(vehicle, entity1.getBukkitEntity());
+-                        this.level().getCraftServer().getPluginManager().callEvent(collisionEvent);
++                    for (Entity entity1 : this.level().getEntities(this, this.getBoundingBox().inflate(0.20000000298023224D, 0.0D, 0.20000000298023224D))) {
++                        if (!this.hasPassenger(entity1) && entity1.isPushable() && entity1 instanceof AbstractMinecart) {
++                            // CraftBukkit start
++                            VehicleEntityCollisionEvent collisionEvent = new VehicleEntityCollisionEvent(vehicle, entity1.getBukkitEntity());
++                            this.level().getCraftServer().getPluginManager().callEvent(collisionEvent);
+ 
+-                        if (collisionEvent.isCancelled()) {
+-                            continue;
++                            if (collisionEvent.isCancelled()) {
++                                continue;
++                            }
++                            // CraftBukkit end
++                            entity1.push(this);
+                         }
+-                        // CraftBukkit end
+-                        entity1.push(this);
+                     }
+                 }
+             }
+diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
+index fd3a3b4405af77f850b3b2b9fcff95c98d7456cc..4314268b9fc75ffb1ce7a4d7b454fd7a0ab07d34 100644
+--- a/src/main/java/net/minecraft/world/level/Level.java
++++ b/src/main/java/net/minecraft/world/level/Level.java
+@@ -7,7 +7,7 @@ import java.util.Iterator;
+ import java.util.LinkedHashMap;
+ import java.util.List;
+ import java.util.Objects;
+-import java.util.Set;
++// import java.util.Set;
+ import java.util.function.Consumer;
+ import java.util.function.Predicate;
+ import java.util.function.Supplier;
+@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
+ import io.multipaper.shreddedpaper.region.LevelChunkRegion;
+ import net.minecraft.CrashReport;
+ import net.minecraft.CrashReportCategory;
+-import net.minecraft.ReportedException;
++// import net.minecraft.ReportedException;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.Direction;
+ import net.minecraft.core.Holder;
+@@ -29,14 +29,14 @@ import net.minecraft.core.registries.Registries;
+ import net.minecraft.network.protocol.Packet;
+ import net.minecraft.resources.ResourceKey;
+ import net.minecraft.resources.ResourceLocation;
+-import io.papermc.paper.util.MCUtil;
++// import io.papermc.paper.util.MCUtil;
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.FullChunkStatus;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.sounds.SoundEvent;
+ import net.minecraft.sounds.SoundEvents;
+ import net.minecraft.sounds.SoundSource;
+-import net.minecraft.util.AbortableIterationConsumer;
++// import net.minecraft.util.AbortableIterationConsumer;
+ import net.minecraft.util.Mth;
+ import net.minecraft.util.RandomSource;
+ import net.minecraft.util.profiling.ProfilerFiller;
+@@ -45,8 +45,8 @@ import net.minecraft.world.TickRateManager;
+ import net.minecraft.world.damagesource.DamageSource;
+ import net.minecraft.world.damagesource.DamageSources;
+ import net.minecraft.world.entity.Entity;
+-import net.minecraft.world.entity.boss.EnderDragonPart;
+-import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
++// import net.minecraft.world.entity.boss.EnderDragonPart;
++// import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+ import net.minecraft.world.entity.item.ItemEntity;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.item.ItemStack;
+@@ -1567,13 +1567,13 @@ public abstract class Level implements LevelAccessor, AutoCloseable {
+         return this.getChunk(chunkX, chunkZ, ChunkStatus.FULL, false);
+     }
+ 
+-    @Override
+-    public List<Entity> getEntities(@Nullable Entity except, AABB box, Predicate<? super Entity> predicate) {
++    @Override // Leaf start - Optimize predicate call
++    public List<Entity> getEntities(@Nullable Entity except, AABB box, @Nullable Predicate<? super Entity> predicate) {
+         //this.getProfiler().incrementCounter("getEntities"); // Purpur
+         List<Entity> list = Lists.newArrayList();
+-        ((ServerLevel)this).getEntityLookup().getEntities(except, box, list, predicate); // Paper - optimise this call
+-        return list;
+-    }
++        ((ServerLevel) this).getEntityLookup().getEntities(except, box, list, null); // Paper - optimise this call
++        return predicate != null ? list.stream().filter(predicate).toList() : list;
++    } // Leaf end
+ 
+     @Override
+     public <T extends Entity> List<T> getEntities(EntityTypeTest<Entity, T> filter, AABB box, Predicate<? super T> predicate) {

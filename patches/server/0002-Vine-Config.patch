@@ -26,7 +26,7 @@ index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..d7891588cd7dbc9e5f9921cc2f5bf514
  
              // Purpur start - load config files early
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 48fd04e82dd7868e4feb63e3b644e5d3b751691e..045f892e2cf507446e6ce45caad364fcefb15f80 100644
+index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..a7c3e628762a93803418f462ef57741183345ebc 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -1,20 +1,14 @@
@@ -121,10 +121,10 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..0ee30cdde60559c9aec404f2a492ba2523504741
+index 0000000000000000000000000000000000000000..70f088f33cae9a6dc5d8f0658aa171af2e99872d
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,170 @@
+@@ -0,0 +1,83 @@
 +package one.tranic.levelpowered.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -167,73 +167,27 @@ index 0000000000000000000000000000000000000000..0ee30cdde60559c9aec404f2a492ba25
 +    }
 +
 +    private fun addDefault(configFile: File, configuration: YamlConfiguration) {
-+        // Vine: Divine start
-+        configuration.addDefault("divine.recipe-manager-optimization", true)
-+        configuration.addDefault("divine.secure-seed", false)
-+        // Vine: Divine end
-+
-+        // Vine: Leaves start
-+        configuration.addDefault("leaves.flatten-triangular-distribution", false)
-+        configuration.addDefault("leaves.cache-world-generator-sea-level", false)
-+        configuration.addDefault("leaves.vanilla-hopper", false)
-+        // Vine: Leaves end
-+
-+        // Vine: Purpur start
-+        configuration.addDefault("purpur.farmland-gets-moist-from-below", true)
-+        configuration.addDefault("purpur.sensor-optimization", true)
-+
-+        configuration.addDefault("purpur.visibility-percent.skeleton-head", 0.5)
-+        configuration.addDefault("purpur.visibility-percent.zombie-head", 0.5)
-+        configuration.addDefault("purpur.visibility-percent.creeper-head", 0.5)
-+        configuration.addDefault("purpur.visibility-percent.piglin-head", 0.5)
-+
-+        configuration.addDefault("purpur.villager-lobotomize.check-interval", 100)
-+        configuration.addDefault("purpur.villager-lobotomize.enabled", false)
-+        configuration.addDefault("purpur.villager-lobotomize.wait-until-trade-locked", false)
-+        // Vine: Purpur end
++        // Vine: Leaf start
++        configuration.addDefault("leaf.optimize-minecart.enabled", true)
++        configuration.addDefault("leaf.optimize-minecart.skipTickCount", 30)
++        // Vine: Leaf end
 +
 +        configuration.options().copyDefaults(true)
 +        configuration.save(configFile)
 +    }
 +
 +    private fun loadConfigValue(configuration: YamlConfiguration) {
-+        // Vine: Divine start
-+        Divine.secureSeed = configuration.getBoolean("divine.secure-seed")
-+        Divine.recipeManagerOptimization = configuration.getBoolean("divine.recipe-manager-optimization")
-+        // Vine: Divine end
++        // Vine: Leaf start
++        Leaf.OptimizeMinecart.enabled = configuration.getBoolean("leaf.optimize-minecart.enabled")
++        Leaf.OptimizeMinecart.skipTickCount = configuration.getInt("leaf.optimize-minecart.skipTickCount")
++        // Vine: Leaf end
 +
-+        // Vine: Leaves start
-+        Leaves.flattenTriangularDistribution = configuration.getBoolean("leaves.flatten-triangular-distribution")
-+        Leaves.cacheWorldGeneratorSeaLevel = configuration.getBoolean("leaves.cache-world-generator-sea-level")
-+        Leaves.vanillaHopper = configuration.getBoolean("leaves.vanilla-hopper")
-+        // Vine: Leaves end
-+
-+        // Vine: Purpur start
-+        Purpur.World.farmlandGetsMoistFromBelow =
-+            configuration.getBoolean("purpur.farmland-gets-moist-from-below")
-+        Purpur.World.sensorOptimization = configuration.getBoolean("purpur.sensor-optimization")
-+
-+        Purpur.World.skeletonHeadVisibilityPercent =
-+            configuration.getDouble("purpur.visibility-percent.skeleton-head")
-+        Purpur.World.zombieHeadVisibilityPercent =
-+            configuration.getDouble("purpur.visibility-percent.zombie-head")
-+        Purpur.World.creeperHeadVisibilityPercent =
-+            configuration.getDouble("purpur.visibility-percent.creeper-head")
-+        Purpur.World.piglinHeadVisibilityPercent =
-+            configuration.getDouble("purpur.visibility-percent.piglin-head")
-+
-+        Purpur.World.villagerLobotomizeCheckInterval =
-+            configuration.getInt("purpur.villager-lobotomize.check-interval")
-+        Purpur.World.villagerLobotomizeEnabled = configuration.getBoolean("purpur.villager-lobotomize.enabled")
-+        Purpur.World.villagerLobotomizeWaitUntilTradeLocked =
-+            configuration.getBoolean("purpur.villager-lobotomize.wait-until-trade-locked")
-+        // Vine: Purpur end
 +    }
 +
 +    @JvmStatic
 +    fun reload() {
 +        runCatching {
-+            val configFile = File("Vine.yml")
++            val configFile = File("vine.yml")
 +            if (!configFile.exists()) {
 +                configFile.createNewFile()
 +            }
@@ -245,53 +199,12 @@ index 0000000000000000000000000000000000000000..0ee30cdde60559c9aec404f2a492ba25
 +        }
 +    }
 +
-+    object Divine {
-+        @JvmField
-+        var recipeManagerOptimization: Boolean = true
-+
-+        @JvmField
-+        var secureSeed: Boolean = false
-+    }
-+
-+    object Leaves {
-+        @JvmField
-+        var flattenTriangularDistribution: Boolean = false
-+
-+        @JvmField
-+        var cacheWorldGeneratorSeaLevel: Boolean = false
-+
-+        @JvmField
-+        var vanillaHopper: Boolean = false
-+    }
-+
-+    class Purpur {
-+        object World {
++    object Leaf {
++        object OptimizeMinecart {
 +            @JvmField
-+            var farmlandGetsMoistFromBelow: Boolean = true
-+
++            var enabled: Boolean = true
 +            @JvmField
-+            var sensorOptimization: Boolean = true
-+
-+            @JvmField
-+            var skeletonHeadVisibilityPercent: Double = 0.0
-+
-+            @JvmField
-+            var zombieHeadVisibilityPercent: Double = 0.5
-+
-+            @JvmField
-+            var creeperHeadVisibilityPercent: Double = 0.5
-+
-+            @JvmField
-+            var piglinHeadVisibilityPercent: Double = 0.5
-+
-+            @JvmField
-+            var villagerLobotomizeCheckInterval: Int = 100
-+
-+            @JvmField
-+            var villagerLobotomizeEnabled: Boolean = false
-+
-+            @JvmField
-+            var villagerLobotomizeWaitUntilTradeLocked: Boolean = false
++            var skipTickCount: Int = 30
 +        }
 +    }
 +}
