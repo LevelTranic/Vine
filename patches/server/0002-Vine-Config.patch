@@ -269,19 +269,16 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..c34cb782860c1c0ed8f213a3e813da3b1b962724
+index 0000000000000000000000000000000000000000..250dd5f5292b7cfcf2ba4a568d3db6dd0151dcba
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,242 @@
+@@ -0,0 +1,214 @@
 +package one.tranic.levelpowered.vine.config
 +
-+import gg.pufferfish.pufferfish.PufferfishConfig
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
 +import net.minecraft.server.MinecraftServer
 +import one.tranic.levelpowered.vine.commands.VineCfgCommand
 +import org.bukkit.Bukkit
-+import org.bukkit.configuration.MemoryConfiguration
-+import org.simpleyaml.configuration.ConfigurationSection
 +import org.simpleyaml.configuration.comments.CommentType
 +import org.simpleyaml.configuration.file.YamlFile
 +import org.simpleyaml.exceptions.InvalidConfigurationException
@@ -292,19 +289,6 @@ index 0000000000000000000000000000000000000000..c34cb782860c1c0ed8f213a3e813da3b
 +object VineConfig {
 +    var logger: org.slf4j.Logger = MinecraftServer.LOGGER
 +    private val config: YamlFile = YamlFile()
-+    private var updates: Int = 0
-+
-+    private fun convertToBukkit(section: ConfigurationSection): org.bukkit.configuration.ConfigurationSection {
-+        val newSection: org.bukkit.configuration.ConfigurationSection = MemoryConfiguration()
-+        for (key in section.getKeys(false)) {
-+            if (section.isConfigurationSection(key)) {
-+                newSection[key!!] = convertToBukkit(section.getConfigurationSection(key))
-+            } else {
-+                newSection[key!!] = section[key]
-+            }
-+        }
-+        return newSection
-+    }
 +
 +    @JvmStatic
 +    fun setCommand() {
@@ -372,8 +356,6 @@ index 0000000000000000000000000000000000000000..c34cb782860c1c0ed8f213a3e813da3b
 +                }
 +            }
 +
-+            updates++
-+
 +            config.save(configFile)
 +        }.getOrElse {
 +            throw RuntimeException(it)
@@ -381,16 +363,6 @@ index 0000000000000000000000000000000000000000..c34cb782860c1c0ed8f213a3e813da3b
 +    }
 +
 +    // Pufferfish start
-+    @JvmStatic
-+    fun getConfigCopy(): org.bukkit.configuration.ConfigurationSection {
-+        return convertToBukkit(config)
-+    }
-+
-+    @JvmStatic
-+    fun getUpdates(): Int {
-+        return updates
-+    }
-+
 +    private fun setComment(key: String, vararg comment: String) {
 +        if (config.contains(key)) {
 +            config.setComment(key, java.lang.String.join("\n", *comment), CommentType.BLOCK)
