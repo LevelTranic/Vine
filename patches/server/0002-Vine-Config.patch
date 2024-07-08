@@ -5,40 +5,35 @@ Subject: [PATCH] Vine Config
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
-index efed51a692d94acd9126f6eb2866755567c2e636..81ec7eae36a2c6474acc1be56d4a3bbffddec120 100644
+index efed51a692d94acd9126f6eb2866755567c2e636..f632242b5f705c098af9f733f4d37bd1693f6163 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
-@@ -4,41 +4,11 @@ import java.io.File;
- import java.io.IOException;
+@@ -5,8 +5,8 @@ import java.io.IOException;
  import java.lang.reflect.Method;
  import java.lang.reflect.Modifier;
--import java.util.List;
+ import java.util.List;
++
  import net.minecraft.server.MinecraftServer;
 -import org.apache.logging.log4j.Level;
--import org.bukkit.configuration.ConfigurationSection;
--import org.bukkit.configuration.MemoryConfiguration;
--import org.jetbrains.annotations.Nullable;
--import org.simpleyaml.configuration.comments.CommentType;
--import org.simpleyaml.configuration.file.YamlFile;
-+import one.tranic.levelpowered.vine.config.AbstractConfig;
+ import org.bukkit.configuration.ConfigurationSection;
+ import org.bukkit.configuration.MemoryConfiguration;
+ import org.jetbrains.annotations.Nullable;
+@@ -15,10 +15,9 @@ import org.simpleyaml.configuration.file.YamlFile;
  import org.simpleyaml.exceptions.InvalidConfigurationException;
  
--public class PufferfishConfig {
+ public class PufferfishConfig {
 -	
--	private static final YamlFile config = new YamlFile();
--	private static int updates = 0;
+ 	private static final YamlFile config = new YamlFile();
+ 	private static int updates = 0;
 -	
--	private static ConfigurationSection convertToBukkit(org.simpleyaml.configuration.ConfigurationSection section) {
--		ConfigurationSection newSection = new MemoryConfiguration();
--		for (String key : section.getKeys(false)) {
--			if (section.isConfigurationSection(key)) {
--				newSection.set(key, convertToBukkit(section.getConfigurationSection(key)));
--			} else {
--				newSection.set(key, section.get(key));
--			}
--		}
--		return newSection;
--	}
++
+ 	private static ConfigurationSection convertToBukkit(org.simpleyaml.configuration.ConfigurationSection section) {
+ 		ConfigurationSection newSection = new MemoryConfiguration();
+ 		for (String key : section.getKeys(false)) {
+@@ -30,15 +29,7 @@ public class PufferfishConfig {
+ 		}
+ 		return newSection;
+ 	}
 -	
 -	public static ConfigurationSection getConfigCopy() {
 -		return convertToBukkit(config);
@@ -48,11 +43,11 @@ index efed51a692d94acd9126f6eb2866755567c2e636..81ec7eae36a2c6474acc1be56d4a3bbf
 -		return updates;
 -	}
 -	
-+public class PufferfishConfig extends AbstractConfig {
++
  	public static void load() throws IOException {
  		File configFile = new File("pufferfish.yml");
  		
-@@ -64,7 +34,7 @@ public class PufferfishConfig {
+@@ -64,7 +55,7 @@ public class PufferfishConfig {
  				try {
  					method.invoke(null);
  				} catch (Throwable t) {
@@ -61,72 +56,88 @@ index efed51a692d94acd9126f6eb2866755567c2e636..81ec7eae36a2c6474acc1be56d4a3bbf
  				}
  			}
  		}
-@@ -74,64 +44,6 @@ public class PufferfishConfig {
+@@ -73,60 +64,68 @@ public class PufferfishConfig {
+ 		
  		config.save(configFile);
  	}
- 	
--	private static void setComment(String key, String... comment) {
--		if (config.contains(key)) {
--			config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
--		}
--	}
 -	
--	private static void ensureDefault(String key, Object defaultValue, String... comment) {
--		if (!config.contains(key)) {
--			config.set(key, defaultValue);
--			config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
--		}
--	}
++
++	public static ConfigurationSection getConfigCopy() {
++		return convertToBukkit(config);
++	}
++
++	public static int getUpdates() {
++		return updates;
++	}
++
+ 	private static void setComment(String key, String... comment) {
+ 		if (config.contains(key)) {
+ 			config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
+ 		}
+ 	}
 -	
--	private static boolean getBoolean(String key, boolean defaultValue, String... comment) {
--		return getBoolean(key, null, defaultValue, comment);
--	}
++
+ 	private static void ensureDefault(String key, Object defaultValue, String... comment) {
+ 		if (!config.contains(key)) {
+ 			config.set(key, defaultValue);
+ 			config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
+ 		}
+ 	}
 -	
--	private static boolean getBoolean(String key, @Nullable String oldKey, boolean defaultValue, String... comment) {
--		ensureDefault(key, defaultValue, comment);
--		return config.getBoolean(key, defaultValue);
--	}
++
+ 	private static boolean getBoolean(String key, boolean defaultValue, String... comment) {
+ 		return getBoolean(key, null, defaultValue, comment);
+ 	}
 -	
--	private static int getInt(String key, int defaultValue, String... comment) {
--		return getInt(key, null, defaultValue, comment);
--	}
++
+ 	private static boolean getBoolean(String key, @Nullable String oldKey, boolean defaultValue, String... comment) {
+ 		ensureDefault(key, defaultValue, comment);
+ 		return config.getBoolean(key, defaultValue);
+ 	}
 -	
--	private static int getInt(String key, @Nullable String oldKey, int defaultValue, String... comment) {
--		ensureDefault(key, defaultValue, comment);
--		return config.getInt(key, defaultValue);
--	}
++
+ 	private static int getInt(String key, int defaultValue, String... comment) {
+ 		return getInt(key, null, defaultValue, comment);
+ 	}
 -	
--	private static double getDouble(String key, double defaultValue, String... comment) {
--		return getDouble(key, null, defaultValue, comment);
--	}
++
+ 	private static int getInt(String key, @Nullable String oldKey, int defaultValue, String... comment) {
+ 		ensureDefault(key, defaultValue, comment);
+ 		return config.getInt(key, defaultValue);
+ 	}
 -	
--	private static double getDouble(String key, @Nullable String oldKey, double defaultValue, String... comment) {
--		ensureDefault(key, defaultValue, comment);
--		return config.getDouble(key, defaultValue);
--	}
++
+ 	private static double getDouble(String key, double defaultValue, String... comment) {
+ 		return getDouble(key, null, defaultValue, comment);
+ 	}
 -	
--	private static String getString(String key, String defaultValue, String... comment) {
--		return getOldString(key, null, defaultValue, comment);
--	}
++
+ 	private static double getDouble(String key, @Nullable String oldKey, double defaultValue, String... comment) {
+ 		ensureDefault(key, defaultValue, comment);
+ 		return config.getDouble(key, defaultValue);
+ 	}
 -	
--	private static String getOldString(String key, @Nullable String oldKey, String defaultValue, String... comment) {
--		ensureDefault(key, defaultValue, comment);
--		return config.getString(key, defaultValue);
--	}
++
+ 	private static String getString(String key, String defaultValue, String... comment) {
+ 		return getOldString(key, null, defaultValue, comment);
+ 	}
 -	
--	private static List<String> getStringList(String key, List<String> defaultValue, String... comment) {
--		return getStringList(key, null, defaultValue, comment);
--	}
++
+ 	private static String getOldString(String key, @Nullable String oldKey, String defaultValue, String... comment) {
+ 		ensureDefault(key, defaultValue, comment);
+ 		return config.getString(key, defaultValue);
+ 	}
 -	
--	private static List<String> getStringList(String key, @Nullable String oldKey, List<String> defaultValue, String... comment) {
--		ensureDefault(key, defaultValue, comment);
--		return config.getStringList(key);
--	}
++
+ 	private static List<String> getStringList(String key, List<String> defaultValue, String... comment) {
+ 		return getStringList(key, null, defaultValue, comment);
+ 	}
 -	
- 	public static boolean enableAsyncMobSpawning;
- 	public static boolean asyncMobSpawningInitialized;
- 	private static void asyncMobSpawning() {
-@@ -148,5 +60,14 @@ public class PufferfishConfig {
++
+ 	private static List<String> getStringList(String key, @Nullable String oldKey, List<String> defaultValue, String... comment) {
+ 		ensureDefault(key, defaultValue, comment);
+ 		return config.getStringList(key);
+@@ -148,5 +147,14 @@ public class PufferfishConfig {
  			enableAsyncMobSpawning = temp;
  		}
  	}
@@ -215,106 +226,6 @@ index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..a7c3e628762a93803418f462ef577411
          // Paper start - fix converting txt to json file; convert old users earlier after PlayerList creation but before file load/save
          if (this.convertOldUsers()) {
              this.getProfileCache().save(false); // Paper
-diff --git a/src/main/java/one/tranic/levelpowered/vine/config/AbstractConfig.java b/src/main/java/one/tranic/levelpowered/vine/config/AbstractConfig.java
-new file mode 100644
-index 0000000000000000000000000000000000000000..fd871e9b75713752c29a2e4243dca82c6c2a76c5
---- /dev/null
-+++ b/src/main/java/one/tranic/levelpowered/vine/config/AbstractConfig.java
-@@ -0,0 +1,94 @@
-+package one.tranic.levelpowered.vine.config;
-+
-+import org.bukkit.configuration.ConfigurationSection;
-+import org.bukkit.configuration.MemoryConfiguration;
-+import org.jetbrains.annotations.Nullable;
-+import org.simpleyaml.configuration.comments.CommentType;
-+import org.simpleyaml.configuration.file.YamlFile;
-+
-+import java.io.IOException;
-+import java.util.List;
-+
-+public class AbstractConfig {
-+    public static final YamlFile config = new YamlFile();
-+    public static int updates = 0;
-+
-+    public static ConfigurationSection convertToBukkit(org.simpleyaml.configuration.ConfigurationSection section) {
-+        ConfigurationSection newSection = new MemoryConfiguration();
-+        for (String key : section.getKeys(false)) {
-+            if (section.isConfigurationSection(key)) {
-+                newSection.set(key, convertToBukkit(section.getConfigurationSection(key)));
-+            } else {
-+                newSection.set(key, section.get(key));
-+            }
-+        }
-+        return newSection;
-+    }
-+
-+    public static ConfigurationSection getConfigCopy() {
-+        return convertToBukkit(config);
-+    }
-+
-+    public static int getUpdates() {
-+        return updates;
-+    }
-+
-+    public static void setComment(String key, String... comment) {
-+        if (config.contains(key)) {
-+            config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
-+        }
-+    }
-+
-+    public static void ensureDefault(String key, Object defaultValue, String... comment) {
-+        if (!config.contains(key)) {
-+            config.set(key, defaultValue);
-+            config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
-+        }
-+    }
-+
-+    public static boolean getBoolean(String key, boolean defaultValue, String... comment) {
-+        return getBoolean(key, null, defaultValue, comment);
-+    }
-+
-+    public static boolean getBoolean(String key, @Nullable String oldKey, boolean defaultValue, String... comment) {
-+        ensureDefault(key, defaultValue, comment);
-+        return config.getBoolean(key, defaultValue);
-+    }
-+
-+    public static int getInt(String key, int defaultValue, String... comment) {
-+        return getInt(key, null, defaultValue, comment);
-+    }
-+
-+    public static int getInt(String key, @Nullable String oldKey, int defaultValue, String... comment) {
-+        ensureDefault(key, defaultValue, comment);
-+        return config.getInt(key, defaultValue);
-+    }
-+
-+    public static double getDouble(String key, double defaultValue, String... comment) {
-+        return getDouble(key, null, defaultValue, comment);
-+    }
-+
-+    public static double getDouble(String key, @Nullable String oldKey, double defaultValue, String... comment) {
-+        ensureDefault(key, defaultValue, comment);
-+        return config.getDouble(key, defaultValue);
-+    }
-+
-+    public static String getString(String key, String defaultValue, String... comment) {
-+        return getOldString(key, null, defaultValue, comment);
-+    }
-+
-+    public static String getOldString(String key, @Nullable String oldKey, String defaultValue, String... comment) {
-+        ensureDefault(key, defaultValue, comment);
-+        return config.getString(key, defaultValue);
-+    }
-+
-+    public static List<String> getStringList(String key, List<String> defaultValue, String... comment) {
-+        return getStringList(key, null, defaultValue, comment);
-+    }
-+
-+    public static List<String> getStringList(String key, @Nullable String oldKey, List<String> defaultValue, String... comment) {
-+        ensureDefault(key, defaultValue, comment);
-+        return config.getStringList(key);
-+    }
-+
-+}
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/levelpowered/vine/commands/VineCfgCommand.kt
 new file mode 100644
 index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20115cdcad
@@ -358,25 +269,42 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..6bbf04feb89d241d36c7383cb1ec9ed82bf23595
+index 0000000000000000000000000000000000000000..c34cb782860c1c0ed8f213a3e813da3b1b962724
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,150 @@
+@@ -0,0 +1,242 @@
 +package one.tranic.levelpowered.vine.config
 +
++import gg.pufferfish.pufferfish.PufferfishConfig
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
 +import net.minecraft.server.MinecraftServer
 +import one.tranic.levelpowered.vine.commands.VineCfgCommand
 +import org.bukkit.Bukkit
-+import org.bukkit.configuration.file.YamlConfiguration;
++import org.bukkit.configuration.MemoryConfiguration
++import org.simpleyaml.configuration.ConfigurationSection
++import org.simpleyaml.configuration.comments.CommentType
++import org.simpleyaml.configuration.file.YamlFile
 +import org.simpleyaml.exceptions.InvalidConfigurationException
 +import java.io.File
 +import java.io.IOException
 +import java.lang.reflect.Modifier
 +
-+object VineConfig : AbstractConfig() {
++object VineConfig {
 +    var logger: org.slf4j.Logger = MinecraftServer.LOGGER
-+    private lateinit var configuration: YamlConfiguration
++    private val config: YamlFile = YamlFile()
++    private var updates: Int = 0
++
++    private fun convertToBukkit(section: ConfigurationSection): org.bukkit.configuration.ConfigurationSection {
++        val newSection: org.bukkit.configuration.ConfigurationSection = MemoryConfiguration()
++        for (key in section.getKeys(false)) {
++            if (section.isConfigurationSection(key)) {
++                newSection[key!!] = convertToBukkit(section.getConfigurationSection(key))
++            } else {
++                newSection[key!!] = section[key]
++            }
++        }
++        return newSection
++    }
 +
 +    @JvmStatic
 +    fun setCommand() {
@@ -451,6 +379,81 @@ index 0000000000000000000000000000000000000000..6bbf04feb89d241d36c7383cb1ec9ed8
 +            throw RuntimeException(it)
 +        }
 +    }
++
++    // Pufferfish start
++    @JvmStatic
++    fun getConfigCopy(): org.bukkit.configuration.ConfigurationSection {
++        return convertToBukkit(config)
++    }
++
++    @JvmStatic
++    fun getUpdates(): Int {
++        return updates
++    }
++
++    private fun setComment(key: String, vararg comment: String) {
++        if (config.contains(key)) {
++            config.setComment(key, java.lang.String.join("\n", *comment), CommentType.BLOCK)
++        }
++    }
++
++    private fun ensureDefault(key: String, defaultValue: Any, vararg comment: String) {
++        if (!config.contains(key)) {
++            config[key] = defaultValue
++            config.setComment(key, java.lang.String.join("\n", *comment), CommentType.BLOCK)
++        }
++    }
++
++    private fun getBoolean(key: String, defaultValue: Boolean, vararg comment: String): Boolean {
++        return getBoolean(key, null, defaultValue, *comment)
++    }
++
++    private fun getBoolean(key: String, oldKey: String?, defaultValue: Boolean, vararg comment: String): Boolean {
++        ensureDefault(key, defaultValue, *comment)
++        return config.getBoolean(key, defaultValue)
++    }
++
++    private fun getInt(key: String, defaultValue: Int, vararg comment: String): Int {
++        return getInt(key, null, defaultValue, *comment)
++    }
++
++    private fun getInt(key: String, oldKey: String?, defaultValue: Int, vararg comment: String): Int {
++        ensureDefault(key, defaultValue, *comment)
++        return config.getInt(key, defaultValue)
++    }
++
++    private fun getDouble(key: String, defaultValue: Double, vararg comment: String): Double {
++        return getDouble(key, null, defaultValue, *comment)
++    }
++
++    private fun getDouble(key: String, oldKey: String?, defaultValue: Double, vararg comment: String): Double {
++        ensureDefault(key, defaultValue, *comment)
++        return config.getDouble(key, defaultValue)
++    }
++
++    private fun getString(key: String, defaultValue: String, vararg comment: String): String {
++        return getOldString(key, null, defaultValue, *comment)
++    }
++
++    private fun getOldString(key: String, oldKey: String?, defaultValue: String, vararg comment: String): String {
++        ensureDefault(key, defaultValue, *comment)
++        return config.getString(key, defaultValue)
++    }
++
++    private fun getStringList(key: String, defaultValue: List<String>, vararg comment: String): List<String> {
++        return getStringList(key, null, defaultValue, *comment)
++    }
++
++    private fun getStringList(
++        key: String,
++        oldKey: String?,
++        defaultValue: List<String>,
++        vararg comment: String
++    ): List<String> {
++        ensureDefault(key, defaultValue, *comment)
++        return config.getStringList(key)
++    }
++    // Pufferfish end
 +
 +    object Leaf {
 +        object OptimizeMinecart {
