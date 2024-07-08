@@ -8,6 +8,10 @@
     <br /><br />
 </div>
 
+---
+
+> Not finished yet, don't use
+
 <div align=center>
     <h2>Tranic Server</h2>
     <a title="Vine for MultiPaper/ShreddedPaper" href="https://github.com/LevelTranic/Vine"><img width="30%" src="assets/Vine-Banner.png" alt=""/></a>
@@ -30,7 +34,3 @@ LevelBukkit is a fork of <a href="https://github.com/LuminolMC/Luminol" target="
 - What is multithreading in ShreddedPaper: [[1]](https://github.com/MultiPaper/ShreddedPaper/blob/main/HOW_IT_WORKS.md)&nbsp;&nbsp;[[2]](https://github.com/MultiPaper/ShreddedPaper/blob/main/DEVELOPING_A_MULTITHREAD_PLUGIN.md)
 
 <br/><br/>
-
----
-
-> Not finished yet, don't use
