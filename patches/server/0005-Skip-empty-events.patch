@@ -1,0 +1,27 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 7 Jul 2024 17:34:24 +0800
+Subject: [PATCH] Skip empty events
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
+index 143638f994a842472e827cb9b4efc160a7235aa4..b0ae05285fc7ab40edff052eb2d9dc9716d68e9b 100644
+--- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
++++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
+@@ -40,6 +40,7 @@ class PaperEventManager {
+ 
+     // SimplePluginManager
+     public void callEvent(@NotNull Event event) {
++        if (event.getHandlers().getRegisteredListeners().length == 0) return;
+         if (event.isAsynchronous() && (Thread.currentThread() instanceof TickThread || ShreddedPaperTickThread.isShreddedPaperTickThread())) {
+             throw new IllegalStateException(event.getEventName() + " may only be triggered asynchronously.");
+         } else if (!event.isAsynchronous() && !this.server.isPrimaryThread() && !this.server.isStopping()) {
+@@ -187,7 +188,7 @@ class PaperEventManager {
+                             plugin.getPluginMeta().getDisplayName(),
+                             clazz.getName(),
+                             method.toGenericString(),
+-                            (warning != null && warning.reason().length() != 0) ? warning.reason() : "Server performance will be affected",
++                            (warning != null && !warning.reason().isEmpty()) ? warning.reason() : "Server performance will be affected",
+                             Arrays.toString(plugin.getPluginMeta().getAuthors().toArray())),
+                         warningState == Warning.WarningState.ON ? new AuthorNagException(null) : null);
+                     break;

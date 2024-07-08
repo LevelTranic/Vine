@@ -4,6 +4,143 @@ Date: Sun, 23 Jun 2024 21:01:06 +0800
 Subject: [PATCH] Vine Config
 
 
+diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
+index efed51a692d94acd9126f6eb2866755567c2e636..81ec7eae36a2c6474acc1be56d4a3bbffddec120 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
++++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
+@@ -4,41 +4,11 @@ import java.io.File;
+ import java.io.IOException;
+ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
+-import java.util.List;
+ import net.minecraft.server.MinecraftServer;
+-import org.apache.logging.log4j.Level;
+-import org.bukkit.configuration.ConfigurationSection;
+-import org.bukkit.configuration.MemoryConfiguration;
+-import org.jetbrains.annotations.Nullable;
+-import org.simpleyaml.configuration.comments.CommentType;
+-import org.simpleyaml.configuration.file.YamlFile;
++import one.tranic.levelpowered.vine.config.AbstractConfig;
+ import org.simpleyaml.exceptions.InvalidConfigurationException;
+ 
+-public class PufferfishConfig {
+-	
+-	private static final YamlFile config = new YamlFile();
+-	private static int updates = 0;
+-	
+-	private static ConfigurationSection convertToBukkit(org.simpleyaml.configuration.ConfigurationSection section) {
+-		ConfigurationSection newSection = new MemoryConfiguration();
+-		for (String key : section.getKeys(false)) {
+-			if (section.isConfigurationSection(key)) {
+-				newSection.set(key, convertToBukkit(section.getConfigurationSection(key)));
+-			} else {
+-				newSection.set(key, section.get(key));
+-			}
+-		}
+-		return newSection;
+-	}
+-	
+-	public static ConfigurationSection getConfigCopy() {
+-		return convertToBukkit(config);
+-	}
+-	
+-	public static int getUpdates() {
+-		return updates;
+-	}
+-	
++public class PufferfishConfig extends AbstractConfig {
+ 	public static void load() throws IOException {
+ 		File configFile = new File("pufferfish.yml");
+ 		
+@@ -64,7 +34,7 @@ public class PufferfishConfig {
+ 				try {
+ 					method.invoke(null);
+ 				} catch (Throwable t) {
+-					MinecraftServer.LOGGER.warn("Failed to load configuration option from " + method.getName(), t);
++                    MinecraftServer.LOGGER.warn("Failed to load configuration option from {}", method.getName(), t);
+ 				}
+ 			}
+ 		}
+@@ -74,64 +44,6 @@ public class PufferfishConfig {
+ 		config.save(configFile);
+ 	}
+ 	
+-	private static void setComment(String key, String... comment) {
+-		if (config.contains(key)) {
+-			config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
+-		}
+-	}
+-	
+-	private static void ensureDefault(String key, Object defaultValue, String... comment) {
+-		if (!config.contains(key)) {
+-			config.set(key, defaultValue);
+-			config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
+-		}
+-	}
+-	
+-	private static boolean getBoolean(String key, boolean defaultValue, String... comment) {
+-		return getBoolean(key, null, defaultValue, comment);
+-	}
+-	
+-	private static boolean getBoolean(String key, @Nullable String oldKey, boolean defaultValue, String... comment) {
+-		ensureDefault(key, defaultValue, comment);
+-		return config.getBoolean(key, defaultValue);
+-	}
+-	
+-	private static int getInt(String key, int defaultValue, String... comment) {
+-		return getInt(key, null, defaultValue, comment);
+-	}
+-	
+-	private static int getInt(String key, @Nullable String oldKey, int defaultValue, String... comment) {
+-		ensureDefault(key, defaultValue, comment);
+-		return config.getInt(key, defaultValue);
+-	}
+-	
+-	private static double getDouble(String key, double defaultValue, String... comment) {
+-		return getDouble(key, null, defaultValue, comment);
+-	}
+-	
+-	private static double getDouble(String key, @Nullable String oldKey, double defaultValue, String... comment) {
+-		ensureDefault(key, defaultValue, comment);
+-		return config.getDouble(key, defaultValue);
+-	}
+-	
+-	private static String getString(String key, String defaultValue, String... comment) {
+-		return getOldString(key, null, defaultValue, comment);
+-	}
+-	
+-	private static String getOldString(String key, @Nullable String oldKey, String defaultValue, String... comment) {
+-		ensureDefault(key, defaultValue, comment);
+-		return config.getString(key, defaultValue);
+-	}
+-	
+-	private static List<String> getStringList(String key, List<String> defaultValue, String... comment) {
+-		return getStringList(key, null, defaultValue, comment);
+-	}
+-	
+-	private static List<String> getStringList(String key, @Nullable String oldKey, List<String> defaultValue, String... comment) {
+-		ensureDefault(key, defaultValue, comment);
+-		return config.getStringList(key);
+-	}
+-	
+ 	public static boolean enableAsyncMobSpawning;
+ 	public static boolean asyncMobSpawningInitialized;
+ 	private static void asyncMobSpawning() {
+@@ -148,5 +60,14 @@ public class PufferfishConfig {
+ 			enableAsyncMobSpawning = temp;
+ 		}
+ 	}
++
++	public static boolean enableSuffocationOptimization;
++	private static void suffocationOptimization() {
++		enableSuffocationOptimization = getBoolean("enable-suffocation-optimization", true,
++				"Optimizes the suffocation check by selectively skipping",
++				"the check in a way that still appears vanilla. This should",
++				"be left enabled on most servers, but is provided as a",
++				"configuration option if the vanilla deviation is undesirable.");
++	}
+ 	
+ }
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
 index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..d7891588cd7dbc9e5f9921cc2f5bf5145678f27e 100644
 --- a/src/main/java/net/minecraft/server/Main.java
@@ -78,6 +215,106 @@ index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..a7c3e628762a93803418f462ef577411
          // Paper start - fix converting txt to json file; convert old users earlier after PlayerList creation but before file load/save
          if (this.convertOldUsers()) {
              this.getProfileCache().save(false); // Paper
+diff --git a/src/main/java/one/tranic/levelpowered/vine/config/AbstractConfig.java b/src/main/java/one/tranic/levelpowered/vine/config/AbstractConfig.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..fd871e9b75713752c29a2e4243dca82c6c2a76c5
+--- /dev/null
++++ b/src/main/java/one/tranic/levelpowered/vine/config/AbstractConfig.java
+@@ -0,0 +1,94 @@
++package one.tranic.levelpowered.vine.config;
++
++import org.bukkit.configuration.ConfigurationSection;
++import org.bukkit.configuration.MemoryConfiguration;
++import org.jetbrains.annotations.Nullable;
++import org.simpleyaml.configuration.comments.CommentType;
++import org.simpleyaml.configuration.file.YamlFile;
++
++import java.io.IOException;
++import java.util.List;
++
++public class AbstractConfig {
++    public static final YamlFile config = new YamlFile();
++    public static int updates = 0;
++
++    public static ConfigurationSection convertToBukkit(org.simpleyaml.configuration.ConfigurationSection section) {
++        ConfigurationSection newSection = new MemoryConfiguration();
++        for (String key : section.getKeys(false)) {
++            if (section.isConfigurationSection(key)) {
++                newSection.set(key, convertToBukkit(section.getConfigurationSection(key)));
++            } else {
++                newSection.set(key, section.get(key));
++            }
++        }
++        return newSection;
++    }
++
++    public static ConfigurationSection getConfigCopy() {
++        return convertToBukkit(config);
++    }
++
++    public static int getUpdates() {
++        return updates;
++    }
++
++    public static void setComment(String key, String... comment) {
++        if (config.contains(key)) {
++            config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
++        }
++    }
++
++    public static void ensureDefault(String key, Object defaultValue, String... comment) {
++        if (!config.contains(key)) {
++            config.set(key, defaultValue);
++            config.setComment(key, String.join("\n", comment), CommentType.BLOCK);
++        }
++    }
++
++    public static boolean getBoolean(String key, boolean defaultValue, String... comment) {
++        return getBoolean(key, null, defaultValue, comment);
++    }
++
++    public static boolean getBoolean(String key, @Nullable String oldKey, boolean defaultValue, String... comment) {
++        ensureDefault(key, defaultValue, comment);
++        return config.getBoolean(key, defaultValue);
++    }
++
++    public static int getInt(String key, int defaultValue, String... comment) {
++        return getInt(key, null, defaultValue, comment);
++    }
++
++    public static int getInt(String key, @Nullable String oldKey, int defaultValue, String... comment) {
++        ensureDefault(key, defaultValue, comment);
++        return config.getInt(key, defaultValue);
++    }
++
++    public static double getDouble(String key, double defaultValue, String... comment) {
++        return getDouble(key, null, defaultValue, comment);
++    }
++
++    public static double getDouble(String key, @Nullable String oldKey, double defaultValue, String... comment) {
++        ensureDefault(key, defaultValue, comment);
++        return config.getDouble(key, defaultValue);
++    }
++
++    public static String getString(String key, String defaultValue, String... comment) {
++        return getOldString(key, null, defaultValue, comment);
++    }
++
++    public static String getOldString(String key, @Nullable String oldKey, String defaultValue, String... comment) {
++        ensureDefault(key, defaultValue, comment);
++        return config.getString(key, defaultValue);
++    }
++
++    public static List<String> getStringList(String key, List<String> defaultValue, String... comment) {
++        return getStringList(key, null, defaultValue, comment);
++    }
++
++    public static List<String> getStringList(String key, @Nullable String oldKey, List<String> defaultValue, String... comment) {
++        ensureDefault(key, defaultValue, comment);
++        return config.getStringList(key);
++    }
++
++}
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/levelpowered/vine/commands/VineCfgCommand.kt
 new file mode 100644
 index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20115cdcad
@@ -121,10 +358,10 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..70f088f33cae9a6dc5d8f0658aa171af2e99872d
+index 0000000000000000000000000000000000000000..6bbf04feb89d241d36c7383cb1ec9ed82bf23595
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,150 @@
 +package one.tranic.levelpowered.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -132,10 +369,14 @@ index 0000000000000000000000000000000000000000..70f088f33cae9a6dc5d8f0658aa171af
 +import one.tranic.levelpowered.vine.commands.VineCfgCommand
 +import org.bukkit.Bukkit
 +import org.bukkit.configuration.file.YamlConfiguration;
++import org.simpleyaml.exceptions.InvalidConfigurationException
 +import java.io.File
++import java.io.IOException
++import java.lang.reflect.Modifier
 +
-+object VineConfig {
++object VineConfig : AbstractConfig() {
 +    var logger: org.slf4j.Logger = MinecraftServer.LOGGER
++    private lateinit var configuration: YamlConfiguration
 +
 +    @JvmStatic
 +    fun setCommand() {
@@ -162,38 +403,50 @@ index 0000000000000000000000000000000000000000..70f088f33cae9a6dc5d8f0658aa171af
 +            logger.warn("SIMD operations are available for your server, but are not configured!")
 +            logger.warn("To enable additional optimizations, add \"--add-modules=jdk.incubator.vector\" to your startup flags, BEFORE the \"-jar\".")
 +            logger.warn("If you have already added this flag, then SIMD operations are not supported on your JVM or CPU.")
-+            logger.warn("Debug: Java: " + System.getProperty("java.version") + ", test run: " + SIMDDetection.testRun)
++            logger.warn("Debug: Java: ${System.getProperty("java.version")} test run: ${SIMDDetection.testRun}")
 +        }
-+    }
-+
-+    private fun addDefault(configFile: File, configuration: YamlConfiguration) {
-+        // Vine: Leaf start
-+        configuration.addDefault("leaf.optimize-minecart.enabled", true)
-+        configuration.addDefault("leaf.optimize-minecart.skipTickCount", 30)
-+        // Vine: Leaf end
-+
-+        configuration.options().copyDefaults(true)
-+        configuration.save(configFile)
-+    }
-+
-+    private fun loadConfigValue(configuration: YamlConfiguration) {
-+        // Vine: Leaf start
-+        Leaf.OptimizeMinecart.enabled = configuration.getBoolean("leaf.optimize-minecart.enabled")
-+        Leaf.OptimizeMinecart.skipTickCount = configuration.getInt("leaf.optimize-minecart.skipTickCount")
-+        // Vine: Leaf end
-+
 +    }
 +
 +    @JvmStatic
 +    fun reload() {
 +        runCatching {
 +            val configFile = File("vine.yml")
-+            if (!configFile.exists()) {
-+                configFile.createNewFile()
++
++            if (configFile.exists()) {
++                try {
++                    config.load(configFile)
++                } catch (e: InvalidConfigurationException) {
++                    throw IOException(e)
++                }
 +            }
-+            val configuration = YamlConfiguration.loadConfiguration(configFile)
-+            addDefault(configFile, configuration)
-+            loadConfigValue(configuration)
++
++            getString(
++                "info.version",
++                "1.0",
++                "empty"
++            )
++            setComment(
++                "info",
++                "Vine Abstract Configuration\nVine Github: https://github.com/LevelTranic/Vine"
++            )
++
++            for (method in VineConfig::class.java.declaredMethods) {
++                if (Modifier.isStatic(method.modifiers) && Modifier.isPrivate(method.modifiers) && method.parameterCount == 0 && method.returnType == Void.TYPE && !method.name.startsWith(
++                        "lambda"
++                    )
++                ) {
++                    method.isAccessible = true
++                    try {
++                        method.invoke(null)
++                    } catch (t: Throwable) {
++                        MinecraftServer.LOGGER.warn("Failed to load configuration option from {}", method.name, t)
++                    }
++                }
++            }
++
++            updates++
++
++            config.save(configFile)
 +        }.getOrElse {
 +            throw RuntimeException(it)
 +        }
@@ -203,9 +456,60 @@ index 0000000000000000000000000000000000000000..70f088f33cae9a6dc5d8f0658aa171af
 +        object OptimizeMinecart {
 +            @JvmField
 +            var enabled: Boolean = true
++
 +            @JvmField
 +            var skipTickCount: Int = 30
 +        }
++    }
++
++    @JvmStatic
++    private fun leaf() {
++        Leaf.OptimizeMinecart.enabled = getBoolean(
++            "leaf.optimize-minecart.enabled",
++            true,
++            """
++            Enable this feature to handle large amount of stacked Minecart better.
++            By skipping tick collisions to reduce expense getting entities list
++            and bukkit event calls, useful for the anarchy server.
++            """
++        )
++        Leaf.OptimizeMinecart.skipTickCount = getInt(
++            "leaf.optimize-minecart.skipTickCount",
++            30,
++            "default: 30"
++        )
++    }
++
++    object Mobtimizations {
++        @JvmField
++        var optimizationMobRePathfinding = true
++
++        @JvmField
++        var optimizationZombieSearchAndDestroyTurtleEgg = false
++
++        @JvmField
++        var zombieSearchAndDestroyTurtleEggPercentChance = 40
++    }
++
++    @JvmStatic
++    private fun mobtimizations() {
++        Mobtimizations.optimizationMobRePathfinding = getBoolean(
++            "mobtimizations.optimizationMobRePathfinding",
++            true,
++            "If true, disables the frequent pathfinds done while already following a path"
++        )
++
++        Mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg = getBoolean(
++            "mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg",
++            false,
++            "If true, optimizes the expensive searching done to find a turtle egg to crush, for zombies/husks, by default fully disabling it"
++        )
++
++        Mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance = getInt(
++            "mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance",
++            40,
++            "Percent chance to run for task: zombie seeking turtle eggs to destroy"
++        )
 +    }
 +}
 \ No newline at end of file

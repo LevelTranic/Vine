@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Mon, 8 Jul 2024 13:04:40 +0800
+Subject: [PATCH] Mobtimizations: Optimization Zombie Search And Destroy
+ TurtleEgg
+
+Original code by Corosauce
+You can find the original code on https://github.com/Corosauce/mobtimizations
+
+diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java b/src/main/java/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
+index a61abba840a55fb4fbc9716a5e05eb2778068785..a8e364aa57cd31c94f8bb585a89d07463386f3d3 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
++++ b/src/main/java/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
+@@ -17,10 +17,13 @@ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.LevelAccessor;
+ import net.minecraft.world.level.LevelReader;
+ import net.minecraft.world.level.block.Block;
++import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.chunk.ChunkAccess;
+ import net.minecraft.world.level.chunk.status.ChunkStatus;
+ import net.minecraft.world.phys.Vec3;
+ // CraftBukkit start
++import one.tranic.levelpowered.vine.config.VineConfig;
++import one.tranic.levelpowered.vine.util.VineUtils;
+ import org.bukkit.craftbukkit.block.CraftBlock;
+ import org.bukkit.craftbukkit.event.CraftEventFactory;
+ // CraftBukkit end
+@@ -40,6 +43,7 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
+ 
+     @Override
+     public boolean canUse() {
++        if (VineConfig.Mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg && blockToRemove == Blocks.TURTLE_EGG && !VineUtils.rollPercentChance(VineConfig.Mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance)) return false;
+         if (!this.removerMob.level().purpurConfig.zombieBypassMobGriefing && !this.removerMob.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) { // Purpur
+             return false;
+         } else if (this.nextStartTick > 0) {
+diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/util/VineUtils.kt b/src/main/kotlin/one/tranic/levelpowered/vine/util/VineUtils.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b8d791bd93c649c0a75ce6e0f9baa8d7963b970c
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/levelpowered/vine/util/VineUtils.kt
+@@ -0,0 +1,12 @@
++package one.tranic.levelpowered.vine.util
++
++import io.netty.util.internal.ThreadLocalRandom
++
++object VineUtils {
++    @JvmStatic
++    fun rollPercentChance(percent: Float): Boolean {
++        if (percent == 0f) return false
++
++        return ThreadLocalRandom.current().nextFloat() <= (percent / 100f)
++    }
++}
+\ No newline at end of file
