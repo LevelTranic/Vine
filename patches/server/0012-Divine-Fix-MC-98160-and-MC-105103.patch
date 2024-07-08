@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Mon, 8 Jul 2024 19:52:52 +0800
+Subject: [PATCH] Divine: Fix MC-98160 and MC-105103
+
+Original code by NONPLAYT
+You can find the original code on https://github.com/DivineMC/DivineMC
+
+diff --git a/src/main/java/net/minecraft/world/entity/vehicle/Boat.java b/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
+index 17c81fde9c879d51f09de2efb5a00263c4512aaf..ca5d3e0dd4da0aab64a566e6facd8492a166f323 100644
+--- a/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
++++ b/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
+@@ -800,15 +800,8 @@ public class Boat extends VehicleEntity implements VariantHolder<Boat.Type> {
+                 list.add(new Vec3(d0, (double) blockposition1.getY() + d3, d1));
+             }
+ 
+-            UnmodifiableIterator unmodifiableiterator = passenger.getDismountPoses().iterator();
+-
+-            while (unmodifiableiterator.hasNext()) {
+-                Pose entitypose = (Pose) unmodifiableiterator.next();
+-                Iterator iterator = list.iterator();
+-
+-                while (iterator.hasNext()) {
+-                    Vec3 vec3d1 = (Vec3) iterator.next();
+-
++            for (Pose entitypose : passenger.getDismountPoses()) {
++                for (Vec3 vec3d1 : list) {
+                     if (DismountHelper.canDismountTo(this.level(), vec3d1, passenger, entitypose)) {
+                         passenger.setPose(entitypose);
+                         return vec3d1;
+@@ -859,7 +852,7 @@ public class Boat extends VehicleEntity implements VariantHolder<Boat.Type> {
+         if (!this.isPassenger()) {
+             if (onGround) {
+                 if (this.fallDistance > 3.0F) {
+-                    if (this.status != Boat.Status.ON_LAND) {
++                    if (this.status != Boat.Status.ON_LAND && this.status != Status.IN_AIR) { // DivineMC - Fix MC-98160 and MC-105103
+                         this.resetFallDistance();
+                         return;
+                     }
