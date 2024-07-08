@@ -1,7 +1,21 @@
+# This script is applicable to Mars API.
+# You can get Mars API from Release (https://github.com/LevelTranic/Mars) and deploy it.
 param(
     [bool]$promoted = $false,
     [string]$channel = "default"
 )
+
+$MarsAPI = $env:MARS_API
+if (-not $MarsAPI) {
+    Write-Error 'Mars API cannot be empty, you need to set $MARS_API="YOUR_MARS_API" in the environment variable'
+    exit 1
+}
+
+$MarsToken = $env:MARS_TOKEN
+if (-not $MarsToken) {
+    Write-Error 'Mars Token cannot be empty, you need to set $MARS_TOKEN="YOUR_MARS_API_TOKEN" in the environment variable'
+    exit 1
+}
 
 function Get-GitInfo {
     $commit = git log -1 --pretty=format:"%H"
@@ -95,7 +109,7 @@ function Upload-Files {
 
     try {
         $response = $httpClient.PostAsync($url, $multipartContent).Result
-        if ($response -eq $null) {
+        if (-not $response) {
             Write-Error "Failed to get a valid response from the server."
             exit 1
         }
@@ -129,8 +143,8 @@ $jsonData = @{
     )
 }
 
-$apiUrl = "http://127.0.0.1:7743/v2/new/build"
-$cookie = "mars_token=WlVReVcySkRNRUJoVERrbFlrZzBLbUZJTTBCb1FqQmVZMFV3Sm1OS01WNWhRak4r"
+$apiUrl = "$MarsAPI/v2/new/build"
+$cookie = "mars_token=$MarsToken"
 $userAgent = "Mars-Utils/v1"
 
 $response = Send-JsonData -url $apiUrl -cookie $cookie -userAgent $userAgent -data $jsonData
@@ -146,7 +160,7 @@ $responseObj = $response
 if ($responseObj -and $responseObj.build_id -ne 0) {
     $buildId = $responseObj.build_id
 
-    $uploadUrl = "http://127.0.0.1:7743/v2/new/download?project=$($gitInfo.RepoName)&version=$($buildInfo.Version)&build=$buildId"
+    $uploadUrl = "$MarsAPI/v2/new/download?project=$($gitInfo.RepoName)&version=$($buildInfo.Version)&build=$buildId"
     $uploadResponse = Upload-Files -url $uploadUrl -cookie $cookie -userAgent $userAgent -files $buildInfo.Files
 
     Write-Output "Upload response: $uploadResponse"
