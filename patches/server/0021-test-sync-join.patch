@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 3JoB <54469706+3JoB@users.noreply.github.com>
+Date: Fri, 12 Jul 2024 22:06:11 +0800
+Subject: [PATCH] test: sync join
+
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
+index e4086bea596e5f5d71491e0b7ad650d76939b8f9..832b05cca1a5e601326b8a66acfb639e419e9dc5 100644
+--- a/src/main/java/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerConfigurationPacketListenerImpl.java
+@@ -150,7 +150,10 @@ public class ServerConfigurationPacketListenerImpl extends ServerCommonPacketLis
+ 
+             ServerPlayer entityplayer = playerlist.getPlayerForLogin(this.gameProfile, this.clientInformation, this.player); // CraftBukkit
+ 
+-            playerlist.placeNewPlayer(this.connection, entityplayer, this.createCookie(this.clientInformation));
++            synchronized(this){
++                playerlist.placeNewPlayer(this.connection, entityplayer, this.createCookie(this.clientInformation));
++            }
++
+         } catch (Exception exception) {
+             ServerConfigurationPacketListenerImpl.LOGGER.error("Couldn't place player in world", exception);
+             // Paper start - Debugging
