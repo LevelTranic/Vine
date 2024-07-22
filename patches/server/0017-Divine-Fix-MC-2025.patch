@@ -10,10 +10,10 @@ Original post on Mojira: https://bugs.mojang.com/browse/MC-2025
 Fix taken from Reddit: https://redd.it/8pgd4q
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 966cbf504e8f7ad64d866732098dd2cb309dbe3b..21a96004b1a78b7d526c64b4343d21f7e1bf754d 100644
+index 8290f2a8ac5d7d4afc7a7521782deecf10481c73..1ad07f86d5e1efbb57d3af8fd16094e7446a60ee 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -2594,6 +2594,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2596,6 +2596,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                  nbttagcompound.putBoolean("Purpur.FireImmune", immuneToFire);
              }
              // Purpur end

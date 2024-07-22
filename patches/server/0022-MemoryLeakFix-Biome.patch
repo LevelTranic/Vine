@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sat, 20 Jul 2024 23:30:29 +0800
+Subject: [PATCH] MemoryLeakFix: Biome
+
+ou can find the original code on https://github.com/FxMorin/MemoryLeakFix
+
+diff --git a/src/main/java/net/minecraft/world/level/biome/Biome.java b/src/main/java/net/minecraft/world/level/biome/Biome.java
+index 15f82c9a1ce1fef2e951d1b3c7a65e64b82061ea..205e28cce370620c0322d7277b7a8e6339953526 100644
+--- a/src/main/java/net/minecraft/world/level/biome/Biome.java
++++ b/src/main/java/net/minecraft/world/level/biome/Biome.java
+@@ -63,7 +63,7 @@ public final class Biome {
+     private final BiomeGenerationSettings generationSettings;
+     private final MobSpawnSettings mobSettings;
+     private final BiomeSpecialEffects specialEffects;
+-    private final ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
++    private final static ThreadLocal<Long2FloatLinkedOpenHashMap> temperatureCache = ThreadLocal.withInitial(() -> Util.make(() -> {
+             Long2FloatLinkedOpenHashMap long2FloatLinkedOpenHashMap = new Long2FloatLinkedOpenHashMap(1024, 0.25F) {
+                 protected void rehash(int i) {
+                 }
+@@ -112,7 +112,7 @@ public final class Biome {
+     @Deprecated
+     public float getTemperature(BlockPos blockPos) {
+         long l = blockPos.asLong();
+-        Long2FloatLinkedOpenHashMap long2FloatLinkedOpenHashMap = this.temperatureCache.get();
++        Long2FloatLinkedOpenHashMap long2FloatLinkedOpenHashMap = temperatureCache.get();
+         float f = long2FloatLinkedOpenHashMap.get(l);
+         if (!Float.isNaN(f)) {
+             return f;
