@@ -140,10 +140,10 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..1567d11990de8ffab75040014a1c9eff8748263b
+index 0000000000000000000000000000000000000000..42c159d16c4439ee65778272ec33027f4497b72c
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,153 @@
+@@ -0,0 +1,160 @@
 +package one.tranic.levelpowered.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -212,15 +212,14 @@ index 0000000000000000000000000000000000000000..1567d11990de8ffab75040014a1c9eff
 +    private fun addDefault(configFile: File){
 +        addDefault("info",
 +            "1.0",
-+            "Vine Abstract Configuration\nVine Github: https://github.com/LevelTranic/Vine")
++            listOf("Vine Abstract Configuration", "Vine Github: https://github.com/LevelTranic/Vine"))
 +
 +        addDefault("leaf.optimize-minecart.enabled",true,
 +            listOf(
 +                "Enable this feature to handle large amount of stacked Minecart better.",
 +                "By skipping tick collisions to reduce expense getting entities list",
 +                "and bukkit event calls, useful for the anarchy server."))
-+        addDefault("leaf.optimize-minecart.skipTickCount",
-+            30)
++        addDefault("leaf.optimize-minecart.skipTickCount", 30)
 +
 +        addDefault("mobtimizations.optimizationMobRePathfinding",
 +            true,
@@ -255,6 +254,14 @@ index 0000000000000000000000000000000000000000..1567d11990de8ffab75040014a1c9eff
 +        configuration.setComments(path, listOf(comment))
 +    }
 +
++    private fun addComment(path: String, comment: String) {
++        configuration.setComments(path, listOf(comment))
++    }
++
++    private fun addComment(path: String, comment: List<String>) {
++         configuration.setComments(path, comment)
++    }
++
 +    private fun addDefault(path: String, value: Any, comment: List<String>) {
 +        configuration.addDefault(path, value)
 +        configuration.setComments(path, comment)
@@ -279,10 +286,10 @@ index 0000000000000000000000000000000000000000..1567d11990de8ffab75040014a1c9eff
 +    object Leaf {
 +        object OptimizeMinecart {
 +            @JvmField
-+            var enabled: Boolean = true
++            var enabled = true
 +
 +            @JvmField
-+            var skipTickCount: Int = 30
++            var skipTickCount = 30
 +        }
 +    }
 +
