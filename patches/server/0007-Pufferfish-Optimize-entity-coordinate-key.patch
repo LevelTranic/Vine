@@ -27,10 +27,10 @@ index 1d6b3fe2ce240af4ede61588795456b046eee6c9..cdcb1bff7913bfe86fed008271016a31
  
      public static long getCoordinateKey(final ChunkPos pair) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 72584a7e11b2cc924bd11bbbe5dbe35a0bbf648d..8290f2a8ac5d7d4afc7a7521782deecf10481c73 100644
+index af0f4fa67a9395389e97942c95a0d996c11a9ccd..e8498ac72fd3e7c41691ebb4e00e36c44ba38600 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -317,7 +317,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -315,7 +315,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      public double yo;
      public double zo;
      private Vec3 position;
