@@ -38,7 +38,8 @@ function Get-GitInfo
 
 function Get-BuildInfo
 {
-    $buildLibsDir = Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath "../build") -ChildPath "libs"
+    $buildLibsDir = "build/libs"
+    Write-Host (Get-ChildItem $buildLibsDir)
     $filePattern = "$buildLibsDir/*.jar"
     $files = Get-ChildItem -Path $filePattern
 
