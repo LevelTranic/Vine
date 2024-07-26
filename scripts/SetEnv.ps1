@@ -6,7 +6,7 @@ function Get-Property {
     )
     $line = Select-String -Path "gradle.properties" -Pattern "^[\s]*$name" | Select-Object -First 1
     if ($line) {
-        return $line -replace '^[\s]*' -replace "$name\s*=\s*", ""
+        return $line.Line -replace '^[\s]*' -replace "$name\s*=\s*", ""
     }
     return $null
 }
