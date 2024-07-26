@@ -43,6 +43,8 @@ jobs:
         with:
           name: "${{ env.project_id_b }} CI Artifacts"
           path: "build/libs/*.jar"
+      - name: Upload to Mars API
+        run: pwsh scripts/create_build.ps1 ${{ env.mcversion }} ${{ secrets.MARS_TOKEN }}
       - name: Create Release
         if: "!contains(github.event.commits[0].message, '[release skip]')"
         uses: ncipollo/release-action@v1.14.0
@@ -61,5 +63,3 @@ jobs:
           prerelease: ${{ env.pre }}
           makeLatest: ${{ env.make_latest }}
           token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: Upload to Mars API
-        run: pwsh scripts/create_build.ps1 ${{ env.mcversion }} ${{ secrets.MARS_TOKEN }}
