@@ -25,8 +25,8 @@ $jarName_dir = "build/libs/$jarName"
 $jarName_bundler_dir = "build/libs/$jarName_bundler"
 $make_latest = if ($preVersion -eq "true") { "false" } else { "true" }
 
-Move-Item "build/libs/$project_id_b-paperclip-$grdversion-mojmap.jar" $jarName_dir
-Move-Item "build/libs/$project_id_b-bundler-$grdversion-mojmap.jar" $jarName_bundler_dir
+Move-Item "build/libs/$project_id-paperclip-$grdversion-mojmap.jar" $jarName_dir
+Move-Item "build/libs/$project_id-bundler-$grdversion-mojmap.jar" $jarName_bundler_dir
 
 Add-Content -Path $env:GITHUB_ENV -Value "project_id=$project_id"
 Add-Content -Path $env:GITHUB_ENV -Value "project_id_b=$project_id_b"
