@@ -1,3 +1,5 @@
+#!/usr/bin/env pwsh
+
 # This script is applicable to Mars API.
 # You can get Mars API from Release (https://github.com/LevelTranic/Mars) and deploy it.
 param(

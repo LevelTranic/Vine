@@ -1,3 +1,5 @@
+#!/usr/bin/env pwsh
+
 # upstreamCommit <baseHash> <newHash>
 # param: baseHash - the commit hash to use for comparing commits (baseHash...newHash)
 # param: newHash - the commit hash to use for comparing commits
