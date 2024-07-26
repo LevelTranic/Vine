@@ -23,9 +23,6 @@ jobs:
           gradle-version: 8.7
       - name: Setup Powershell
         run: |
-          sudo apt-get update
-          sudo apt-get upgrade -y
-          sudo apt-get install wget
           wget https://github.com/PowerShell/PowerShell/releases/download/v7.4.4/powershell_7.4.4-1.deb_amd64.deb
           sudo dpkg -i powershell_7.4.4-1.deb_amd64.deb
       - name: Set up JDK
