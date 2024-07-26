@@ -38,7 +38,7 @@ function Get-GitInfo
 
 function Get-BuildInfo
 {
-    $buildLibsDir = "build/libs"
+    $buildLibsDir = Join-Path -Path (Join-Path -Path $PSScriptRoot -ChildPath "../build") -ChildPath "libs"
     $filePattern = "$buildLibsDir/*.jar"
     $files = Get-ChildItem -Path $filePattern
 
@@ -147,21 +147,41 @@ $responseObj = $response
 
 if ($responseObj -and $responseObj.build_id -ne 0)
 {
-    $buildID = $responseObj.build_id
 
     $buildInfoJson = $buildInfo | ConvertTo-Json -Depth 10
     $gitInfoJson = $gitInfo | ConvertTo-Json -Depth 10
 
-    $buildInfoPath = [System.IO.Path]::GetTempFileName()
-    $gitInfoPath = [System.IO.Path]::GetTempFileName()
-    $buildInfoJson | Set-Content -Path $buildInfoPath
-    $gitInfoJson | Set-Content -Path $gitInfoPath
-
     try
     {
-        $command = "& `pwsh scripts/upload_files.ps1 -buildInfoPath $buildInfoPath -gitInfoPath $gitInfoPath -token $token -build $buildID"
-        Write-Output "Executing command: $command"
-        Invoke-Expression $command
+        $uploadData = @{
+            project = $gitInfoJson.RepoName
+            version = $buildInfoJson.Version
+            build = $responseObj.build_id
+            file = $buildInfoJson.Files
+        }
+
+        $uploadData | ConvertTo-Json -Depth 10 | Set-Content -Path $tempFile -Force
+
+        $uploadUrl = "https://mars.tranic.one/v2/new/external_download"
+
+        $curlCommand = @"
+curl -X POST "$uploadUrl" -H "Content-Type: application/json" -H "Cookie: mars_token=$token" -H "User-Agent: Mars-Utils/v1" -d "@$tempFile"
+"@
+
+        try
+        {
+            $uploadResponse = Invoke-Expression $curlCommand
+            Write-Output "Upload response: $uploadResponse"
+        }
+        catch
+        {
+            Write-Error "Failed to execute curl command."
+            Write-Error $_.Exception.Message
+        }
+        finally
+        {
+            Remove-Item -Path $tempFile -Force
+        }
     }
     catch
     {
