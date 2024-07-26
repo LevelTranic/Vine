@@ -51,7 +51,7 @@ function Get-BuildInfo
     $fileInfo = @{ }
     foreach ($file in $files)
     {
-        if ($file.Name -match "vine-(bundler|paperclip)-(\d+\.\d+\.\d+)-.*\.jar")
+        if ($file.Name -match "vine-(bundler|paperclip)-(\d+\.\d+\.\d+)(-[^\-]+)*\.jar")
         {
             $key = $matches[1]
             $version = $matches[2]
@@ -132,6 +132,8 @@ $jsonData = @{
 $apiUrl = "$api/v2/new/build"
 $cookie = "mars_token=$token"
 $userAgent = "Mars-Utils/v1"
+
+exit
 
 Write-Output "Starting first API call to $apiUrl"
 $response = Send-JsonData -url $apiUrl -cookie $cookie -userAgent $userAgent -data $jsonData
