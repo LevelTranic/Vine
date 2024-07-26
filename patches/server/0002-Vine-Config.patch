@@ -140,10 +140,10 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..42c159d16c4439ee65778272ec33027f4497b72c
+index 0000000000000000000000000000000000000000..7cce959102ddabe3dc022a4d0a27753e06a862af
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,160 @@
+@@ -0,0 +1,169 @@
 +package one.tranic.levelpowered.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -232,6 +232,8 @@ index 0000000000000000000000000000000000000000..42c159d16c4439ee65778272ec33027f
 +            40,
 +            "Percent chance to run for task: zombie seeking turtle eggs to destroy")
 +
++        addDefault("divine.optimize-noise-generation", true)
++
 +        configuration.options().copyDefaults(true)
 +        configuration.save(configFile)
 +    }
@@ -243,6 +245,8 @@ index 0000000000000000000000000000000000000000..42c159d16c4439ee65778272ec33027f
 +        Mobtimizations.optimizationMobRePathfinding = getBoolean("mobtimizations.optimizationMobRePathfinding")
 +        Mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg = getBoolean("mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg")
 +        Mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance = getInt("mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance")
++
++        Divine.optimizeNoiseGeneration = getBoolean("divine.optimize-noise-generation")
 +    }
 +
 +    private fun addDefault(path: String, value: Any) {
@@ -302,6 +306,11 @@ index 0000000000000000000000000000000000000000..42c159d16c4439ee65778272ec33027f
 +
 +        @JvmField
 +        var zombieSearchAndDestroyTurtleEggPercentChance = 40
++    }
++
++    object Divine {
++        @JvmField
++        var optimizeNoiseGeneration = true
 +    }
 +}
 \ No newline at end of file

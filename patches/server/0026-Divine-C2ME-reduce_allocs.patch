@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Fri, 26 Jul 2024 14:34:04 +0800
+Subject: [PATCH] Divine: C2ME: reduce_allocs
+
+You can find the original code on https://github.com/DivineMC/DivineMC
+
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/OreFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/OreFeature.java
+index 506b2afd099c9b7e9ac3f6f2fcea8e523fae396b..18a021e6e1faecb17dfc5065bd2cdc54964f65e5 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/feature/OreFeature.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/feature/OreFeature.java
+@@ -32,7 +32,7 @@ public class OreFeature extends Feature<OreConfiguration> {
+         double e = (double)blockPos.getX() - Math.sin((double)f) * (double)g;
+         double h = (double)blockPos.getZ() + Math.cos((double)f) * (double)g;
+         double j = (double)blockPos.getZ() - Math.cos((double)f) * (double)g;
+-        int k = 2;
++        //int k = 2;
+         double l = (double)(blockPos.getY() + randomSource.nextInt(3) - 2);
+         double m = (double)(blockPos.getY() + randomSource.nextInt(3) - 2);
+         int n = blockPos.getX() - Mth.ceil(g) - i;
+@@ -69,7 +69,7 @@ public class OreFeature extends Feature<OreConfiguration> {
+         int verticalSize
+     ) {
+         int i = 0;
+-        BitSet bitSet = new BitSet(horizontalSize * verticalSize * horizontalSize);
++        BitSet bitSet = space.bxteam.divinemc.util.c2me.ObjectCachingUtils.getCachedOrNewBitSet(horizontalSize * verticalSize * horizontalSize); // DivineMC - C2ME: reduce_allocs
+         BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+         int j = config.size;
+         double[] ds = new double[j * 4];
+diff --git a/src/main/java/space/bxteam/divinemc/util/c2me/ObjectCachingUtils.java b/src/main/java/space/bxteam/divinemc/util/c2me/ObjectCachingUtils.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c7fe1a0aefe89825514d02300e8f4a88b5884dd6
+--- /dev/null
++++ b/src/main/java/space/bxteam/divinemc/util/c2me/ObjectCachingUtils.java
+@@ -0,0 +1,20 @@
++package space.bxteam.divinemc.util.c2me;
++
++import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
++
++import java.util.BitSet;
++import java.util.function.IntFunction;
++
++public class ObjectCachingUtils {
++    private static final IntFunction<BitSet> bitSetConstructor = BitSet::new;
++
++    public static ThreadLocal<Int2ObjectOpenHashMap<BitSet>> BITSETS = ThreadLocal.withInitial(Int2ObjectOpenHashMap::new);
++
++    private ObjectCachingUtils() {}
++
++    public static BitSet getCachedOrNewBitSet(int bits) {
++        final BitSet bitSet = BITSETS.get().computeIfAbsent(bits, bitSetConstructor);
++        bitSet.clear();
++        return bitSet;
++    }
++}
+\ No newline at end of file
