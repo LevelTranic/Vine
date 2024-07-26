@@ -133,8 +133,6 @@ $apiUrl = "$api/v2/new/build"
 $cookie = "mars_token=$token"
 $userAgent = "Mars-Utils/v1"
 
-exit
-
 Write-Output "Starting first API call to $apiUrl"
 $response = Send-JsonData -url $apiUrl -cookie $cookie -userAgent $userAgent -data $jsonData
 Write-Output "First API call response: $response"
@@ -161,6 +159,8 @@ if ($responseObj -and $responseObj.build_id -ne 0)
             build = $responseObj.build_id
             file = $buildInfoJson.Files
         }
+
+        $tempFile = [System.IO.Path]::GetTempFileName()
 
         $uploadData | ConvertTo-Json -Depth 10 | Set-Content -Path $tempFile -Force
 
