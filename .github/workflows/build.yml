@@ -37,7 +37,7 @@ jobs:
       - name: CreateJar
         run: gradle createMojmapBundlerJar && gradle createMojmapPaperclipJar
       - name: SetENV
-        run: ./scripts/SetEnv.ps1
+        run: pwsh scripts/SetEnv.ps1
       - name: Upload Artifact
         uses: "actions/upload-artifact@v4"
         with:
