@@ -1,5 +1,7 @@
 #!/usr/bin/env pwsh
 
+# Script by TranicSoft, https://github.com/LevelTranic
+
 function Get-Property {
     param (
         [string]$name

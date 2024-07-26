@@ -1,3 +1,7 @@
+#!/usr/bin/env pwsh
+
+# Script by TranicSoft, https://github.com/LevelTranic
+
 function exit_on_error {
     param (
         [string]$message
