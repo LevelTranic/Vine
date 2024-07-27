@@ -148,17 +148,13 @@ $responseObj = $response
 
 if ($responseObj -and $responseObj.build_id -ne 0)
 {
-
-    $buildInfoJson = $buildInfo | ConvertTo-Json -Depth 10
-    $gitInfoJson = $gitInfo | ConvertTo-Json -Depth 10
-
     try
     {
         $uploadData = @{
-            project = $gitInfoJson.RepoName
-            version = $buildInfoJson.Version
+            project = $gitInfo.RepoName
+            version = $buildInfo.Version
             build = $responseObj.build_id
-            file = $buildInfoJson.Files
+            file = $buildInfo.Files
         }
 
         Write-Host $uploadData
