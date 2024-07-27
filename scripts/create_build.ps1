@@ -161,34 +161,29 @@ if ($responseObj -and $responseObj.build_id -ne 0)
             file = $buildInfoJson.Files
         }
 
-        $tempFile = [System.IO.Path]::GetTempFileName()
+        Write-Host $uploadData
 
-        $uploadData | ConvertTo-Json -Depth 10 | Set-Content -Path $tempFile -Force
+        $uploadAPI = "https://mars.tranic.one/v2/new/external_download"
 
-        $uploadUrl = "https://mars.tranic.one/v2/new/external_download"
+        $uploadResponse = Send-JsonData -url $uploadAPI -cookie $cookie -userAgent $userAgent -data $uploadData
+        Write-Output "upload API call response: $uploadResponse"
 
-        $curlCommand = @"
-curl -X POST "$uploadUrl" -H "Content-Type: application/json" -H "Cookie: mars_token=$token" -H "User-Agent: Mars-Utils/v1" -d "@$tempFile"
-"@
-
-        try
+        if ($uploadResponse -is [string])
         {
-            $uploadResponse = Invoke-Expression $curlCommand
-            Write-Output "Upload response: $uploadResponse"
+            Write-Error "API response is not a valid JSON object."
+            exit 1
         }
-        catch
-        {
-            Write-Error "Failed to execute curl command."
-            Write-Error $_.Exception.Message
+
+        if (-not $uploadResponse.result) {
+            Write-Error $uploadResponse
+            exit 1
         }
-        finally
-        {
-            Remove-Item -Path $tempFile -Force
-        }
+        $result = $uploadResponse.result
+        Write-Host "Server: $result"
     }
     catch
     {
-        Write-Error "Failed to execute upload_files.ps1"
+        Write-Error "Failed to execute upload_files"
         Write-Error "Exception message: $_"
         Write-Error "StackTrace: $( $_.ScriptStackTrace )"
         exit 1
@@ -199,6 +194,3 @@ else
     Write-Error "Failed to get valid build_id from API response"
     exit 1
 }
-
-Remove-Item $buildInfoPath
-Remove-Item $gitInfoPath
