@@ -22,10 +22,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 diff --git a/src/main/java/net/minecraft/world/entity/monster/EnderMan.java b/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
-index 5b49a6b1884c33bedafca5cff0214cdfccd87302..41dfbe73b565bea3e816cb65234ec5b06711e632 100644
+index 5b49a6b1884c33bedafca5cff0214cdfccd87302..96d41adfa3db60012c4078d9e19b106d52c7531b 100644
 --- a/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
 +++ b/src/main/java/net/minecraft/world/entity/monster/EnderMan.java
-@@ -347,7 +347,13 @@ public class EnderMan extends Monster implements NeutralMob {
+@@ -347,11 +347,17 @@ public class EnderMan extends Monster implements NeutralMob {
      private boolean teleport(double x, double y, double z) {
          BlockPos.MutableBlockPos blockposition_mutableblockposition = new BlockPos.MutableBlockPos(x, y, z);
  
@@ -39,4 +39,9 @@ index 5b49a6b1884c33bedafca5cff0214cdfccd87302..41dfbe73b565bea3e816cb65234ec5b0
 +        while (blockposition_mutableblockposition.getY() > this.level().getMinBuildHeight() && !chunk.getBlockState(blockposition_mutableblockposition).blocksMotion()) { // Airplane
              blockposition_mutableblockposition.move(Direction.DOWN);
          }
+ 
+-        BlockState iblockdata = this.level().getBlockState(blockposition_mutableblockposition);
++        BlockState iblockdata = chunk.getBlockState(blockposition_mutableblockposition); // Pufferfish
+         boolean flag = iblockdata.blocksMotion();
+         boolean flag1 = iblockdata.getFluidState().is(FluidTags.WATER);
  
