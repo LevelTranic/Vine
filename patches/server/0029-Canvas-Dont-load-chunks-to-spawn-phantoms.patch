@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PurpleWolfMC <jedimastertoothless@hotmail.com>
+Date: Fri, 10 Nov 2023 17:19:29 -0800
+Subject: [PATCH] Canvas: Dont load chunks to spawn phantoms
+
+You can find the original code on https://github.com/CraftCanvasMC/Canvas
+
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/PhantomSpawner.java b/src/main/java/net/minecraft/world/level/levelgen/PhantomSpawner.java
+index 21104075c85efa41b2f56d6426ec20547b393ca8..e7e09742f4fbf81ac72b0752cd288d1f423d6329 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/PhantomSpawner.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/PhantomSpawner.java
+@@ -67,10 +67,10 @@ public class PhantomSpawner implements CustomSpawner {
+                                 if (difficultydamagescaler.isHarderThan(randomsource.nextFloat() * (float) world.purpurConfig.phantomSpawnLocalDifficultyChance)) { // Purpur
+                                     ServerStatsCounter serverstatisticmanager = entityplayer.getStats();
+                                     int j = Mth.clamp(serverstatisticmanager.getValue(Stats.CUSTOM.get(Stats.TIME_SINCE_REST)), 1, Integer.MAX_VALUE);
+-                                    boolean flag2 = true;
+ 
+                                     if (randomsource.nextInt(j) >= world.paperConfig().entities.behavior.playerInsomniaStartTicks) { // Paper - Ability to control player's insomnia and phantoms
+                                         BlockPos blockposition1 = blockposition.above(20 + randomsource.nextInt(15)).east(-10 + randomsource.nextInt(21)).south(-10 + randomsource.nextInt(21));
++                                        if (world.hasChunkAt(blockposition1)) return; // Canvas
+                                         BlockState iblockdata = world.getBlockState(blockposition1);
+                                         FluidState fluid = world.getFluidState(blockposition1);
+ 
+@@ -88,7 +88,7 @@ public class PhantomSpawner implements CustomSpawner {
+                                                     continue;
+                                                 }
+                                                 // Paper end - PhantomPreSpawnEvent
+-                                                Phantom entityphantom = (Phantom) EntityType.PHANTOM.create(world);
++                                                Phantom entityphantom = EntityType.PHANTOM.create(world);
+ 
+                                                 if (entityphantom != null) {
+                                                     entityphantom.setSpawningEntity(entityplayer.getUUID()); // Paper - PhantomPreSpawnEvent
