@@ -140,24 +140,19 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..7cce959102ddabe3dc022a4d0a27753e06a862af
+index 0000000000000000000000000000000000000000..51a527c2c5819808277fc87473b76db4b7253817
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,169 @@
+@@ -0,0 +1,199 @@
 +package one.tranic.levelpowered.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
 +import net.minecraft.server.MinecraftServer
 +import one.tranic.levelpowered.vine.commands.VineCfgCommand
 +import org.bukkit.Bukkit
-+import org.bukkit.configuration.Configuration
 +import org.bukkit.configuration.file.YamlConfiguration
-+import org.simpleyaml.configuration.comments.CommentType
 +import org.simpleyaml.configuration.file.YamlFile
-+import org.simpleyaml.exceptions.InvalidConfigurationException
 +import java.io.File
-+import java.io.IOException
-+import java.lang.reflect.Modifier
 +
 +object VineConfig {
 +    var logger: org.slf4j.Logger = MinecraftServer.LOGGER
@@ -209,28 +204,51 @@ index 0000000000000000000000000000000000000000..7cce959102ddabe3dc022a4d0a27753e
 +        // Pufferfish end
 +    }
 +
-+    private fun addDefault(configFile: File){
-+        addDefault("info",
++    private fun addDefault(configFile: File) {
++        addDefault(
++            "info",
 +            "1.0",
-+            listOf("Vine Abstract Configuration", "Vine Github: https://github.com/LevelTranic/Vine"))
++            listOf("Vine Abstract Configuration", "Vine Github: https://github.com/LevelTranic/Vine")
++        )
 +
-+        addDefault("leaf.optimize-minecart.enabled",true,
++        addDefault(
++            "levelbukkit.try-fix-anvil-drop.enabled",
++            true,
++            listOf(
++                "This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ",
++                "it may cause some unexpected effects but should be harmless."
++            )
++        )
++        addDefault(
++            "levelbukkit.try-fix-anvil-drop.debug", false,
++            "Whether to print detailed information to the console when this issue is triggered"
++        )
++
++        addDefault(
++            "leaf.optimize-minecart.enabled", true,
 +            listOf(
 +                "Enable this feature to handle large amount of stacked Minecart better.",
 +                "By skipping tick collisions to reduce expense getting entities list",
-+                "and bukkit event calls, useful for the anarchy server."))
++                "and bukkit event calls, useful for the anarchy server."
++            )
++        )
 +        addDefault("leaf.optimize-minecart.skipTickCount", 30)
 +
-+        addDefault("mobtimizations.optimizationMobRePathfinding",
++        addDefault(
++            "mobtimizations.optimizationMobRePathfinding",
 +            true,
-+            "If true, disables the frequent pathfinds done while already following a path")
-+        addDefault("mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg",
++            "If true, disables the frequent pathfinds done while already following a path"
++        )
++        addDefault(
++            "mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg",
 +            false,
 +            "If true, optimizes the expensive searching done to find a turtle egg to crush, for zombies/husks, by default fully disabling it"
 +        )
-+        addDefault("mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance",
++        addDefault(
++            "mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance",
 +            40,
-+            "Percent chance to run for task: zombie seeking turtle eggs to destroy")
++            "Percent chance to run for task: zombie seeking turtle eggs to destroy"
++        )
 +
 +        addDefault("divine.optimize-noise-generation", true)
 +
@@ -239,12 +257,16 @@ index 0000000000000000000000000000000000000000..7cce959102ddabe3dc022a4d0a27753e
 +    }
 +
 +    private fun loadConfigValue() {
++        LevelBukkit.tryFixAnvilDrop = getBoolean("levelbukkit.try-fix-anvil-drop.enabled")
++        LevelBukkit.tryFixAnvilDropLogger = getBoolean("levelbukkit.try-fix-anvil-drop.debug")
 +        Leaf.OptimizeMinecart.enabled = getBoolean("leaf.optimize-minecart.enabled")
 +        Leaf.OptimizeMinecart.skipTickCount = getInt("leaf.optimize-minecart.skipTickCount")
 +
 +        Mobtimizations.optimizationMobRePathfinding = getBoolean("mobtimizations.optimizationMobRePathfinding")
-+        Mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg = getBoolean("mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg")
-+        Mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance = getInt("mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance")
++        Mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg =
++            getBoolean("mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg")
++        Mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance =
++            getInt("mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance")
 +
 +        Divine.optimizeNoiseGeneration = getBoolean("divine.optimize-noise-generation")
 +    }
@@ -263,7 +285,7 @@ index 0000000000000000000000000000000000000000..7cce959102ddabe3dc022a4d0a27753e
 +    }
 +
 +    private fun addComment(path: String, comment: List<String>) {
-+         configuration.setComments(path, comment)
++        configuration.setComments(path, comment)
 +    }
 +
 +    private fun addDefault(path: String, value: Any, comment: List<String>) {
@@ -285,6 +307,14 @@ index 0000000000000000000000000000000000000000..7cce959102ddabe3dc022a4d0a27753e
 +
 +    private fun getString(path: String): String {
 +        return config.getString(path)
++    }
++
++    object LevelBukkit {
++        @JvmStatic
++        var tryFixAnvilDrop = true
++
++        @JvmStatic
++        var tryFixAnvilDropLogger = false
 +    }
 +
 +    object Leaf {
