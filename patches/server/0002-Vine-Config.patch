@@ -140,10 +140,10 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..cfbdc493140facfc742bbd99704bd053fcd50500
+index 0000000000000000000000000000000000000000..960b0d79a27c111d2d9750c05e04f8a0f216b7b0
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,210 @@
+@@ -0,0 +1,225 @@
 +package one.tranic.levelpowered.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -212,7 +212,18 @@ index 0000000000000000000000000000000000000000..cfbdc493140facfc742bbd99704bd053
 +        addDefault(
 +            "vine.fix.incorrect-bounce-logic",
 +            false,
-+            listOf("Fixes some entities not bouncing on slime blocks and getting stuck", "Fixes: https://bugs.mojang.com/browse/MC-216985")
++            listOf(
++                "Fixes some entities not bouncing on slime blocks and getting stuck",
++                "Fixes: https://bugs.mojang.com/browse/MC-216985"
++            )
++        )
++        addDefault(
++            "vine.fix.explosion-breaks-item-frame-in-water",
++            false,
++            listOf(
++                "Fixes Explosions being able to destroy item frames in water",
++                "Fixes: https://bugs.mojang.com/browse/MC-3697"
++            )
 +        )
 +
 +        addDefault(
@@ -262,6 +273,7 @@ index 0000000000000000000000000000000000000000..cfbdc493140facfc742bbd99704bd053
 +
 +    private fun loadConfigValue() {
 +        Fix.incorrectBounceLogic = getBoolean("vine.fix.incorrect-bounce-logic")
++        Fix.explosionBreaksItemFrameInWater = getBoolean("vine.fix.explosion-breaks-item-frame-in-water")
 +
 +        LevelBukkit.tryFixAnvilDrop = getBoolean("levelbukkit.try-fix-anvil-drop.enabled")
 +        LevelBukkit.tryFixAnvilDropLogger = getBoolean("levelbukkit.try-fix-anvil-drop.debug")
@@ -318,6 +330,9 @@ index 0000000000000000000000000000000000000000..cfbdc493140facfc742bbd99704bd053
 +    object Fix {
 +        @JvmField
 +        var incorrectBounceLogic = false
++
++        @JvmField
++        var explosionBreaksItemFrameInWater = false
 +    }
 +
 +    object LevelBukkit {

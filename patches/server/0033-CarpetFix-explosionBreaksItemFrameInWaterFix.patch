@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 30 Jul 2024 20:25:34 +0800
+Subject: [PATCH] CarpetFix: explosionBreaksItemFrameInWaterFix
+
+You can find the original code on https://github.com/fxmorin/carpet-fixes
+
+diff --git a/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java b/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
+index 9af8fcf6abb9b768829592bc1b091ebe4599ed2e..7506f2c33582d1cf49e8a77e86da5d98c550b882 100644
+--- a/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
++++ b/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
+@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.DiodeBlock;
+ import net.minecraft.world.level.block.state.BlockState;
+ import net.minecraft.world.level.gameevent.GameEvent;
++import net.minecraft.world.level.material.Fluids;
+ import net.minecraft.world.level.saveddata.maps.MapId;
+ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+ import net.minecraft.world.phys.AABB;
+@@ -170,6 +171,9 @@ public class ItemFrame extends HangingEntity {
+ 
+     @Override
+     public boolean hurt(DamageSource source, float amount) {
++        if (one.tranic.levelpowered.vine.config.VineConfig.Fix.explosionBreaksItemFrameInWater && source.is(DamageTypeTags.IS_EXPLOSION) &&
++                this.level().getFluidState(this.pos).getType().isSame(Fluids.WATER))
++            return true;
+         if (this.fixed) {
+             return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) && !source.isCreativePlayer() ? false : super.hurt(source, amount);
+         } else if (this.isInvulnerableTo(source)) {

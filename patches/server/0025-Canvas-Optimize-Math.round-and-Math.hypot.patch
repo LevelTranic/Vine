@@ -238,7 +238,7 @@ index ac08e7bc5b4e25ad5bba149f358f0c46312b40d9..a45a9fc65ddcdcd51df95b6c26cd8d25
  
              if (entity instanceof AbstractMinecart) {
 diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
-index 990ea96de8e940390b67e9462fcfd6025f2f5770..c8da0247f76eb9c2c6247833d97ffc9de0538c52 100644
+index 9b5aca3bb44ae0aedb0df38dfecbd7a4e3b7a65a..6994aabad832118c4f8ff0f95a25286cf28a27f1 100644
 --- a/src/main/java/net/minecraft/util/Mth.java
 +++ b/src/main/java/net/minecraft/util/Mth.java
 @@ -29,7 +29,7 @@ public class Mth {
@@ -399,10 +399,10 @@ index a2cb97253c0df83b5fe73eafdfe31fc1996981e6..5219167d81e3fe8cc218f9221419f90f
                          "let exp = " + experienceProgress + "; " +
                          level().purpurConfig.playerDeathExpDropEquation)).floatValue());
 diff --git a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
-index e4d4ff0ef4a0f3283aa42fe2304816cd6d9475a8..e04f888f1490eb25d054324911e642b617f0c43a 100644
+index bcb15eb7c23d42ae89ec42f35aaa5eff7c6e0dc0..8fe806acf8122008d3a8457445f29fe6a61e7d90 100644
 --- a/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
 +++ b/src/main/java/net/minecraft/world/entity/projectile/Projectile.java
-@@ -316,7 +316,7 @@ public abstract class Projectile extends Entity implements TraceableEntity {
+@@ -346,7 +346,7 @@ public abstract class Projectile extends Entity implements TraceableEntity {
      }
  
      protected static float lerpRotation(float prevRot, float newRot) {
