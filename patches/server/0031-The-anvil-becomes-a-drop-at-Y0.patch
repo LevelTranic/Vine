@@ -11,7 +11,7 @@ try fix: https://github.com/PaperMC/Folia/issues/217
 This fix may work, but its implementation is not elegant, so it will not be submitted upstream
 
 diff --git a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
-index d504d10fbe45dfe3f2f3d08d2473df6cd18f6dcf..0fba97efe0d061107eee870ad1f8775faf6759f7 100644
+index d504d10fbe45dfe3f2f3d08d2473df6cd18f6dcf..791b98bc2883959156d935633fa41a79da896601 100644
 --- a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
 @@ -1,7 +1,6 @@
@@ -53,12 +53,12 @@ index d504d10fbe45dfe3f2f3d08d2473df6cd18f6dcf..0fba97efe0d061107eee870ad1f8775f
                          if (!this.cancelDrop) {
 -                            boolean flag2 = iblockdata.canBeReplaced((BlockPlaceContext) (new DirectionalPlaceContext(this.level(), blockposition, Direction.DOWN, ItemStack.EMPTY, Direction.UP)));
 +                            // LevelBukkit start: try fix: https://github.com/PaperMC/Folia/issues/217
-+                            if (one.tranic.levelpowered.vine.config.VineConfig.LevelBukkit.getTryFixAnvilDrop() && isAllowedPos)
++                            if (one.tranic.levelpowered.vine.config.VineConfig.LevelBukkit.tryFixAnvilDrop && isAllowedPos)
 +                                iblockdata = Blocks.VOID_AIR.defaultBlockState();
 +                            boolean flag2 = iblockdata.canBeReplaced(new DirectionalPlaceContext(this.level(), blockposition, Direction.DOWN, ItemStack.EMPTY, Direction.UP));
                              boolean flag3 = FallingBlock.isFree(this.level().getBlockState(blockposition.below())) && (!flag || !flag1);
                              boolean flag4 = this.blockState.canSurvive(this.level(), blockposition) && !flag3;
-+                            if (isAllowedPos && one.tranic.levelpowered.vine.config.VineConfig.LevelBukkit.getTryFixAnvilDropLogger())
++                            if (isAllowedPos && one.tranic.levelpowered.vine.config.VineConfig.LevelBukkit.tryFixAnvilDropLogger)
 +                                MinecraftServer.LOGGER.info("BlockState at {}: {}, Can be replaced: {}", blockposition, iblockdata, flag2);
 +                            // LevelBukkit end: try fix: https://github.com/PaperMC/Folia/issues/217
  
@@ -83,14 +83,14 @@ index d504d10fbe45dfe3f2f3d08d2473df6cd18f6dcf..0fba97efe0d061107eee870ad1f8775f
                                      }
 +                                    // LevelBukkit start: try fix: https://github.com/PaperMC/Folia/issues/217
                                  } else if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-+                                    if (isAllowedPos && one.tranic.levelpowered.vine.config.VineConfig.LevelBukkit.getTryFixAnvilDropLogger())
++                                    if (isAllowedPos && one.tranic.levelpowered.vine.config.VineConfig.LevelBukkit.tryFixAnvilDropLogger)
 +                                        MinecraftServer.LOGGER.info("Dropping at y=0 or other position, blockState: {}, position: {}, with setBlock is false", this.blockState, blockposition);
                                      this.discard(EntityRemoveEvent.Cause.DROP); // CraftBukkit - add Bukkit remove cause
                                      this.callOnBrokenAfterFall(block, blockposition);
                                      this.spawnAtLocation((ItemLike) block);
                                  }
                              } else {
-+                                if (isAllowedPos && one.tranic.levelpowered.vine.config.VineConfig.LevelBukkit.getTryFixAnvilDropLogger())
++                                if (isAllowedPos && one.tranic.levelpowered.vine.config.VineConfig.LevelBukkit.tryFixAnvilDropLogger)
 +                                    MinecraftServer.LOGGER.info("Dropping at y=0 or other position, blockState: {}, position: {}", this.blockState, blockposition);
 +                                // LevelBukkit end: try fix: https://github.com/PaperMC/Folia/issues/217
                                  this.discard(EntityRemoveEvent.Cause.DROP); // CraftBukkit - add Bukkit remove cause

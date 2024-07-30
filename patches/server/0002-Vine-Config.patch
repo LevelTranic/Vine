@@ -140,10 +140,10 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..80eeb4a1c7d3789a62a298722471ab3edac0688c
+index 0000000000000000000000000000000000000000..cfbdc493140facfc742bbd99704bd053fcd50500
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,197 @@
+@@ -0,0 +1,210 @@
 +package one.tranic.levelpowered.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -210,6 +210,12 @@ index 0000000000000000000000000000000000000000..80eeb4a1c7d3789a62a298722471ab3e
 +        )
 +
 +        addDefault(
++            "vine.fix.incorrect-bounce-logic",
++            false,
++            listOf("Fixes some entities not bouncing on slime blocks and getting stuck", "Fixes: https://bugs.mojang.com/browse/MC-216985")
++        )
++
++        addDefault(
 +            "levelbukkit.try-fix-anvil-drop.enabled",
 +            true,
 +            listOf(
@@ -255,6 +261,8 @@ index 0000000000000000000000000000000000000000..80eeb4a1c7d3789a62a298722471ab3e
 +    }
 +
 +    private fun loadConfigValue() {
++        Fix.incorrectBounceLogic = getBoolean("vine.fix.incorrect-bounce-logic")
++
 +        LevelBukkit.tryFixAnvilDrop = getBoolean("levelbukkit.try-fix-anvil-drop.enabled")
 +        LevelBukkit.tryFixAnvilDropLogger = getBoolean("levelbukkit.try-fix-anvil-drop.debug")
 +        Leaf.OptimizeMinecart.enabled = getBoolean("leaf.optimize-minecart.enabled")
@@ -307,11 +315,16 @@ index 0000000000000000000000000000000000000000..80eeb4a1c7d3789a62a298722471ab3e
 +        return configuration.getString(path)
 +    }
 +
++    object Fix {
++        @JvmField
++        var incorrectBounceLogic = false
++    }
++
 +    object LevelBukkit {
-+        @JvmStatic
++        @JvmField
 +        var tryFixAnvilDrop = true
 +
-+        @JvmStatic
++        @JvmField
 +        var tryFixAnvilDropLogger = false
 +    }
 +
