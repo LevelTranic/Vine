@@ -140,10 +140,10 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..51a527c2c5819808277fc87473b76db4b7253817
+index 0000000000000000000000000000000000000000..80eeb4a1c7d3789a62a298722471ab3edac0688c
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,199 @@
+@@ -0,0 +1,197 @@
 +package one.tranic.levelpowered.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -151,13 +151,11 @@ index 0000000000000000000000000000000000000000..51a527c2c5819808277fc87473b76db4
 +import one.tranic.levelpowered.vine.commands.VineCfgCommand
 +import org.bukkit.Bukkit
 +import org.bukkit.configuration.file.YamlConfiguration
-+import org.simpleyaml.configuration.file.YamlFile
 +import java.io.File
 +
 +object VineConfig {
 +    var logger: org.slf4j.Logger = MinecraftServer.LOGGER
 +    private lateinit var configuration: YamlConfiguration
-+    private val config: YamlFile = YamlFile()
 +
 +    @JvmStatic
 +    fun setCommand() {
@@ -305,8 +303,8 @@ index 0000000000000000000000000000000000000000..51a527c2c5819808277fc87473b76db4
 +        return configuration.getInt(path)
 +    }
 +
-+    private fun getString(path: String): String {
-+        return config.getString(path)
++    private fun getString(path: String): String? {
++        return configuration.getString(path)
 +    }
 +
 +    object LevelBukkit {
