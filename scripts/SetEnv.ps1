@@ -33,7 +33,7 @@ Move-Item "build/libs/$project_id-bundler-$grdversion-mojmap.jar" $jarName_bundl
 Add-Content -Path $env:GITHUB_ENV -Value "project_id=$project_id"
 Add-Content -Path $env:GITHUB_ENV -Value "project_id_b=$project_id_b"
 Add-Content -Path $env:GITHUB_ENV -Value "commit_id=$commitid"
-$commit_msg = git log --pretty='> [%h] %s' -1
+$commit_msg = git log --pretty='- `%h` %s' -1
 Add-Content -Path $env:GITHUB_ENV -Value "commit_msg=$commit_msg"
 Add-Content -Path $env:GITHUB_ENV -Value "mcversion=$mcversion"
 Add-Content -Path $env:GITHUB_ENV -Value "pre=$preVersion"
