@@ -25,7 +25,7 @@ function Get-GitInfo
 {
     $commit = git log -1 --pretty=format:"%H"
     $title = git log -1 --pretty=format:"%s"
-    $message = (git log -1 --pretty=format:"%B") -replace ' ', "`n"
+    $message = (git log -1 --pretty=format:"%B") -replace "`r`n", "\n" -replace "`n", "\n"
     $repoName = (git rev-parse --show-toplevel | Split-Path -Leaf).ToLower()
 
     return @{
