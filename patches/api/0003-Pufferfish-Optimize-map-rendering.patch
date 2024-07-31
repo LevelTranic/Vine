@@ -98,7 +98,7 @@ index 0000000000000000000000000000000000000000..5538d2d18ff03e34c6e39a6cffdd7e6c
 +}
 \ No newline at end of file
 diff --git a/src/main/java/org/bukkit/map/MapPalette.java b/src/main/java/org/bukkit/map/MapPalette.java
-index c80faa079eca1564847070f0338fc98024639829..a16d26304fdbba6b47b1c6e7ca7955356f218550 100644
+index c80faa079eca1564847070f0338fc98024639829..6fd408db6d12c24fbac248505c3d3a9e94edc7a7 100644
 --- a/src/main/java/org/bukkit/map/MapPalette.java
 +++ b/src/main/java/org/bukkit/map/MapPalette.java
 @@ -1,5 +1,6 @@
@@ -121,14 +121,16 @@ index c80faa079eca1564847070f0338fc98024639829..a16d26304fdbba6b47b1c6e7ca795535
          temp.getRGB(0, 0, temp.getWidth(), temp.getHeight(), pixels, 0, temp.getWidth());
  
          byte[] result = new byte[temp.getWidth() * temp.getHeight()];
+-        for (int i = 0; i < pixels.length; i++) {
+-            result[i] = matchColor(new Color(pixels[i], true));
 +        // Pufferfish start
 +        if (!SIMDDetection.isEnabled) {
-         for (int i = 0; i < pixels.length; i++) {
-             result[i] = matchColor(new Color(pixels[i], true));
-         }
++            for (int i = 0; i < pixels.length; i++) {
++                result[i] = matchColor(new Color(pixels[i], true));
++            }
 +        } else {
 +            gg.pufferfish.pufferfish.simd.VectorMapPalette.matchColorVectorized(pixels, result);
-+        }
+         }
 +        // Pufferfish end
          return result;
      }
