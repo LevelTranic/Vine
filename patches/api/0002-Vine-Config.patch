@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..993b009e1966a1422142e8506dfa00543c542cfa
+index 0000000000000000000000000000000000000000..5807ddfd67a2abae70ef9048541c563748811faf
 --- /dev/null
 +++ b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,37 @@
 +package gg.pufferfish.pufferfish.simd;
 +
 +import org.slf4j.Logger;
@@ -20,10 +20,8 @@ index 0000000000000000000000000000000000000000..993b009e1966a1422142e8506dfa0054
 +/**
 + * Basically, java is annoying and we have to push this out to its own class.
 + */
-+@Deprecated
 +public class SIMDChecker {
 +
-+    @Deprecated
 +    public static boolean canEnable(Logger logger) {
 +        try {
 +            if (SIMDDetection.getJavaVersion() < 17) {
@@ -52,22 +50,20 @@ index 0000000000000000000000000000000000000000..993b009e1966a1422142e8506dfa0054
 \ No newline at end of file
 diff --git a/src/main/java/gg/pufferfish/pufferfish/simd/SIMDDetection.java b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDDetection.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..817929d14867eddbda65f9af4c62ce7b77549fbc
+index 0000000000000000000000000000000000000000..707ea2067b5dab59cc692ccf86b0f1a44b2494af
 --- /dev/null
 +++ b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDDetection.java
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,32 @@
 +package gg.pufferfish.pufferfish.simd;
 +
 +import org.slf4j.Logger;
 +
-+@Deprecated
 +public class SIMDDetection {
 +
 +    public static boolean isEnabled = false;
 +	public static boolean versionLimited = false;
 +	public static boolean testRun = false;
 +
-+    @Deprecated
 +	public static boolean canEnable(Logger logger) {
 +        try {
 +            return SIMDChecker.canEnable(logger);
@@ -76,7 +72,6 @@ index 0000000000000000000000000000000000000000..817929d14867eddbda65f9af4c62ce7b
 +        }
 +    }
 +
-+    @Deprecated
 +	public static int getJavaVersion() {
 +        // https://stackoverflow.com/a/2591122
 +        String version = System.getProperty("java.version");
