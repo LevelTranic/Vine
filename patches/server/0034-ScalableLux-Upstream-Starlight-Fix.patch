@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Thu, 1 Aug 2024 15:15:01 +0800
+Subject: [PATCH] ScalableLux: Upstream Starlight Fix
+
+You can find the original code on https://github.com/RelativityMC/ScalableLux
+
+diff --git a/src/main/java/ca/spottedleaf/starlight/common/light/StarLightEngine.java b/src/main/java/ca/spottedleaf/starlight/common/light/StarLightEngine.java
+index ad1eeebe6de219143492b94da309cb54ae9e0a5b..c2b0bf173c9a24b8fdd33cba57505b08a1684bc0 100644
+--- a/src/main/java/ca/spottedleaf/starlight/common/light/StarLightEngine.java
++++ b/src/main/java/ca/spottedleaf/starlight/common/light/StarLightEngine.java
+@@ -1020,7 +1020,7 @@ public abstract class StarLightEngine {
+             this.setNibbles(chunk, nibbles);
+ 
+             for (int y = this.minLightSection; y <= this.maxLightSection; ++y) {
+-                lightAccess.onLightUpdate(this.skylightPropagator ? LightLayer.SKY : LightLayer.BLOCK, SectionPos.of(chunkX, y, chunkX));
++                lightAccess.onLightUpdate(this.skylightPropagator ? LightLayer.SKY : LightLayer.BLOCK, SectionPos.of(chunkX, y, chunkZ));
+             }
+ 
+             // now do callback
