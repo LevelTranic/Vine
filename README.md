@@ -26,6 +26,14 @@ Vine is a fork of <a href="https://github.com/MultiPaper/ShreddedPaper" target="
 LevelBukkit is a fork of <a href="https://github.com/LuminolMC/Luminol" target="_parent">Luminol</a>/<a href="https://github.com/PaperMC/Folia" target="_parent">Folia</a>, republished under the <a href="https://github.com/LevelTranic/LevelBukkit?tab=MIT-1-ov-file"> MIT license</a>. Multi-threading is supported.
 
 <div align=center>
+    <h2>Todo</h2>
+    <li>Implement Secure Seed</li>
+    <li>Implement Linear region format (Dangerous option)</li>
+    <li>Optional vanilla implementation</li>
+    <li>More mods implement.....</li>
+</div>
+
+<div align=center>
     <h2>Docs</h2>
 </div>
 
