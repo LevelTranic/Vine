@@ -6,7 +6,7 @@ Subject: [PATCH] CarpetFix: explosionBreaksItemFrameInWaterFix
 You can find the original code on https://github.com/fxmorin/carpet-fixes
 
 diff --git a/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java b/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
-index 9af8fcf6abb9b768829592bc1b091ebe4599ed2e..7506f2c33582d1cf49e8a77e86da5d98c550b882 100644
+index 9af8fcf6abb9b768829592bc1b091ebe4599ed2e..d8b4402a10f9a7886b42fa1998d6aa0e412a56e7 100644
 --- a/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
 +++ b/src/main/java/net/minecraft/world/entity/decoration/ItemFrame.java
 @@ -34,6 +34,7 @@ import net.minecraft.world.level.block.Blocks;
@@ -21,7 +21,7 @@ index 9af8fcf6abb9b768829592bc1b091ebe4599ed2e..7506f2c33582d1cf49e8a77e86da5d98
  
      @Override
      public boolean hurt(DamageSource source, float amount) {
-+        if (one.tranic.levelpowered.vine.config.VineConfig.Fix.explosionBreaksItemFrameInWater && source.is(DamageTypeTags.IS_EXPLOSION) &&
++        if (one.tranic.vine.config.VineConfig.Fix.explosionBreaksItemFrameInWater && source.is(DamageTypeTags.IS_EXPLOSION) &&
 +                this.level().getFluidState(this.pos).getType().isSame(Fluids.WATER))
 +            return true;
          if (this.fixed) {

@@ -9,14 +9,14 @@ You can find the original code on https://github.com/Corosauce/mobtimizations
 disables the frequent pathfinds done while already following a path
 
 diff --git a/src/main/java/net/minecraft/world/entity/ai/navigation/PathNavigation.java b/src/main/java/net/minecraft/world/entity/ai/navigation/PathNavigation.java
-index 544920a31b649985333f82beafa94a3392f5853e..fe3e39b4526ee1cfb9d426df8bc81a62a1c044b8 100644
+index 544920a31b649985333f82beafa94a3392f5853e..f014649faee00cbacf6a92cf327d71a7c53c1ac4 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/navigation/PathNavigation.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/navigation/PathNavigation.java
 @@ -80,6 +80,7 @@ public abstract class PathNavigation {
      }
  
      public void recomputePath() {
-+        if (one.tranic.levelpowered.vine.config.VineConfig.Mobtimizations.optimizationMobRePathfinding) return; // Vine
++        if (one.tranic.vine.config.VineConfig.Optimize.mobRePathfinding) return; // Vine
          if (this.level.getGameTime() - this.timeLastRecompute > 20L) {
              if (this.targetPos != null) {
                  this.path = null;
@@ -24,7 +24,7 @@ index 544920a31b649985333f82beafa94a3392f5853e..fe3e39b4526ee1cfb9d426df8bc81a62
      }
  
      public boolean shouldRecomputePath(BlockPos pos) {
-+        if (one.tranic.levelpowered.vine.config.VineConfig.Mobtimizations.optimizationMobRePathfinding) return false; // Vine
++        if (one.tranic.vine.config.VineConfig.Optimize.mobRePathfinding) return false; // Vine
          if (this.hasDelayedRecomputation) {
              return false;
          } else if (this.path != null && !this.path.isDone() && this.path.getNodeCount() != 0) {

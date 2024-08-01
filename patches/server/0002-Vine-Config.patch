@@ -24,14 +24,14 @@ index efed51a692d94acd9126f6eb2866755567c2e636..fd308bb5dc3f90d7b76240dd0d5026b7
  	
  }
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
-index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..d7891588cd7dbc9e5f9921cc2f5bf5145678f27e 100644
+index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..32d9eba81500be7ab64bd027499c96f6804a68cd 100644
 --- a/src/main/java/net/minecraft/server/Main.java
 +++ b/src/main/java/net/minecraft/server/Main.java
 @@ -58,6 +58,7 @@ import net.minecraft.world.level.storage.LevelResource;
  import net.minecraft.world.level.storage.LevelStorageSource;
  import net.minecraft.world.level.storage.LevelSummary;
  import net.minecraft.world.level.storage.PrimaryLevelData;
-+import one.tranic.levelpowered.vine.config.VineConfig;
++import one.tranic.vine.config.VineConfig;
  import org.slf4j.Logger;
  
  // CraftBukkit start
@@ -45,7 +45,7 @@ index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..d7891588cd7dbc9e5f9921cc2f5bf514
  
              // Purpur start - load config files early
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..a7c3e628762a93803418f462ef57741183345ebc 100644
+index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..09c17974579797588d5fbd290bc2ce9b3ebab89b 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -1,20 +1,14 @@
@@ -73,7 +73,7 @@ index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..a7c3e628762a93803418f462ef577411
  import net.minecraft.world.level.GameType;
  import net.minecraft.world.level.block.entity.SkullBlockEntity;
  import net.minecraft.world.level.storage.LevelStorageSource;
-+import one.tranic.levelpowered.vine.config.VineConfig;
++import one.tranic.vine.config.VineConfig;
  import org.slf4j.Logger;
  
  // CraftBukkit start
@@ -97,15 +97,15 @@ index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..a7c3e628762a93803418f462ef577411
          // Paper start - fix converting txt to json file; convert old users earlier after PlayerList creation but before file load/save
          if (this.convertOldUsers()) {
              this.getProfileCache().save(false); // Paper
-diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/levelpowered/vine/commands/VineCfgCommand.kt
+diff --git a/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20115cdcad
+index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c10a8b7262
 --- /dev/null
-+++ b/src/main/kotlin/one/tranic/levelpowered/vine/commands/VineCfgCommand.kt
++++ b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
 @@ -0,0 +1,34 @@
-+package one.tranic.levelpowered.vine.commands
++package one.tranic.vine.commands
 +
-+import one.tranic.levelpowered.vine.config.VineConfig
++import one.tranic.vine.config.VineConfig
 +import org.bukkit.command.Command
 +import org.bukkit.command.CommandSender
 +import net.kyori.adventure.text.Component
@@ -138,23 +138,24 @@ index 0000000000000000000000000000000000000000..dd96b107b3208707958735ef059c6b20
 +    }
 +}
 \ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
+diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..960b0d79a27c111d2d9750c05e04f8a0f216b7b0
+index 0000000000000000000000000000000000000000..c0f0466810dc9764b69dda0aeae3fae53054dcd8
 --- /dev/null
-+++ b/src/main/kotlin/one/tranic/levelpowered/vine/config/VineConfig.kt
-@@ -0,0 +1,225 @@
-+package one.tranic.levelpowered.vine.config
++++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
+@@ -0,0 +1,223 @@
++package one.tranic.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
 +import net.minecraft.server.MinecraftServer
-+import one.tranic.levelpowered.vine.commands.VineCfgCommand
++import one.tranic.vine.commands.VineCfgCommand
 +import org.bukkit.Bukkit
 +import org.bukkit.configuration.file.YamlConfiguration
 +import java.io.File
 +
 +object VineConfig {
-+    var logger: org.slf4j.Logger = MinecraftServer.LOGGER
++    val logger: org.slf4j.Logger = MinecraftServer.LOGGER
++    private const val CONFIG_VERSION = "2.0"
 +    private lateinit var configuration: YamlConfiguration
 +
 +    @JvmStatic
@@ -179,6 +180,7 @@ index 0000000000000000000000000000000000000000..960b0d79a27c111d2d9750c05e04f8a0
 +
 +    @JvmStatic
 +    fun load() {
++        reload()
 +        reload()
 +        // Pufferfish start
 +        // Attempt to detect vectorization
@@ -205,12 +207,12 @@ index 0000000000000000000000000000000000000000..960b0d79a27c111d2d9750c05e04f8a0
 +    private fun addDefault(configFile: File) {
 +        addDefault(
 +            "info",
-+            "1.0",
++            CONFIG_VERSION,
 +            listOf("Vine Abstract Configuration", "Vine Github: https://github.com/LevelTranic/Vine")
 +        )
 +
 +        addDefault(
-+            "vine.fix.incorrect-bounce-logic",
++            "fix.incorrect-bounce-logic",
 +            false,
 +            listOf(
 +                "Fixes some entities not bouncing on slime blocks and getting stuck",
@@ -218,7 +220,7 @@ index 0000000000000000000000000000000000000000..960b0d79a27c111d2d9750c05e04f8a0
 +            )
 +        )
 +        addDefault(
-+            "vine.fix.explosion-breaks-item-frame-in-water",
++            "fix.explosion-breaks-item-frame-in-water",
 +            false,
 +            listOf(
 +                "Fixes Explosions being able to destroy item frames in water",
@@ -227,7 +229,7 @@ index 0000000000000000000000000000000000000000..960b0d79a27c111d2d9750c05e04f8a0
 +        )
 +
 +        addDefault(
-+            "levelbukkit.try-fix-anvil-drop.enabled",
++            "fix.anvil-drop.enabled",
 +            true,
 +            listOf(
 +                "This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ",
@@ -235,58 +237,58 @@ index 0000000000000000000000000000000000000000..960b0d79a27c111d2d9750c05e04f8a0
 +            )
 +        )
 +        addDefault(
-+            "levelbukkit.try-fix-anvil-drop.debug", false,
++            "fix.anvil-drop.debug", false,
 +            "Whether to print detailed information to the console when this issue is triggered"
 +        )
 +
 +        addDefault(
-+            "leaf.optimize-minecart.enabled", true,
++            "optimize.minecart.enabled", true,
 +            listOf(
 +                "Enable this feature to handle large amount of stacked Minecart better.",
 +                "By skipping tick collisions to reduce expense getting entities list",
 +                "and bukkit event calls, useful for the anarchy server."
 +            )
 +        )
-+        addDefault("leaf.optimize-minecart.skipTickCount", 30)
++        addDefault("optimize.optimize-minecart.skipTickCount", 30)
 +
 +        addDefault(
-+            "mobtimizations.optimizationMobRePathfinding",
++            "optimize.mob-re-pathfinding",
 +            true,
 +            "If true, disables the frequent pathfinds done while already following a path"
 +        )
 +        addDefault(
-+            "mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg",
++            "optimize.zombie-search-and-destroy-turtle-egg.enabled",
 +            false,
 +            "If true, optimizes the expensive searching done to find a turtle egg to crush, for zombies/husks, by default fully disabling it"
 +        )
 +        addDefault(
-+            "mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance",
++            "optimize.zombie-search-and-destroy-turtle-egg.percent-chance",
 +            40,
 +            "Percent chance to run for task: zombie seeking turtle eggs to destroy"
 +        )
 +
-+        addDefault("divine.optimize-noise-generation", true)
++        addDefault("optimize.noise-generation", true)
 +
 +        configuration.options().copyDefaults(true)
 +        configuration.save(configFile)
 +    }
 +
 +    private fun loadConfigValue() {
-+        Fix.incorrectBounceLogic = getBoolean("vine.fix.incorrect-bounce-logic")
-+        Fix.explosionBreaksItemFrameInWater = getBoolean("vine.fix.explosion-breaks-item-frame-in-water")
++        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
++        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
 +
-+        LevelBukkit.tryFixAnvilDrop = getBoolean("levelbukkit.try-fix-anvil-drop.enabled")
-+        LevelBukkit.tryFixAnvilDropLogger = getBoolean("levelbukkit.try-fix-anvil-drop.debug")
-+        Leaf.OptimizeMinecart.enabled = getBoolean("leaf.optimize-minecart.enabled")
-+        Leaf.OptimizeMinecart.skipTickCount = getInt("leaf.optimize-minecart.skipTickCount")
++        Fix.anvilDrop = getBoolean("fix.anvil-drop.enabled")
++        Fix.anvilDropLogger = getBoolean("fix.anvil-drop.debug")
++        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
++        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
 +
-+        Mobtimizations.optimizationMobRePathfinding = getBoolean("mobtimizations.optimizationMobRePathfinding")
-+        Mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg =
-+            getBoolean("mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg")
-+        Mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance =
-+            getInt("mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance")
++        Optimize.mobRePathfinding = getBoolean("optimize.mob-re-pathfinding")
++        Optimize.TurtleEggSearch.enabled =
++            getBoolean("optimize.zombie-search-and-destroy-turtle-egg.enabled")
++        Optimize.TurtleEggSearch.percentChance =
++            getInt("optimize.zombie-search-and-destroy-turtle-egg.percent-chance")
 +
-+        Divine.optimizeNoiseGeneration = getBoolean("divine.optimize-noise-generation")
++        Optimize.noiseGeneration = getBoolean("optimize.noise-generation")
 +    }
 +
 +    private fun addDefault(path: String, value: Any) {
@@ -329,44 +331,40 @@ index 0000000000000000000000000000000000000000..960b0d79a27c111d2d9750c05e04f8a0
 +
 +    object Fix {
 +        @JvmField
-+        var incorrectBounceLogic = false
++        var anvilDrop = true
++
++        @JvmField
++        var anvilDropLogger = false
 +
 +        @JvmField
 +        var explosionBreaksItemFrameInWater = false
-+    }
-+
-+    object LevelBukkit {
-+        @JvmField
-+        var tryFixAnvilDrop = true
 +
 +        @JvmField
-+        var tryFixAnvilDropLogger = false
++        var incorrectBounceLogic = false
 +    }
 +
-+    object Leaf {
-+        object OptimizeMinecart {
++    object Optimize {
++        @JvmField
++        var noiseGeneration = true
++
++        object Minecart {
 +            @JvmField
 +            var enabled = true
 +
 +            @JvmField
 +            var skipTickCount = 30
 +        }
-+    }
-+
-+    object Mobtimizations {
-+        @JvmField
-+        var optimizationMobRePathfinding = true
 +
 +        @JvmField
-+        var optimizationZombieSearchAndDestroyTurtleEgg = false
++        var mobRePathfinding = true
 +
-+        @JvmField
-+        var zombieSearchAndDestroyTurtleEggPercentChance = 40
-+    }
++        object TurtleEggSearch {
++            @JvmField
++            var enabled = false
 +
-+    object Divine {
-+        @JvmField
-+        var optimizeNoiseGeneration = true
++            @JvmField
++            var percentChance = 40
++        }
 +    }
 +}
 \ No newline at end of file

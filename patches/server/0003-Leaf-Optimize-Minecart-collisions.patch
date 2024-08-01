@@ -28,7 +28,7 @@ index f1b9e83206cc67e6ef29ebe088351b0aaa5eb349..e0a51e269aa076def275710174d3654d
          Team.CollisionRule scoreboardteambase_enumteampush = scoreboardteam == null ? Team.CollisionRule.ALWAYS : scoreboardteam.getCollisionRule();
  
 diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
-index de2ea35a226c5f595a2ab53beda8238a806c2bad..66d98dbec18f1d497151a5678b08320e0511da4e 100644
+index de2ea35a226c5f595a2ab53beda8238a806c2bad..30d756aee64e0215540f27b6d75d29ca03d6823a 100644
 --- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
 +++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
 @@ -3,9 +3,8 @@ package net.minecraft.world.entity.vehicle;
@@ -127,8 +127,8 @@ index de2ea35a226c5f595a2ab53beda8238a806c2bad..66d98dbec18f1d497151a5678b08320e
 +            // Leaf start - Optimize Minecart collision handling
 +            // The logic below is used to get list of entities around Minecart
 +            // and handle behaviors for their collisions with each other
-+            if (!one.tranic.levelpowered.vine.config.VineConfig.Leaf.OptimizeMinecart.enabled || this.tickCount % one.tranic.levelpowered.vine.config.VineConfig.Leaf.OptimizeMinecart.skipTickCount == 0) {
-+                if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && (one.tranic.levelpowered.vine.config.VineConfig.Leaf.OptimizeMinecart.enabled || this.getDeltaMovement().horizontalDistanceSqr() > 0.01D)) {
++            if (!one.tranic.vine.config.VineConfig.Optimize.Minecart.enabled || this.tickCount % one.tranic.vine.config.VineConfig.Optimize.Minecart.skipTickCount == 0) {
++                if (this.getMinecartType() == AbstractMinecart.Type.RIDEABLE && (one.tranic.vine.config.VineConfig.Optimize.Minecart.enabled || this.getDeltaMovement().horizontalDistanceSqr() > 0.01D)) {
                  List<Entity> list = this.level().getEntities((Entity) this, this.getBoundingBox().inflate(0.20000000298023224D, 0.0D, 0.20000000298023224D), EntitySelector.pushableBy(this));
  
                  if (!list.isEmpty()) {

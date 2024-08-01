@@ -7,7 +7,7 @@ Original code by RelativityMC, licensed under MIT
 You can find the original code on https://github.com/RelativityMC/C2ME-fabric (Yarn mappings)
 
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/synth/ImprovedNoise.java b/src/main/java/net/minecraft/world/level/levelgen/synth/ImprovedNoise.java
-index 9a97e5cd23d839183ac4d243d28df92af3119fe7..84aedfdab8b1cf5cbe31e8c4645e4d1c0b0311a5 100644
+index 9a97e5cd23d839183ac4d243d28df92af3119fe7..074bcd072749f293c1150f5d67a4d9864684eba3 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/synth/ImprovedNoise.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/synth/ImprovedNoise.java
 @@ -11,6 +11,27 @@ public final class ImprovedNoise {
@@ -49,7 +49,7 @@ index 9a97e5cd23d839183ac4d243d28df92af3119fe7..84aedfdab8b1cf5cbe31e8c4645e4d1c
 +        double g;
 +        double h;
 +        double l;
-+        if (!one.tranic.levelpowered.vine.config.VineConfig.Divine.optimizeNoiseGeneration) {
++        if (!one.tranic.vine.config.VineConfig.Optimize.noiseGeneration) {
 +            g = d - (double)i;
 +            h = e - (double)j;
 +            l = f - (double)k;
@@ -68,7 +68,7 @@ index 9a97e5cd23d839183ac4d243d28df92af3119fe7..84aedfdab8b1cf5cbe31e8c4645e4d1c
  
 -            o = (double)Mth.floor(m / yScale + 1.0E-7F) * yScale;
 +            // DivineMC start - C2ME: opts math
-+            if (!one.tranic.levelpowered.vine.config.VineConfig.Divine.optimizeNoiseGeneration) {
++            if (!one.tranic.vine.config.VineConfig.Optimize.noiseGeneration) {
 +                o = (double)Mth.floor(m / yScale + 1.0E-7F) * yScale;
 +            } else {
 +                o = Math.floor(m / yScale + (double)1.0E-7F) * yScale;
@@ -80,7 +80,7 @@ index 9a97e5cd23d839183ac4d243d28df92af3119fe7..84aedfdab8b1cf5cbe31e8c4645e4d1c
  
 -        return this.sampleAndLerp(i, j, k, g, h - o, l, h);
 +        // DivineMC start - C2ME: opts math
-+        if (!one.tranic.levelpowered.vine.config.VineConfig.Divine.optimizeNoiseGeneration) {
++        if (!one.tranic.vine.config.VineConfig.Optimize.noiseGeneration) {
 +            return this.sampleAndLerp(i, j, k, g, h - o, l, h);
 +        } else {
 +            return this.sampleAndLerp((int) i, (int) j, (int) k, g, h - o, l, h);
@@ -98,7 +98,7 @@ index 9a97e5cd23d839183ac4d243d28df92af3119fe7..84aedfdab8b1cf5cbe31e8c4645e4d1c
 -        double l = f - (double)k;
 -        return this.sampleWithDerivative(i, j, k, g, h, l, ds);
 +        // DivineMC start - C2ME: opts math
-+        if (!one.tranic.levelpowered.vine.config.VineConfig.Divine.optimizeNoiseGeneration) {
++        if (!one.tranic.vine.config.VineConfig.Optimize.noiseGeneration) {
 +            double g = d - (double)i;
 +            double h = e - (double)j;
 +            double l = f - (double)k;
@@ -136,7 +136,7 @@ index 9a97e5cd23d839183ac4d243d28df92af3119fe7..84aedfdab8b1cf5cbe31e8c4645e4d1c
 -        double t = Mth.smoothstep(localZ);
 -        return Mth.lerp3(r, s, t, d, e, f, g, h, o, p, q);
 +        // DivineMC start - C2ME: opts math
-+        if (!one.tranic.levelpowered.vine.config.VineConfig.Divine.optimizeNoiseGeneration) {
++        if (!one.tranic.vine.config.VineConfig.Optimize.noiseGeneration) {
 +            int i = this.p(sectionX);
 +            int j = this.p(sectionX + 1);
 +            int k = this.p(i + sectionY);
@@ -223,7 +223,7 @@ index 9a97e5cd23d839183ac4d243d28df92af3119fe7..84aedfdab8b1cf5cbe31e8c4645e4d1c
  
      private double sampleWithDerivative(int sectionX, int sectionY, int sectionZ, double localX, double localY, double localZ, double[] ds) {
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/synth/PerlinNoise.java b/src/main/java/net/minecraft/world/level/levelgen/synth/PerlinNoise.java
-index 35820670837376bcad8891241724d5b946fbd31f..80cd90374d1ec8ebe9b1fca608adeaebbbc2aaeb 100644
+index 35820670837376bcad8891241724d5b946fbd31f..0ed3665a876a178965d27b355486eceec7444523 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/synth/PerlinNoise.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/synth/PerlinNoise.java
 @@ -26,6 +26,10 @@ public class PerlinNoise {
@@ -254,7 +254,7 @@ index 35820670837376bcad8891241724d5b946fbd31f..80cd90374d1ec8ebe9b1fca608adeaeb
      public double getValue(double x, double y, double z) {
 -        return this.getValue(x, y, z, 0.0, 0.0, false);
 +        // DivineMC start - C2ME: opts math
-+        if (!one.tranic.levelpowered.vine.config.VineConfig.Divine.optimizeNoiseGeneration) {
++        if (!one.tranic.vine.config.VineConfig.Optimize.noiseGeneration) {
 +            return this.getValue(x, y, z, 0.0, 0.0, false);
 +        } else {
 +            double d = 0.0;

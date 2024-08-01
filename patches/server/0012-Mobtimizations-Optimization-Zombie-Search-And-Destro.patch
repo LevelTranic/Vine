@@ -8,10 +8,18 @@ Original code by Corosauce
 You can find the original code on https://github.com/Corosauce/mobtimizations
 
 diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java b/src/main/java/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
-index a61abba840a55fb4fbc9716a5e05eb2778068785..a8e364aa57cd31c94f8bb585a89d07463386f3d3 100644
+index a61abba840a55fb4fbc9716a5e05eb2778068785..3ad6c7bec14b2d02d0f109101b5d68972f619fa2 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/goal/RemoveBlockGoal.java
-@@ -17,10 +17,13 @@ import net.minecraft.world.level.Level;
+@@ -2,7 +2,6 @@ package net.minecraft.world.entity.ai.goal;
+ 
+ import javax.annotation.Nullable;
+ import net.minecraft.core.BlockPos;
+-import net.minecraft.core.SectionPos;
+ import net.minecraft.core.particles.ItemParticleOption;
+ import net.minecraft.core.particles.ParticleTypes;
+ import net.minecraft.server.level.ServerLevel;
+@@ -17,10 +16,12 @@ import net.minecraft.world.level.Level;
  import net.minecraft.world.level.LevelAccessor;
  import net.minecraft.world.level.LevelReader;
  import net.minecraft.world.level.block.Block;
@@ -20,26 +28,25 @@ index a61abba840a55fb4fbc9716a5e05eb2778068785..a8e364aa57cd31c94f8bb585a89d0746
  import net.minecraft.world.level.chunk.status.ChunkStatus;
  import net.minecraft.world.phys.Vec3;
  // CraftBukkit start
-+import one.tranic.levelpowered.vine.config.VineConfig;
-+import one.tranic.levelpowered.vine.util.VineUtils;
++import one.tranic.vine.util.VineUtils;
  import org.bukkit.craftbukkit.block.CraftBlock;
  import org.bukkit.craftbukkit.event.CraftEventFactory;
  // CraftBukkit end
-@@ -40,6 +43,7 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
+@@ -40,6 +41,7 @@ public class RemoveBlockGoal extends MoveToBlockGoal {
  
      @Override
      public boolean canUse() {
-+        if (VineConfig.Mobtimizations.optimizationZombieSearchAndDestroyTurtleEgg && blockToRemove == Blocks.TURTLE_EGG && !VineUtils.rollPercentChance(VineConfig.Mobtimizations.zombieSearchAndDestroyTurtleEggPercentChance)) return false;
++        if (one.tranic.vine.config.VineConfig.Optimize.TurtleEggSearch.enabled && blockToRemove == Blocks.TURTLE_EGG && !VineUtils.rollPercentChance(one.tranic.vine.config.VineConfig.Optimize.TurtleEggSearch.percentChance)) return false;
          if (!this.removerMob.level().purpurConfig.zombieBypassMobGriefing && !this.removerMob.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) { // Purpur
              return false;
          } else if (this.nextStartTick > 0) {
-diff --git a/src/main/kotlin/one/tranic/levelpowered/vine/util/VineUtils.kt b/src/main/kotlin/one/tranic/levelpowered/vine/util/VineUtils.kt
+diff --git a/src/main/kotlin/one/tranic/vine/util/VineUtils.kt b/src/main/kotlin/one/tranic/vine/util/VineUtils.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..b8d791bd93c649c0a75ce6e0f9baa8d7963b970c
+index 0000000000000000000000000000000000000000..808ae0c4afea99a5f76a5acb76e3096e83b19771
 --- /dev/null
-+++ b/src/main/kotlin/one/tranic/levelpowered/vine/util/VineUtils.kt
++++ b/src/main/kotlin/one/tranic/vine/util/VineUtils.kt
 @@ -0,0 +1,12 @@
-+package one.tranic.levelpowered.vine.util
++package one.tranic.vine.util
 +
 +import io.netty.util.internal.ThreadLocalRandom
 +

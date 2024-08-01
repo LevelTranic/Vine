@@ -6,7 +6,7 @@ Subject: [PATCH] CarpetFix: incorrectBounceLogicFix
 You can find the original code on https://github.com/fxmorin/carpet-fixes
 
 diff --git a/src/main/java/net/minecraft/world/level/block/SlimeBlock.java b/src/main/java/net/minecraft/world/level/block/SlimeBlock.java
-index fa9d3839b12e7f0485c91ae9a2f600314f41b893..9c8a811fb708f52613404035d64589f29e48c251 100644
+index fa9d3839b12e7f0485c91ae9a2f600314f41b893..936f59a15133735f57df9cddbc025d18b8c738a4 100644
 --- a/src/main/java/net/minecraft/world/level/block/SlimeBlock.java
 +++ b/src/main/java/net/minecraft/world/level/block/SlimeBlock.java
 @@ -44,6 +44,9 @@ public class SlimeBlock extends HalfTransparentBlock {
@@ -14,7 +14,7 @@ index fa9d3839b12e7f0485c91ae9a2f600314f41b893..9c8a811fb708f52613404035d64589f2
          if (vec3.y < 0.0) {
              double d = entity instanceof LivingEntity ? 1.0 : 0.8;
 +
-+            if (one.tranic.levelpowered.vine.config.VineConfig.Fix.incorrectBounceLogic)
++            if (one.tranic.vine.config.VineConfig.Fix.incorrectBounceLogic)
 +                entity.setOnGround(vec3.y > -0.15);
              entity.setDeltaMovement(vec3.x, -vec3.y * d, vec3.z);
          }
