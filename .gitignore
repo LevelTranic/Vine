@@ -2,6 +2,9 @@
 core.*
 hs_err_pid*
 
+# Kotlin
+.kotlin/
+
 # Intellij
 .idea/
 *.iml
