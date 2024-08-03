@@ -338,7 +338,7 @@ index 727a4e4d5f93bad6f9539e2d742baf77819fafd6..9aaa8989832c238c66eb8c21256309cc
                      servergui.runFinalizers();
                  }
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 9ee9fd2e57b001fd2c3fe8953c1b106a5225762a..7ede52478a95e7d550ff58413c6c683127fab5c5 100644
+index c1f331c0150fa0c2dabb0d7ea24c7614bc1cc8c6..4d9438c2c351058eba536fc05d84f1751226754c 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -380,7 +380,7 @@ public final class CraftServer implements Server {
@@ -348,8 +348,8 @@ index 9ee9fd2e57b001fd2c3fe8953c1b106a5225762a..7ede52478a95e7d550ff58413c6c6831
 -    // Paper end - Folia reagion threading API
 +    // Paper end - Folia region threading API
  
-     static {
-         ConfigurationSerialization.registerClass(CraftOfflinePlayer.class);
+     // ShreddedPaper start - Folia region api
+     @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
 index e8437d039af0457fc6fc877def12f973ab263735..f1c32f16b763540862595035152c5ddce6dac7af 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftScheduler.java
