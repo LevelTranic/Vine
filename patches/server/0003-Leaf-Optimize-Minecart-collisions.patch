@@ -28,10 +28,10 @@ index f1b9e83206cc67e6ef29ebe088351b0aaa5eb349..e0a51e269aa076def275710174d3654d
          Team.CollisionRule scoreboardteambase_enumteampush = scoreboardteam == null ? Team.CollisionRule.ALWAYS : scoreboardteam.getCollisionRule();
  
 diff --git a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
-index de2ea35a226c5f595a2ab53beda8238a806c2bad..30d756aee64e0215540f27b6d75d29ca03d6823a 100644
+index de2ea35a226c5f595a2ab53beda8238a806c2bad..bfc4a4b3dcccdef3a3a5036716adf4e01cf641b2 100644
 --- a/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
 +++ b/src/main/java/net/minecraft/world/entity/vehicle/AbstractMinecart.java
-@@ -386,15 +364,16 @@ public abstract class AbstractMinecart extends VehicleEntity {
+@@ -386,15 +386,16 @@ public abstract class AbstractMinecart extends VehicleEntity {
                  this.level().getCraftServer().getPluginManager().callEvent(new org.bukkit.event.vehicle.VehicleMoveEvent(vehicle, from, to));
              }
              // CraftBukkit end
@@ -53,7 +53,7 @@ index de2ea35a226c5f595a2ab53beda8238a806c2bad..30d756aee64e0215540f27b6d75d29ca
                          if (!(entity instanceof Player) && !(entity instanceof IronGolem) && !(entity instanceof AbstractMinecart) && !this.isVehicle() && !entity.isPassenger()) {
                              // CraftBukkit start
                              VehicleEntityCollisionEvent collisionEvent = new VehicleEntityCollisionEvent(vehicle, entity.getBukkitEntity());
-@@ -421,21 +400,19 @@ public abstract class AbstractMinecart extends VehicleEntity {
+@@ -421,21 +422,19 @@ public abstract class AbstractMinecart extends VehicleEntity {
                      }
                  }
              } else {
