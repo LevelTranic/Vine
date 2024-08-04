@@ -1,7 +1,7 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: 404Setup <153366651+404Setup@users.noreply.github.com>
 Date: Sun, 23 Jun 2024 21:01:58 +0800
-Subject: [PATCH] Vine Config
+Subject: [PATCH] Pufferfish: SIMD util
 
 
 diff --git a/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java

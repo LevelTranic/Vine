@@ -381,7 +381,7 @@ index e8437d039af0457fc6fc877def12f973ab263735..f1c32f16b763540862595035152c5ddc
                  // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
              }
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
-index ed2f3845afed661a5f620efc071cd71c2bc7d613..4160edb7f1a3265084424cc94a1ad5f89fc55b8f 100644
+index ed2f3845afed661a5f620efc071cd71c2bc7d613..22143f7f9bc8d8b26162e0e9f7be97dfb7d9ea1e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 +++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 @@ -11,7 +11,7 @@ public final class Versioning {
@@ -389,7 +389,7 @@ index ed2f3845afed661a5f620efc071cd71c2bc7d613..4160edb7f1a3265084424cc94a1ad5f8
          String result = "Unknown-Version";
  
 -        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/io.multipaper.shreddedpaper/shreddedpaper-api/pom.properties"); // Pufferfish // Purpur // ShreddedPaper
-+        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/one.tranic.levelpowered.vine/vine-api/pom.properties"); // Pufferfish // Purpur // ShreddedPaper // Vine
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/one.tranic.vine/vine-api/pom.properties"); // Pufferfish // Purpur // ShreddedPaper // Vine
          Properties properties = new Properties();
  
          if (stream != null) {

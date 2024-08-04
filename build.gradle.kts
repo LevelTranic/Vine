@@ -90,7 +90,7 @@ paperweight {
 }
 
 tasks.generateDevelopmentBundle {
-    apiCoordinates.set("one.tranic.levelpowered.vine:vine-api")
+    apiCoordinates.set("one.tranic.vine:vine-api")
     libraryRepositories.set(
         listOf(
             "https://repo.maven.apache.org/maven2/",
