@@ -1,0 +1,88 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: violetc <58360096+s-yh-china@users.noreply.github.com>
+Date: Sun, 30 Jul 2023 12:20:16 +0800
+Subject: [PATCH] Leaves: Zero tick plants
+
+You can find the original code on https://github.com/LeavesMC/Leaves
+
+diff --git a/src/main/java/net/minecraft/world/level/block/BambooStalkBlock.java b/src/main/java/net/minecraft/world/level/block/BambooStalkBlock.java
+index e2951dd077441fe9cda461a2d3ef0c0671308316..b25d89dba0a47ea29a19417cdd963cefdbc959d9 100644
+--- a/src/main/java/net/minecraft/world/level/block/BambooStalkBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/BambooStalkBlock.java
+@@ -122,6 +122,10 @@ public class BambooStalkBlock extends Block implements BonemealableBlock {
+     protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (!state.canSurvive(world, pos)) {
+             world.destroyBlock(pos, true);
++            // Leaves start - zero tick plants
++        } else if (one.tranic.vine.config.VineConfig.Feature.zeroTickPlants) {
++            this.randomTick(state, world, pos, random);
++            // Leaves end - zero tick plants
+         }
+ 
+     }
+diff --git a/src/main/java/net/minecraft/world/level/block/CactusBlock.java b/src/main/java/net/minecraft/world/level/block/CactusBlock.java
+index 066181ed274a492762baebf05bf51ac7848878cc..0207421e1a3040215629cd59da292f66fff86e20 100644
+--- a/src/main/java/net/minecraft/world/level/block/CactusBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/CactusBlock.java
+@@ -46,6 +46,10 @@ public class CactusBlock extends Block implements BonemealableBlock { // Purpur
+     protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (!state.canSurvive(world, pos)) {
+             world.destroyBlock(pos, true);
++            // Leaves start - zero tick plants
++        } else if (one.tranic.vine.config.VineConfig.Feature.zeroTickPlants) {
++            this.randomTick(state, world, pos, random);
++            // Leaves end - zero tick plants
+         }
+ 
+     }
+diff --git a/src/main/java/net/minecraft/world/level/block/ChorusFlowerBlock.java b/src/main/java/net/minecraft/world/level/block/ChorusFlowerBlock.java
+index 6709cb6b657a8612781c2fe4dd76ee38f329c5ba..80b8c25a3c02f326696c8656e95e32e09b8e9814 100644
+--- a/src/main/java/net/minecraft/world/level/block/ChorusFlowerBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/ChorusFlowerBlock.java
+@@ -51,6 +51,10 @@ public class ChorusFlowerBlock extends Block {
+     protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (!state.canSurvive(world, pos)) {
+             world.destroyBlock(pos, true);
++            // Leaves start - zero tick plants
++        } else if (one.tranic.vine.config.VineConfig.Feature.zeroTickPlants) {
++            this.randomTick(state, world, pos, random);
++            // Leaves end - zero tick plants
+         }
+ 
+     }
+diff --git a/src/main/java/net/minecraft/world/level/block/GrowingPlantHeadBlock.java b/src/main/java/net/minecraft/world/level/block/GrowingPlantHeadBlock.java
+index 8e9903899ac91e9431f00675c1f5ac4a18e61593..af33124a328f9ffe3e92073ad917b9af6cff20b6 100644
+--- a/src/main/java/net/minecraft/world/level/block/GrowingPlantHeadBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/GrowingPlantHeadBlock.java
+@@ -143,5 +143,16 @@ public abstract class GrowingPlantHeadBlock extends GrowingPlantBlock implements
+         return this;
+     }
+ 
++    // Leaves start - zero tick plants
++    @Override
++    public void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
++        if (!state.canSurvive(world, pos)) {
++            world.destroyBlock(pos, true);
++        } else if (one.tranic.vine.config.VineConfig.Feature.zeroTickPlants) {
++            this.randomTick(state, world, pos, random);
++        }
++    }
++    // Leaves end - zero tick plants
++
+     public abstract int getMaxGrowthAge(); // Purpur
+ }
+diff --git a/src/main/java/net/minecraft/world/level/block/SugarCaneBlock.java b/src/main/java/net/minecraft/world/level/block/SugarCaneBlock.java
+index 6449b5c424443b5f0ee7e3fce803449418fbed2a..e70a3f77ff80c58e29cd4298fb712f01573ab0d1 100644
+--- a/src/main/java/net/minecraft/world/level/block/SugarCaneBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/SugarCaneBlock.java
+@@ -46,6 +46,10 @@ public class SugarCaneBlock extends Block implements BonemealableBlock { // Purp
+     protected void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+         if (!state.canSurvive(world, pos)) {
+             world.destroyBlock(pos, true);
++            // Leaves start - zero tick plants
++        } else if (one.tranic.vine.config.VineConfig.Feature.zeroTickPlants) {
++            this.randomTick(state, world, pos, random);
++            // Leaves end - zero tick plants
+         }
+ 
+     }
