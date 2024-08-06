@@ -154,10 +154,10 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..f7365220ff8a9e704bd496795188e4557be8a1a0
+index 0000000000000000000000000000000000000000..f0545fc5c5de0c98677d37ad25156986a8864aea
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,259 @@
+@@ -0,0 +1,271 @@
 +package one.tranic.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -278,6 +278,14 @@ index 0000000000000000000000000000000000000000..f7365220ff8a9e704bd496795188e455
 +
 +        addDefault("feature.zero-tick-plants", false)
 +        addDefault("feature.disable-spark", true)
++        addDefault(
++            "feature.flatten-triangular-distribution",
++            false,
++            listOf(
++                "Change all triangle distribution in Minecraft randomizers into uniform distribution",
++                "With that edge cases are more likely to happen"
++            )
++        )
 +
 +        addDefault(
 +            "optimize.minecart.enabled", true,
@@ -320,6 +328,7 @@ index 0000000000000000000000000000000000000000..f7365220ff8a9e704bd496795188e455
 +
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
++        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
 +
 +        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
 +        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
@@ -386,6 +395,9 @@ index 0000000000000000000000000000000000000000..f7365220ff8a9e704bd496795188e455
 +    }
 +
 +    object Feature {
++        @JvmField
++        var flattenTriangularDistribution = false
++
 +        @JvmField
 +        var zeroTickPlants = false
 +

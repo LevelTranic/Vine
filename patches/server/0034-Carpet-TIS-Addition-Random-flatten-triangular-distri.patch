@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 6 Aug 2024 21:07:57 +0800
+Subject: [PATCH] Carpet-TIS-Addition: Random flatten triangular distribution
+
+You can find the original code on https://github.com/TISUnion/Carpet-TIS-Addition
+
+diff --git a/src/main/java/net/minecraft/util/RandomSource.java b/src/main/java/net/minecraft/util/RandomSource.java
+index 9c6f5b55b1f1376fa75e216cd366ee47c79fafc4..2a46704cfd02596daf5eb7037712ac6735a3b65a 100644
+--- a/src/main/java/net/minecraft/util/RandomSource.java
++++ b/src/main/java/net/minecraft/util/RandomSource.java
+@@ -53,7 +53,11 @@ public interface RandomSource {
+     double nextGaussian();
+ 
+     default double triangle(double mode, double deviation) {
+-        return mode + deviation * (this.nextDouble() - this.nextDouble());
++        double random1 = this.nextDouble();
++        double random2 = this.nextDouble();
++        return one.tranic.vine.config.VineConfig.Feature.flattenTriangularDistribution ?
++                mode + deviation * (-1 + random2 * 2):
++                mode + deviation * (random1 - random2);
+     }
+ 
+     default void consumeCount(int count) {
