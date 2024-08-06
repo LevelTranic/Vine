@@ -154,10 +154,10 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..0b9a6439ad29a5f91e2cd4b6f7077403b144ef32
+index 0000000000000000000000000000000000000000..f7365220ff8a9e704bd496795188e4557be8a1a0
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,254 @@
+@@ -0,0 +1,259 @@
 +package one.tranic.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -277,6 +277,7 @@ index 0000000000000000000000000000000000000000..0b9a6439ad29a5f91e2cd4b6f7077403
 +        )
 +
 +        addDefault("feature.zero-tick-plants", false)
++        addDefault("feature.disable-spark", true)
 +
 +        addDefault(
 +            "optimize.minecart.enabled", true,
@@ -318,6 +319,7 @@ index 0000000000000000000000000000000000000000..0b9a6439ad29a5f91e2cd4b6f7077403
 +        Fix.anvilDropLogger = getBoolean("fix.anvil-drop.debug")
 +
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
++        Feature.disableSpark = getBoolean("feature.disable-spark")
 +
 +        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
 +        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
@@ -386,6 +388,9 @@ index 0000000000000000000000000000000000000000..0b9a6439ad29a5f91e2cd4b6f7077403
 +    object Feature {
 +        @JvmField
 +        var zeroTickPlants = false
++
++        @JvmField
++        var disableSpark = true
 +    }
 +
 +    object Optimize {

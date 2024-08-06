@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 6 Aug 2024 18:59:58 +0800
+Subject: [PATCH] disable spark
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/provider/source/SparkProviderSource.java b/src/main/java/io/papermc/paper/plugin/provider/source/SparkProviderSource.java
+index cb78dac8e072b5cb3c6e52e17c9ecdf708aeedc1..c36606270a65f0a81a3ee68af944ced428ff0144 100644
+--- a/src/main/java/io/papermc/paper/plugin/provider/source/SparkProviderSource.java
++++ b/src/main/java/io/papermc/paper/plugin/provider/source/SparkProviderSource.java
+@@ -28,7 +28,7 @@ public class SparkProviderSource implements ProviderSource<Path, Path> {
+     @Override
+     public Path prepareContext(Path context) {
+         // first, check if user doesn't want spark at all
+-        if (Boolean.getBoolean("Purpur.IReallyDontWantSpark")) {
++        if (one.tranic.vine.config.VineConfig.Feature.disableSpark || Boolean.getBoolean("Purpur.IReallyDontWantSpark")) {
+             return null; // boo!
+         }
+ 
