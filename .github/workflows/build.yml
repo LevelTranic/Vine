@@ -53,9 +53,8 @@ jobs:
           name: ${{ env.project_id_b }} ${{ env.mcversion }} - ${{ env.commit_id }}
           body: |
             📦Version: `${{ env.mcversion }}` | Commit ${{ env.commit_id }} [![download](https://img.shields.io/github/downloads/LevelTranic/${{ env.project_id }}/${{ env.tag }}/total?color=red&style=flat-square)](https://github.com/LevelTranic/${{ env.project_id }}/download/${{ env.tag }}/${{ env.jar }})
-            This release is automatically compiled by GitHub Actions
-            
-            You can easily find the latest version in our [build list](https://tranic.one/downloads/all). 
+            This release is automatically compiled by GitHub Actions 
+            **You can easily find the latest version in our [build list](https://tranic.one/downloads/all).**
             ### Commit Message
             ${{ env.commit_msg }}
           artifacts: |
