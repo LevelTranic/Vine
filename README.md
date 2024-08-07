@@ -5,7 +5,7 @@
     <img src="https://img.shields.io/github/commit-activity/w/LevelTranic/Vine?style=flat-square" alt="">
     <img src="https://img.shields.io/github/downloads/LevelTranic/Vine/total?style=flat-square" alt="">
     <a href="https://tranic.one/downloads/vine"><img src="https://img.shields.io/github/release-date/LevelTranic/Vine?style=flat-square" alt=""></a>
-    <a href="https://tranic.one/downloads/vin"><img src="https://img.shields.io/github/v/release/LevelTranic/Vine?style=flat-square" alt=""></a>
+    <a href="https://tranic.one/downloads/vine"><img src="https://img.shields.io/github/v/release/LevelTranic/Vine?style=flat-square" alt=""></a>
     <br /><br />
 </div>
 
