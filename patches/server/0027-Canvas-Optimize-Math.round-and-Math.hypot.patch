@@ -259,7 +259,7 @@ index 9b5aca3bb44ae0aedb0df38dfecbd7a4e3b7a65a..6994aabad832118c4f8ff0f95a25286c
      }
  
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 12dcd004e30be741becdfbe1be346212c5b128fd..95b743b2a7cb6d60952b60cb5f680ba19e7182c3 100644
+index c19b92108320a1796106109df31eea85e4421511..c45c7945b46d6103b67bee173aae989a25573b0b 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -1643,7 +1643,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
@@ -271,7 +271,7 @@ index 12dcd004e30be741becdfbe1be346212c5b128fd..95b743b2a7cb6d60952b60cb5f680ba1
                  }
              }
  
-@@ -2245,9 +2245,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2258,9 +2258,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
  
                  if (f3 > 0.0F && f3 < 3.4028235E37F) {
                      if (this instanceof ServerPlayer) {
@@ -283,7 +283,7 @@ index 12dcd004e30be741becdfbe1be346212c5b128fd..95b743b2a7cb6d60952b60cb5f680ba1
                      }
                  }
              }
-@@ -2359,9 +2359,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2372,9 +2372,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
                  float f3 = (float) -event.getDamage(DamageModifier.RESISTANCE);
                  if (f3 > 0.0F && f3 < 3.4028235E37F) {
                      if (this instanceof ServerPlayer) {
@@ -295,7 +295,7 @@ index 12dcd004e30be741becdfbe1be346212c5b128fd..95b743b2a7cb6d60952b60cb5f680ba1
                      }
                  }
              }
-@@ -2393,7 +2393,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2406,7 +2406,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
              float f2 = absorptionModifier;
  
              if (f2 > 0.0F && f2 < 3.4028235E37F && this instanceof net.minecraft.world.entity.player.Player) {
@@ -304,7 +304,7 @@ index 12dcd004e30be741becdfbe1be346212c5b128fd..95b743b2a7cb6d60952b60cb5f680ba1
              }
              if (f2 > 0.0F && f2 < 3.4028235E37F) {
                  Entity entity = damagesource.getEntity();
-@@ -2401,7 +2401,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2414,7 +2414,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                  if (entity instanceof ServerPlayer) {
                      ServerPlayer entityplayer = (ServerPlayer) entity;
  
@@ -313,7 +313,7 @@ index 12dcd004e30be741becdfbe1be346212c5b128fd..95b743b2a7cb6d60952b60cb5f680ba1
                  }
              }
  
-@@ -2410,7 +2410,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2423,7 +2423,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                      // PAIL: Be sure to drag all this code from the EntityHuman subclass each update.
                      ((net.minecraft.world.entity.player.Player) this).causeFoodExhaustion(damagesource.getFoodExhaustion(), org.bukkit.event.entity.EntityExhaustionEvent.ExhaustionReason.DAMAGED); // CraftBukkit - EntityExhaustionEvent
                      if (f < 3.4028235E37F) {
@@ -322,7 +322,7 @@ index 12dcd004e30be741becdfbe1be346212c5b128fd..95b743b2a7cb6d60952b60cb5f680ba1
                      }
                  }
                  // CraftBukkit end
-@@ -2430,7 +2430,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2443,7 +2443,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                          CriteriaTriggers.ENTITY_HURT_PLAYER.trigger((ServerPlayer) this, damagesource, originalDamage, f, true); // Paper - fix taken/dealt param order
                          f2 = (float) -event.getDamage(DamageModifier.BLOCKING);
                          if (f2 > 0.0F && f2 < 3.4028235E37F) {
@@ -331,7 +331,7 @@ index 12dcd004e30be741becdfbe1be346212c5b128fd..95b743b2a7cb6d60952b60cb5f680ba1
                          }
                      }
  
-@@ -3218,13 +3218,13 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -3231,13 +3231,13 @@ public abstract class LivingEntity extends Entity implements Attackable {
          //this.level().getProfiler().push("rangeChecks"); // Purpur
  
          // Paper start - stop large pitch and yaw changes from crashing the server

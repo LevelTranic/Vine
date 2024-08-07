@@ -7,7 +7,7 @@ Original code by NONPLAYT
 You can find the original code on https://github.com/DivineMC/DivineMC
 
 diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
-index c8da0247f76eb9c2c6247833d97ffc9de0538c52..6994aabad832118c4f8ff0f95a25286cf28a27f1 100644
+index 990ea96de8e940390b67e9462fcfd6025f2f5770..9b5aca3bb44ae0aedb0df38dfecbd7a4e3b7a65a 100644
 --- a/src/main/java/net/minecraft/util/Mth.java
 +++ b/src/main/java/net/minecraft/util/Mth.java
 @@ -46,11 +46,11 @@ public class Mth {
