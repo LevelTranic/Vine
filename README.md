@@ -42,7 +42,6 @@
 
 <div align=center>
     <h2>Todo</h2>
-    <li>Implement Secure Seed</li>
     <li>Implement Linear region format (Dangerous option)</li>
     <li>Optional vanilla implementation</li>
     <li>More mods implement.....</li>

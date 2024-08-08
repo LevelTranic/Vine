@@ -154,10 +154,10 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..f0545fc5c5de0c98677d37ad25156986a8864aea
+index 0000000000000000000000000000000000000000..92a37da6260e14ea747e0c0851723150108e0a7b
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,271 @@
+@@ -0,0 +1,284 @@
 +package one.tranic.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -286,6 +286,15 @@ index 0000000000000000000000000000000000000000..f0545fc5c5de0c98677d37ad25156986
 +                "With that edge cases are more likely to happen"
 +            )
 +        )
++        addDefault(
++            "feature.secure-seed", false, listOf(
++                "Changes the seed from 64bit to 1024bit, this will strictly secure your seed,",
++                "making it almost impossible to crack.",
++                "Warning: You must delete existing maps to switch the state of the secure seed,",
++                "and do not modify it during hot loading, otherwise the server will crash and",
++                "cannot continue to load maps."
++            )
++        )
 +
 +        addDefault(
 +            "optimize.minecart.enabled", true,
@@ -329,6 +338,7 @@ index 0000000000000000000000000000000000000000..f0545fc5c5de0c98677d37ad25156986
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
 +        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
++        Feature.secureSeed = getBoolean("feature.secure-seed")
 +
 +        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
 +        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
@@ -400,6 +410,9 @@ index 0000000000000000000000000000000000000000..f0545fc5c5de0c98677d37ad25156986
 +
 +        @JvmField
 +        var zeroTickPlants = false
++
++        @JvmField
++        var secureSeed = false
 +
 +        @JvmField
 +        var disableSpark = true
