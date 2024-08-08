@@ -154,10 +154,10 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..a5be65c2dba6aa1ff8ac70304209095ed4c9f57b
+index 0000000000000000000000000000000000000000..9b202b6e97edb63de44cf35557a28a5f3950df50
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,310 @@
+@@ -0,0 +1,311 @@
 +package one.tranic.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -171,9 +171,8 @@ index 0000000000000000000000000000000000000000..a5be65c2dba6aa1ff8ac70304209095e
 +
 +object VineConfig {
 +    val logger: org.slf4j.Logger = MinecraftServer.LOGGER
-+    private const val CONFIG_VERSION = "2.0"
 +    private lateinit var configuration: YamlConfiguration
-+    private var isSecureSeed : Boolean? = null
++    private var isSecureSeed: Boolean? = null
 +
 +    @JvmStatic
 +    fun setCommand() {
@@ -241,10 +240,12 @@ index 0000000000000000000000000000000000000000..a5be65c2dba6aa1ff8ac70304209095e
 +    }
 +
 +    private fun addDefault(configFile: File) {
-+        addDefault(
-+            "info",
-+            CONFIG_VERSION,
-+            listOf("Vine Abstract Configuration", "Vine Github: https://github.com/LevelTranic/Vine")
++        configuration.options().setHeader(
++            listOf(
++                "Vine Abstract Configuration",
++                "Vine Github: https://github.com/LevelTranic/Vine",
++                "It is recommended to always keep the latest version, download it at https://tranic.one/downloads/vine"
++            )
 +        )
 +
 +        addDefault(
