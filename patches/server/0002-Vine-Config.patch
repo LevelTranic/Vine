@@ -154,10 +154,10 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..92a37da6260e14ea747e0c0851723150108e0a7b
+index 0000000000000000000000000000000000000000..a5be65c2dba6aa1ff8ac70304209095ed4c9f57b
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,284 @@
+@@ -0,0 +1,310 @@
 +package one.tranic.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -173,6 +173,7 @@ index 0000000000000000000000000000000000000000..92a37da6260e14ea747e0c0851723150
 +    val logger: org.slf4j.Logger = MinecraftServer.LOGGER
 +    private const val CONFIG_VERSION = "2.0"
 +    private lateinit var configuration: YamlConfiguration
++    private var isSecureSeed : Boolean? = null
 +
 +    @JvmStatic
 +    fun setCommand() {
@@ -338,7 +339,16 @@ index 0000000000000000000000000000000000000000..92a37da6260e14ea747e0c0851723150
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
 +        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
-+        Feature.secureSeed = getBoolean("feature.secure-seed")
++
++        getBoolean("feature.secure-seed") {
++            if (isSecureSeed == null) {
++                Feature.secureSeed = it
++                isSecureSeed = it
++                logger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
++            } else if (isSecureSeed != it) {
++                logger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime")
++            }
++        }
 +
 +        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
 +        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
@@ -378,16 +388,32 @@ index 0000000000000000000000000000000000000000..92a37da6260e14ea747e0c0851723150
 +        return configuration.getBoolean(path)
 +    }
 +
++    private fun getBoolean(path: String, function: (it: Boolean) -> Unit) {
++        function(getBoolean(path))
++    }
++
 +    private fun getDouble(path: String): Double {
 +        return configuration.getDouble(path)
++    }
++
++    private fun getDouble(path: String, function: (it: Double) -> Unit) {
++        function(getDouble(path))
 +    }
 +
 +    private fun getInt(path: String): Int {
 +        return configuration.getInt(path)
 +    }
 +
++    private fun getInt(path: String, function: (it: Int) -> Unit) {
++        function(getInt(path))
++    }
++
 +    private fun getString(path: String): String? {
 +        return configuration.getString(path)
++    }
++
++    private fun getString(path: String, function: (it: String?) -> Unit) {
++        function(getString(path))
 +    }
 +
 +    object Fix {
