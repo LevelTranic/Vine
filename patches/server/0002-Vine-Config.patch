@@ -154,7 +154,7 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..9b202b6e97edb63de44cf35557a28a5f3950df50
+index 0000000000000000000000000000000000000000..53d7f099183f1b9760807e917f9ee44030891b79
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 @@ -0,0 +1,311 @@
@@ -345,7 +345,7 @@ index 0000000000000000000000000000000000000000..9b202b6e97edb63de44cf35557a28a5f
 +            if (isSecureSeed == null) {
 +                Feature.secureSeed = it
 +                isSecureSeed = it
-+                logger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
++                if (it) logger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
 +            } else if (isSecureSeed != it) {
 +                logger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime")
 +            }
