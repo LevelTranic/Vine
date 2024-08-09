@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Fri, 9 Aug 2024 09:34:17 +0800
+Subject: [PATCH] Leaf: Don't save primed tnt entity
+
+You can find the original code on https://github.com/Winds-Studio/Leaf
+
+diff --git a/src/main/java/net/minecraft/world/entity/item/PrimedTnt.java b/src/main/java/net/minecraft/world/entity/item/PrimedTnt.java
+index de8fd467abdc826d21179084a5669bd97c03850d..6290f60a5d0d57d95752e24e7a185b9c62db8757 100644
+--- a/src/main/java/net/minecraft/world/entity/item/PrimedTnt.java
++++ b/src/main/java/net/minecraft/world/entity/item/PrimedTnt.java
+@@ -219,4 +219,11 @@ public class PrimedTnt extends Entity implements TraceableEntity {
+         return super.interact(player, hand);
+     }
+     // Purpur end - Shears can defuse TNT
++
++    // Leaf start - PMC - Don't save primed tnt entity
++    @Override
++    public boolean shouldBeSaved() {
++        return !one.tranic.vine.config.VineConfig.Feature.DSE.primedTNT && super.shouldBeSaved();
++    }
++    // Leaf - PMC - Don't save primed tnt entity
+ }

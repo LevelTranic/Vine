@@ -154,10 +154,10 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..53d7f099183f1b9760807e917f9ee44030891b79
+index 0000000000000000000000000000000000000000..08c0b1b53bc675e293fb1cd8d150528a20a6f9ef
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,311 @@
+@@ -0,0 +1,329 @@
 +package one.tranic.vine.config
 +
 +import gg.pufferfish.pufferfish.simd.SIMDDetection
@@ -278,6 +278,14 @@ index 0000000000000000000000000000000000000000..53d7f099183f1b9760807e917f9ee440
 +            "Whether to print detailed information to the console when this issue is triggered"
 +        )
 +
++        addDefault(
++            "feature.dont-save-entity.primed-tnt", false, listOf(
++                "Disable save primed tnt on chunk unloads.",
++                "Useful for redstone server, can prevent machine be exploded by TNT,",
++                "when player disconnected caused by Internet issue."
++            )
++        )
++        addDefault("feature.dont-save-entity.falling-block", false)
 +        addDefault("feature.zero-tick-plants", false)
 +        addDefault("feature.disable-spark", true)
 +        addDefault(
@@ -340,6 +348,8 @@ index 0000000000000000000000000000000000000000..53d7f099183f1b9760807e917f9ee440
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
 +        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
++        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
++        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
 +
 +        getBoolean("feature.secure-seed") {
 +            if (isSecureSeed == null) {
@@ -443,6 +453,14 @@ index 0000000000000000000000000000000000000000..53d7f099183f1b9760807e917f9ee440
 +
 +        @JvmField
 +        var disableSpark = true
++
++        object DSE {
++            @JvmField
++            var primedTNT = false
++
++            @JvmField
++            var fallingBlock = false
++        }
 +    }
 +
 +    object Optimize {
