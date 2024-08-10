@@ -41,6 +41,11 @@
 </div>
 
 <div align=center>
+    <h2>Contact Us</h2>
+    <p>Our Discord server is still under construction and I don't have that much time to maintain it all. For now, I recommend filing issues on Github as much as possible.</p>
+</div>
+
+<div align=center>
     <h2>Todo</h2>
     <li>Implement Linear region format (Dangerous option)</li>
     <li>Optional vanilla implementation</li>
