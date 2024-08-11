@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 11 Aug 2024 20:01:40 +0800
+Subject: [PATCH] SIMD support range adjustment
+
+
+diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
+index 3d918b0adedf6c3054c40b327f03941e75c4b517..a50f52b7da8fee7ad8e59cb9cf335236d58e8742 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
++++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
+@@ -94,7 +94,7 @@ public class PufferfishConfig {
+ 		// Attempt to detect vectorization
+ 		try {
+ 			SIMDDetection.isEnabled = SIMDDetection.canEnable(PufferfishLogger.LOGGER);
+-			SIMDDetection.versionLimited = SIMDDetection.getJavaVersion() < 17 || SIMDDetection.getJavaVersion() > 21;
++			SIMDDetection.versionLimited = SIMDDetection.getJavaVersion() < 17;
+ 		} catch (NoClassDefFoundError | Exception ignored) {
+ 			ignored.printStackTrace();
+ 		}
+@@ -102,7 +102,7 @@ public class PufferfishConfig {
+ 		if (SIMDDetection.isEnabled) {
+ 			PufferfishLogger.LOGGER.info("SIMD operations detected as functional. Will replace some operations with faster versions.");
+ 		} else if (SIMDDetection.versionLimited) {
+-			PufferfishLogger.LOGGER.warning("Will not enable SIMD! These optimizations are only safely supported on Java 17-21.");
++			PufferfishLogger.LOGGER.warning("Will not enable SIMD! These optimizations are only safely supported on Java 17+.");
+ 		} else {
+ 			PufferfishLogger.LOGGER.warning("SIMD operations are available for your server, but are not configured!");
+ 			PufferfishLogger.LOGGER.warning("To enable additional optimizations, add \"--add-modules=jdk.incubator.vector\" to your startup flags, BEFORE the \"-jar\".");
