@@ -1,0 +1,198 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 11 Aug 2024 11:54:25 +0800
+Subject: [PATCH] Some network
+
+
+diff --git a/src/main/java/net/minecraft/network/protocol/PacketUtils.java b/src/main/java/net/minecraft/network/protocol/PacketUtils.java
+index f5154194df9e44f8bcf431029f4bbed68db49658..5b2b50f7eb25585df78fdfede28cf2d8224490a8 100644
+--- a/src/main/java/net/minecraft/network/protocol/PacketUtils.java
++++ b/src/main/java/net/minecraft/network/protocol/PacketUtils.java
+@@ -47,65 +47,116 @@ public class PacketUtils {
+     }
+ 
+     public static <T extends PacketListener> void ensureRunningOnSameThread(Packet<T> packet, T listener, BlockableEventLoop<?> engine) throws RunningOnDifferentThreadException {
+-        // ShreddedPaper start - run on player's thread
+-        if (listener instanceof ServerGamePacketListenerImpl gamePacketListener) {
+-            if (TickThread.isTickThreadFor(gamePacketListener.player)) return;
+-            ShreddedPaper.runSync(gamePacketListener.player, () -> {
+-                if (listener instanceof ServerCommonPacketListenerImpl serverCommonPacketListener && serverCommonPacketListener.processedDisconnect) return; // CraftBukkit - Don't handle sync packets for kicked players
+-                if (listener.shouldHandleMessage(packet)) {
+-                    co.aikar.timings.Timing timing = co.aikar.timings.MinecraftTimings.getPacketTiming(packet); // Paper - timings
+-                    try { // Paper - timings // Purpur
+-                        packet.handle(listener);
+-                    } catch (Exception exception) {
+-                        if (exception instanceof ReportedException) {
+-                            ReportedException reportedexception = (ReportedException) exception;
+-
+-                            if (reportedexception.getCause() instanceof OutOfMemoryError) {
+-                                throw PacketUtils.makeReportedException(exception, packet, listener);
++        if (!one.tranic.vine.config.VineConfig.Fix.network) {
++            // ShreddedPaper start - run on player's thread
++            if (listener instanceof ServerGamePacketListenerImpl gamePacketListener) {
++                if (TickThread.isTickThreadFor(gamePacketListener.player)) return;
++                ShreddedPaper.runSync(gamePacketListener.player, () -> {
++                    if (listener instanceof ServerCommonPacketListenerImpl serverCommonPacketListener && serverCommonPacketListener.processedDisconnect)
++                        return; // CraftBukkit - Don't handle sync packets for kicked players
++                    if (listener.shouldHandleMessage(packet)) {
++                        //co.aikar.timings.Timing timing = co.aikar.timings.MinecraftTimings.getPacketTiming(packet); // Paper - timings
++                        try { // Paper - timings // Purpur
++                            packet.handle(listener);
++                        } catch (Exception exception) {
++                            if (exception instanceof ReportedException) {
++                                ReportedException reportedexception = (ReportedException) exception;
++
++                                if (reportedexception.getCause() instanceof OutOfMemoryError) {
++                                    throw PacketUtils.makeReportedException(exception, packet, listener);
++                                }
+                             }
+-                        }
+ 
+-                        listener.onPacketError(packet, exception);
++                            listener.onPacketError(packet, exception);
++                        }
++                    } else {
++                        PacketUtils.LOGGER.debug("Ignoring packet due to disconnection: {}", packet);
+                     }
+-                } else {
+-                    PacketUtils.LOGGER.debug("Ignoring packet due to disconnection: {}", packet);
+-                }
+-            });
+-            throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
+-        }
+-        // ShreddedPaper end - run on player's thread
+-        if (!engine.isSameThread()) {
+-            engine.executeIfPossible(() -> {
+-                packetProcessing.push(listener); // Paper - detailed watchdog information
+-                try { // Paper - detailed watchdog information
+-                if (listener instanceof ServerCommonPacketListenerImpl serverCommonPacketListener && serverCommonPacketListener.processedDisconnect) return; // CraftBukkit - Don't handle sync packets for kicked players
+-                if (listener.shouldHandleMessage(packet)) {
+-                    co.aikar.timings.Timing timing = co.aikar.timings.MinecraftTimings.getPacketTiming(packet); // Paper - timings
+-                    try { // Paper - timings // Purpur
+-                        packet.handle(listener);
+-                    } catch (Exception exception) {
+-                        if (exception instanceof ReportedException) {
+-                            ReportedException reportedexception = (ReportedException) exception;
+-
+-                            if (reportedexception.getCause() instanceof OutOfMemoryError) {
+-                                throw PacketUtils.makeReportedException(exception, packet, listener);
++                });
++                throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
++            }
++            // ShreddedPaper end - run on player's thread
++            if (!engine.isSameThread()) {
++                engine.executeIfPossible(() -> {
++                    packetProcessing.push(listener); // Paper - detailed watchdog information
++                    try { // Paper - detailed watchdog information
++                        if (listener instanceof ServerCommonPacketListenerImpl serverCommonPacketListener && serverCommonPacketListener.processedDisconnect)
++                            return; // CraftBukkit - Don't handle sync packets for kicked players
++                        if (listener.shouldHandleMessage(packet)) {
++                            //co.aikar.timings.Timing timing = co.aikar.timings.MinecraftTimings.getPacketTiming(packet); // Paper - timings
++                            try { // Paper - timings // Purpur
++                                packet.handle(listener);
++                            } catch (Exception exception) {
++                                if (exception instanceof ReportedException) {
++                                    ReportedException reportedexception = (ReportedException) exception;
++
++                                    if (reportedexception.getCause() instanceof OutOfMemoryError) {
++                                        throw PacketUtils.makeReportedException(exception, packet, listener);
++                                    }
++                                }
++
++                                listener.onPacketError(packet, exception);
+                             }
++                        } else {
++                            PacketUtils.LOGGER.debug("Ignoring packet due to disconnection: {}", packet);
+                         }
++                        // Paper start - detailed watchdog information
++                    } finally {
++                        totalMainThreadPacketsProcessed.getAndIncrement();
++                        packetProcessing.pop();
++                    }
++                    // Paper end - detailed watchdog information
+ 
+-                        listener.onPacketError(packet, exception);
++                });
++                throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
++            }
++        } else {
++            if (!engine.isSameThread()) {
++                Runnable run = () -> { // Folia - region threading
++                    packetProcessing.push(listener); // Paper - detailed watchdog information
++                    try { // Paper - detailed watchdog information
++                        if (listener instanceof ServerCommonPacketListenerImpl serverCommonPacketListener && serverCommonPacketListener.processedDisconnect) return; // CraftBukkit - Don't handle sync packets for kicked players
++                        if (listener.shouldHandleMessage(packet)) {
++                            try {
++                                packet.handle(listener);
++                            } catch (Exception exception) {
++                                if (exception instanceof ReportedException reportedexception) {
++                                    if (reportedexception.getCause() instanceof OutOfMemoryError) {
++                                        throw PacketUtils.makeReportedException(exception, packet, listener);
++                                    }
++                                }
++
++                                listener.onPacketError(packet, exception);
++                            }
++                        } else {
++                            PacketUtils.LOGGER.debug("Ignoring packet due to disconnection: {}", packet);
++                        }
++                        // Paper start - detailed watchdog information
++                    } finally {
++                        totalMainThreadPacketsProcessed.getAndIncrement();
++                        packetProcessing.pop();
+                     }
++                    // Paper end - detailed watchdog information
++
++                }; // Folia start - region threading
++                // ignore retired state, if removed then we don't want the packet to be handled
++                if (listener instanceof net.minecraft.server.network.ServerGamePacketListenerImpl gamePacketListener) {
++                    gamePacketListener.player.getBukkitEntity().taskScheduler.schedule(
++                            (net.minecraft.server.level.ServerPlayer player) -> {
++                                run.run();
++                            },
++                            null, 1L
++                    );
++                } else if (listener instanceof net.minecraft.server.network.ServerConfigurationPacketListenerImpl configurationPacketListener) {
++                    engine.executeIfPossible(run);
++                } else if (listener instanceof net.minecraft.server.network.ServerLoginPacketListenerImpl loginPacketListener) {
++                    engine.executeIfPossible(run);
+                 } else {
+-                    PacketUtils.LOGGER.debug("Ignoring packet due to disconnection: {}", packet);
++                    throw new UnsupportedOperationException("Unknown listener: " + listener);
+                 }
+-                // Paper start - detailed watchdog information
+-                } finally {
+-                    totalMainThreadPacketsProcessed.getAndIncrement();
+-                    packetProcessing.pop();
+-                }
+-                // Paper end - detailed watchdog information
+-
+-            });
+-            throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
++                // Folia end - region threading
++                throw RunningOnDifferentThreadException.RUNNING_ON_DIFFERENT_THREAD;
++            }
+         }
+     }
+ 
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index 98b3f8b4be0030812b2bc8c6e4b2c3aacb8d25cb..1155376f5002f00af7ae8fce720cb4bd551a1b3c 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -349,6 +349,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+ 
+     @Override
+     public void tick() {
++        if (one.tranic.vine.config.VineConfig.Fix.network) this.keepConnectionAlive(); // Folia
+         if (this.ackBlockChangesUpTo > -1) {
+             this.send(new ClientboundBlockChangedAckPacket(this.ackBlockChangesUpTo));
+             this.ackBlockChangesUpTo = -1;
+@@ -397,7 +398,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+             this.aboveGroundVehicleTickCount = 0;
+         }
+ 
+-        this.keepConnectionAlive();
++        if (!one.tranic.vine.config.VineConfig.Fix.network) this.keepConnectionAlive(); // Folia
+         // CraftBukkit start
+         for (int spam; (spam = this.chatSpamTickCount.get()) > 0 && !this.chatSpamTickCount.compareAndSet(spam, spam - 1); ) ;
+         if (tabSpamLimiter.get() > 0) tabSpamLimiter.getAndDecrement(); // Paper - configurable tab spam limits
