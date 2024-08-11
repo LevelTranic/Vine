@@ -76,7 +76,7 @@ index 842f382de43df5d5c321422372ec30ccdd7859d7..92a07e443fd01c8c0e976caefdb4396a
              return GsonHelper.parse(!s1.isEmpty() ? s1 : "{}");
          }, new JsonObject()), (String) this.get("level-type", (s1) -> {
 diff --git a/src/main/java/net/minecraft/server/level/ServerChunkCache.java b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
-index 69c1c5f5af8d8d13fb0802eb4b25c1708deeb52e..0ff00a403022fb9734ddf765013c739624ff619d 100644
+index 806c1ab972c81b519b95aa48bc4cde2ef4c482d6..b0de1ce3a66110498422e6fe5098b2add6347ca7 100644
 --- a/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 +++ b/src/main/java/net/minecraft/server/level/ServerChunkCache.java
 @@ -49,6 +49,7 @@ import net.minecraft.world.level.storage.LevelStorageSource;

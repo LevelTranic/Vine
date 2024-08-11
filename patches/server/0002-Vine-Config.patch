@@ -18,25 +18,6 @@ index b35a9f4c5f8960864c402ede8a51fb5ab9c4fcc0..e4b367b51bfae3f9f03227ebadca65e9
          ));
  
          new TimingsExport(listeners, parent, history).start();
-diff --git a/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java b/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
-index efed51a692d94acd9126f6eb2866755567c2e636..fd308bb5dc3f90d7b76240dd0d5026b77a7abe32 100644
---- a/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
-+++ b/src/main/java/gg/pufferfish/pufferfish/PufferfishConfig.java
-@@ -148,5 +148,14 @@ public class PufferfishConfig {
- 			enableAsyncMobSpawning = temp;
- 		}
- 	}
-+
-+	public static boolean enableSuffocationOptimization;
-+	private static void suffocationOptimization() {
-+		enableSuffocationOptimization = getBoolean("enable-suffocation-optimization", true,
-+				"Optimizes the suffocation check by selectively skipping",
-+				"the check in a way that still appears vanilla. This should",
-+				"be left enabled on most servers, but is provided as a",
-+				"configuration option if the vanilla deviation is undesirable.");
-+	}
- 	
- }
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
 index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..32d9eba81500be7ab64bd027499c96f6804a68cd 100644
 --- a/src/main/java/net/minecraft/server/Main.java
@@ -154,13 +135,12 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..08c0b1b53bc675e293fb1cd8d150528a20a6f9ef
+index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846cc3bd550b
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,329 @@
+@@ -0,0 +1,313 @@
 +package one.tranic.vine.config
 +
-+import gg.pufferfish.pufferfish.simd.SIMDDetection
 +import net.minecraft.server.MinecraftServer
 +import one.tranic.vine.commands.VineCfgCommand
 +import org.bukkit.Bukkit
@@ -217,26 +197,6 @@ index 0000000000000000000000000000000000000000..08c0b1b53bc675e293fb1cd8d150528a
 +    fun load() {
 +        reload()
 +        reload()
-+        // Pufferfish start
-+        // Attempt to detect vectorization
-+        runCatching {
-+            SIMDDetection.isEnabled = SIMDDetection.canEnable(logger)
-+            SIMDDetection.versionLimited = SIMDDetection.getJavaVersion() < 17
-+        }.getOrElse {
-+            it.printStackTrace()
-+        }
-+
-+        if (SIMDDetection.isEnabled) {
-+            logger.info("SIMD operations detected as functional. Will replace some operations with faster versions.")
-+        } else if (SIMDDetection.versionLimited) {
-+            logger.warn("Will not enable SIMD! These optimizations are only safely supported on Java 17+.")
-+        } else {
-+            logger.warn("SIMD operations are available for your server, but are not configured!")
-+            logger.warn("To enable additional optimizations, add \"--add-modules=jdk.incubator.vector\" to your startup flags, BEFORE the \"-jar\".")
-+            logger.warn("If you have already added this flag, then SIMD operations are not supported on your JVM or CPU.")
-+            logger.warn("Debug: Java: ${System.getProperty("java.version")} test run: ${SIMDDetection.testRun}")
-+        }
-+        // Pufferfish end
 +    }
 +
 +    private fun addDefault(configFile: File) {
@@ -277,6 +237,7 @@ index 0000000000000000000000000000000000000000..08c0b1b53bc675e293fb1cd8d150528a
 +            "fix.anvil-drop.debug", false,
 +            "Whether to print detailed information to the console when this issue is triggered"
 +        )
++        addDefault("fix.network", false, "This is a testing option, if you don't know what it does, don't enable it.")
 +
 +        addDefault(
 +            "feature.dont-save-entity.primed-tnt", false, listOf(
@@ -344,6 +305,7 @@ index 0000000000000000000000000000000000000000..08c0b1b53bc675e293fb1cd8d150528a
 +
 +        Fix.anvilDrop = getBoolean("fix.anvil-drop.enabled")
 +        Fix.anvilDropLogger = getBoolean("fix.anvil-drop.debug")
++        Fix.network = getBoolean("fix.network")
 +
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
@@ -428,6 +390,9 @@ index 0000000000000000000000000000000000000000..08c0b1b53bc675e293fb1cd8d150528a
 +    }
 +
 +    object Fix {
++        @JvmField
++        var network = false
++
 +        @JvmField
 +        var anvilDrop = true
 +

@@ -5,28 +5,29 @@ Subject: [PATCH] Fix build and Rebrand
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index d67acf49205e6df94e3d65de624f2ddc6c34a44b..1342aefe5a298a373ab2cd00bf42356c6cf24c08 100644
+index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..d5c076c5cab19b24f9d8d387458d37a7e5c3bfdb 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -4,6 +4,8 @@ import java.time.Instant
+@@ -4,6 +4,9 @@ import java.time.Instant
  plugins {
      java
      `maven-publish`
 +    kotlin("jvm") version "2.0.0"
 +    kotlin("plugin.serialization") version "2.0.0"
++
  }
  
  val log4jPlugins = sourceSets.create("log4jPlugins")
-@@ -13,7 +15,7 @@ configurations.named(log4jPlugins.compileClasspathConfigurationName) {
+@@ -13,7 +16,7 @@ configurations.named(log4jPlugins.compileClasspathConfigurationName) {
  val alsoShade: Configuration by configurations.creating
  
  dependencies {
 -    implementation(project(":shreddedpaper-api")) // Purpur // ShreddedPaper
-+    implementation(project(":vine-api")) // Purpur // ShreddedPaper
++    implementation(project(":vine-api")) // Purpur // ShreddedPaper // Vine
      // Paper start
      implementation("org.jline:jline-terminal-jansi:3.21.0")
      implementation("net.minecrell:terminalconsoleappender:1.3.0")
-@@ -72,6 +74,20 @@ dependencies {
+@@ -73,6 +76,15 @@ dependencies {
      implementation("io.papermc:reflection-rewriter-runtime:$reflectionRewriterVersion")
      implementation("io.papermc:reflection-rewriter-proxy-generator:$reflectionRewriterVersion")
      // Paper end - Remap reflection
@@ -36,34 +37,38 @@ index d67acf49205e6df94e3d65de624f2ddc6c34a44b..1342aefe5a298a373ab2cd00bf42356c
 +    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
 +    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.4.0")
 +    implementation("org.jetbrains.kotlinx:atomicfu:0.24.0")
-+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.0")
-+    // Vine end
-+}
++    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
++// Vine end
 +
-+tasks.compileJava {
-+    options.compilerArgs.add("--add-modules=jdk.incubator.vector")
-+    options.compilerArgs.add("-Xlint:-deprecation")
-+    options.isWarnings = false
  }
  
  paperweight {
-@@ -91,14 +107,14 @@ tasks.jar {
+@@ -84,6 +96,8 @@ paperweight {
+ tasks.withType<JavaCompile> {
+     val compilerArgs = options.compilerArgs
+     compilerArgs.add("--add-modules=jdk.incubator.vector")
++    compilerArgs.add("-Xlint:-deprecation") // Vine
++    options.isWarnings = false // Vine
+ }
+ // Pufferfish End
+ 
+@@ -100,14 +114,14 @@ tasks.jar {
          val gitBranch = git("rev-parse", "--abbrev-ref", "HEAD").getText().trim() // Paper
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
 -            "Implementation-Title" to "ShreddedPaper", // Purpur // ShreddedPaper
-+            "Implementation-Title" to "Vine", // ShreddedPaper // Vine
++            "Implementation-Title" to "Vine", // Purpur // ShreddedPaper // Vine
              "Implementation-Version" to implementationVersion,
              "Implementation-Vendor" to date, // Paper
 -            "Specification-Title" to "ShreddedPaper", // Purpur // ShreddedPaper
-+            "Specification-Title" to "Vine", // ShreddedPaper // Vine
++            "Specification-Title" to "Vine", // Purpur // ShreddedPaper // Vine
              "Specification-Version" to project.version,
 -            "Specification-Vendor" to "ShreddedPaper Team", // Purpur // ShreddedPaper
 -            "Brand-Id" to "shreddedpaper:shreddedpaper", // Purpur // ShreddedPaper
 -            "Brand-Name" to "ShreddedPaper", // Purpur // ShreddedPaper
-+            "Specification-Vendor" to "TranicSoft LevelPowered", // ShreddedPaper // Vine
-+            "Brand-Id" to "levelpowered:vine", // ShreddedPaper // Vine
-+            "Brand-Name" to "Vine", // ShreddedPaper // Vine
++            "Specification-Vendor" to "TranicSoft Studio", // Purpur // ShreddedPaper // Vine
++            "Brand-Id" to "tranic:vine", // Purpur // ShreddedPaper // Vine
++            "Brand-Name" to "Vine", // Purpur // ShreddedPaper // Vine
              "Build-Number" to (build ?: ""),
              "Build-Time" to Instant.now().toString(),
              "Git-Branch" to gitBranch, // Paper
@@ -272,7 +277,7 @@ index 63f9c70666eaa90c68fa342e435bcfbd31ef73ae..f4e02f45f617094f91a7d51b86e47aa0
                  CrashReport.LOGGER.error("Could not save crash report to {}", file, throwable);
                  flag = false;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 5bc508995f11a7e5ee13b9288f3ad8b7816ba411..12d7d0959122a39a2714c84f7e8de45fa006433a 100644
+index edc9a4c2aa5621f520525c9846df09d177f0765f..f7027cc3bb94333887233802f885eff7aa8711fa 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -3,9 +3,6 @@ package net.minecraft.server;
