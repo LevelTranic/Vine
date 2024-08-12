@@ -177,7 +177,7 @@ index cd0a8a6a1be75cab8bbb8ee3ac17bb732b9e7108..b2e616da719a92a16996a397d3d8a98a
      // Paper end - Improve ServerGUI
  }
 diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
-index ac08e7bc5b4e25ad5bba149f358f0c46312b40d9..a45a9fc65ddcdcd51df95b6c26cd8d25adbb116c 100644
+index f14bb2e16ff8ca506874d297a40e5e26899760ef..1ba1ff1c3e4d77e0c21fe0595b533de76d72f5f3 100644
 --- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
 +++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
 @@ -1906,29 +1906,29 @@ public class ServerPlayer extends Player {
@@ -238,7 +238,7 @@ index ac08e7bc5b4e25ad5bba149f358f0c46312b40d9..a45a9fc65ddcdcd51df95b6c26cd8d25
  
              if (entity instanceof AbstractMinecart) {
 diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
-index 9b5aca3bb44ae0aedb0df38dfecbd7a4e3b7a65a..6994aabad832118c4f8ff0f95a25286cf28a27f1 100644
+index d700a9d0ec5949a6a86a9d068b99d25e5fdc919d..90e6d6aafc8735b192a558d65665ec7ab61b36b4 100644
 --- a/src/main/java/net/minecraft/util/Mth.java
 +++ b/src/main/java/net/minecraft/util/Mth.java
 @@ -29,7 +29,7 @@ public class Mth {
@@ -250,7 +250,7 @@ index 9b5aca3bb44ae0aedb0df38dfecbd7a4e3b7a65a..6994aabad832118c4f8ff0f95a25286c
          for (int ix = 0; ix < sineTable.length; ix++) {
              sineTable[ix] = (float)Math.sin((double)ix * Math.PI * 2.0 / 65536.0);
          }
-@@ -627,6 +627,7 @@ public class Mth {
+@@ -614,6 +614,7 @@ public class Mth {
      }
  
      public static double length(double a, double b) {

@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: HaHaWTH <102713261+HaHaWTH@users.noreply.github.com>
+Date: Sun, 7 Jul 2024 01:42:45 +0800
+Subject: [PATCH] Leaf: Fix-MC-119417
+
+Related MC issue: https://bugs.mojang.com/browse/MC-119417
+
+diff --git a/src/main/java/net/minecraft/server/level/ServerPlayer.java b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+index ac08e7bc5b4e25ad5bba149f358f0c46312b40d9..f14bb2e16ff8ca506874d297a40e5e26899760ef 100644
+--- a/src/main/java/net/minecraft/server/level/ServerPlayer.java
++++ b/src/main/java/net/minecraft/server/level/ServerPlayer.java
+@@ -2242,6 +2242,7 @@ public class ServerPlayer extends Player {
+             this.connection.send(new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, (float) gameMode.getId()));
+             if (gameMode == GameType.SPECTATOR) {
+                 this.removeEntitiesOnShoulder();
++                this.stopSleeping(); // Leaf - Fix MC-119417
+                 this.stopRiding();
+             } else {
+                 this.setCamera(this);

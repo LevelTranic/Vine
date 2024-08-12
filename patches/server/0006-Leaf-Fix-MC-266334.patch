@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: PadowYT2 <me@padow.ru>
+Date: Sun, 21 Jul 2024 15:16:54 +0300
+Subject: [PATCH] Leaf: Fix MC-266334
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Related MC issue: https://bugs.mojang.com/browse/MC-266334
+
+Co-Authored-By: Kobe ⑧ <102713261+HaHaWTH@users.noreply.github.com>
+
+diff --git a/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java b/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
+index 92521cbedcf89a855f10a3401933acaf84bc3f98..acb9de0a9d8b27a420b3ce16fe314f8b6310f372 100644
+--- a/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
++++ b/src/main/java/net/minecraft/world/entity/decoration/ArmorStand.java
+@@ -522,6 +522,12 @@ public class ArmorStand extends LivingEntity {
+                     boolean flag = source.is(DamageTypeTags.CAN_BREAK_ARMOR_STAND);
+                     boolean flag1 = source.is(DamageTypeTags.ALWAYS_KILLS_ARMOR_STANDS);
+ 
++                    // Leaf start - Fix MC-266334
++                    if (!flag && source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.ShulkerBullet){
++                        return false;
++                    }
++                    // Leaf end - Fix MC-266334
++
+                     if (!flag && !flag1) {
+                         return false;
+                     } else {
