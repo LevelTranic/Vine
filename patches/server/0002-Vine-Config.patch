@@ -92,6 +92,23 @@ index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..09c17974579797588d5fbd290bc2ce9b
          // Paper start - fix converting txt to json file; convert old users earlier after PlayerList creation but before file load/save
          if (this.convertOldUsers()) {
              this.getProfileCache().save(false); // Paper
+diff --git a/src/main/java/one/tranic/vine/config/package-info.java b/src/main/java/one/tranic/vine/config/package-info.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736aa465f6b
+--- /dev/null
++++ b/src/main/java/one/tranic/vine/config/package-info.java
+@@ -0,0 +1,10 @@
++/**
++ * Vine Server configuration file package
++ * <p>
++ * If the public method needs to be called by Java, it needs to be annotated with @JvmStatic.
++ * If it is a field exposed to Java, it needs to be annotated with @JvmField.
++ * <p>
++ * If you need to modify this file, you'll need to modify the Vine Config commit using
++ * `git rebase -i HEAD~N` rather than patching it in a new patch.
++ * */
++package one.tranic.vine.config;
+\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
 new file mode 100644
 index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c10a8b7262
@@ -135,10 +152,10 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846cc3bd550b
+index 0000000000000000000000000000000000000000..58f4be5333cf3699683615f23deafa6f052f9c40
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,313 @@
+@@ -0,0 +1,365 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -178,6 +195,18 @@ index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846c
 +        return newSection
 +    }
 +
++    /**
++     * Load the configuration file.
++     *
++     * This method should be called twice on the first load and only once
++     * thereafter to ensure that annotations are generated correctly.
++     *
++     * To be honest, I really want to split it up, such as using annotations
++     * like @Comment and @Path, and using reflection to automatically register
++     * configuration items, which may be much more convenient. However,
++     * perhaps because my method is wrong, it does not take effect in Kotlin,
++     * so I still register these configuration items manually.
++     * */
 +    @JvmStatic
 +    fun reload() {
 +        runCatching {
@@ -238,6 +267,11 @@ index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846c
 +            "Whether to print detailed information to the console when this issue is triggered"
 +        )
 +        addDefault("fix.network", false, "This is a testing option, if you don't know what it does, don't enable it.")
++        addDefault(
++            "fix.nether-portal",
++            false,
++            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
++        )
 +
 +        addDefault(
 +            "feature.dont-save-entity.primed-tnt", false, listOf(
@@ -306,6 +340,7 @@ index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846c
 +        Fix.anvilDrop = getBoolean("fix.anvil-drop.enabled")
 +        Fix.anvilDropLogger = getBoolean("fix.anvil-drop.debug")
 +        Fix.network = getBoolean("fix.network")
++        Fix.netherPortal = getBoolean("fix.nether-portal")
 +
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
@@ -335,6 +370,7 @@ index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846c
 +        Optimize.noiseGeneration = getBoolean("optimize.noise-generation")
 +    }
 +
++    // Vine start - Configuration file tools
 +    private fun addDefault(path: String, value: Any) {
 +        configuration.addDefault(path, value)
 +    }
@@ -388,20 +424,33 @@ index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846c
 +    private fun getString(path: String, function: (it: String?) -> Unit) {
 +        function(getString(path))
 +    }
++    // Vine end - Configuration file tools
 +
++    /**This is some fix*/
 +    object Fix {
++        /**This is just a testing option, turning it on or off will not change anything.*/
 +        @JvmField
 +        var network = false
 +
++        /**Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.*/
++        @JvmField
++        var netherPortal = false
++
++        /**
++         * Fixed a bug in Paper where anvils could become drops at y=0 or y=-1.
++         * This may not be useful as the implementation is crude, you can install the fix plugin to fix it additionally if you can.
++         */
 +        @JvmField
 +        var anvilDrop = true
 +
 +        @JvmField
 +        var anvilDropLogger = false
 +
++        /**Fixed the bug that the display frame in water was destroyed by TNT.*/
 +        @JvmField
 +        var explosionBreaksItemFrameInWater = false
 +
++        /**Fixes some entities not bouncing on slime blocks and getting stuck*/
 +        @JvmField
 +        var incorrectBounceLogic = false
 +    }
@@ -410,28 +459,44 @@ index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846c
 +        @JvmField
 +        var flattenTriangularDistribution = false
 +
++        /**zero tick plants is back now!*/
 +        @JvmField
 +        var zeroTickPlants = false
 +
++        /**
++         * Switch to a 1024-bit secure seed to protect it from being cracked.
++         * Destroy the ambitions of those cheaters.
++         * Of course I haven't confirmed whether it's really possible XD
++         * */
 +        @JvmField
 +        var secureSeed = false
 +
++        /**This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.*/
 +        @JvmField
 +        var disableSpark = true
 +
++        /**
++         * This can prevent some devices that utilize vanilla abilities from being
++         * damaged when the server crashes or shuts down suddenly, but it is not a
++         * panacea, so take precautions.*/
 +        object DSE {
++            /**Do not save tnt entities*/
 +            @JvmField
 +            var primedTNT = false
 +
++            /**Do not save falling blocks*/
 +            @JvmField
 +            var fallingBlock = false
 +        }
 +    }
 +
++    /**Some optional optimizations*/
 +    object Optimize {
++        /**As the name suggests, it can slightly improve world generation performance, maybe.*/
 +        @JvmField
 +        var noiseGeneration = true
 +
++        /**Optimize stacked minecarts*/
 +        object Minecart {
 +            @JvmField
 +            var enabled = true
@@ -440,6 +505,10 @@ index 0000000000000000000000000000000000000000..93ebb1bea6dead5dcfe13f3db144846c
 +            var skipTickCount = 30
 +        }
 +
++        /**
++         * Entity re-pathing optimization
++         * If the entity has already determined the path, it will not search the path as frequently.
++         */
 +        @JvmField
 +        var mobRePathfinding = true
 +
