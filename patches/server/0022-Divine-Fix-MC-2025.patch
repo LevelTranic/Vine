@@ -10,10 +10,10 @@ Original post on Mojira: https://bugs.mojang.com/browse/MC-2025
 Fix taken from Reddit: https://redd.it/8pgd4q
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index aa758d24df7fc2272094a8e21922b2e7350820d0..941cf6b3edbd77d993e642e0e91db442bb933961 100644
+index 62a3618206564fe53a28488ac092381dd896dd8f..a78b716e8e6256eabffa35da901ebe00e4feb723 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -2604,6 +2604,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2605,6 +2605,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                  nbttagcompound.putBoolean("Purpur.FireImmune", immuneToFire);
              }
              // Purpur end
@@ -28,6 +28,6 @@ index aa758d24df7fc2272094a8e21922b2e7350820d0..941cf6b3edbd77d993e642e0e91db442
 +            nbttagcompound.put("DivineMC.BoundingBox", boundingBoxList);
 +            // DivineMC end
 +
+             nbttagcompound.put("Leaves.Data", leavesData); // Leaves - leaves ex data
              return nbttagcompound;
          } catch (Throwable throwable) {
-             CrashReport crashreport = CrashReport.forThrowable(throwable, "Saving entity NBT");
