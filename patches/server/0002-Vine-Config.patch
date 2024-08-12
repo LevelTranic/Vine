@@ -152,10 +152,10 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..58f4be5333cf3699683615f23deafa6f052f9c40
+index 0000000000000000000000000000000000000000..c5812b90c2b1cddb4c61202c9390170de2917b14
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,365 @@
+@@ -0,0 +1,370 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -282,6 +282,7 @@ index 0000000000000000000000000000000000000000..58f4be5333cf3699683615f23deafa6f
 +        )
 +        addDefault("feature.dont-save-entity.falling-block", false)
 +        addDefault("feature.zero-tick-plants", false)
++        addDefault("feature.vanilla-hopper", false)
 +        addDefault("feature.disable-spark", true)
 +        addDefault(
 +            "feature.flatten-triangular-distribution",
@@ -347,6 +348,7 @@ index 0000000000000000000000000000000000000000..58f4be5333cf3699683615f23deafa6f
 +        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
 +        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
 +        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
++        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
 +
 +        getBoolean("feature.secure-seed") {
 +            if (isSecureSeed == null) {
@@ -456,6 +458,9 @@ index 0000000000000000000000000000000000000000..58f4be5333cf3699683615f23deafa6f
 +    }
 +
 +    object Feature {
++        @JvmField
++        var vanillaHopper = false
++
 +        @JvmField
 +        var flattenTriangularDistribution = false
 +
