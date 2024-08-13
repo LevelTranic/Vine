@@ -30,12 +30,6 @@
 </div>
 
 <div align=center>
-    <h2 align=center>About them</h2>
-    <p>Vine is a fork of <a href="https://github.com/MultiPaper/ShreddedPaper" target="_parent">ShreddedPaper</a>, redistributed under the <a href="https://github.com/LevelTranic/Vine?tab=GPL-3.0-1-ov-file#readme">GPL-3.0 license</a> . Supports multi-threading.</p>
-    <p>LevelBukkit is a fork of <a href="https://github.com/LuminolMC/Luminol" target="_parent">Luminol</a>/<a href="https://github.com/PaperMC/Folia" target="_parent">Folia</a>, republished under the <a href="https://github.com/LevelTranic/LevelBukkit?tab=MIT-1-ov-file"> MIT license</a>. Multi-threading is supported.</p>
-</div>
-
-<div align=center>
     <h2>Download</h2>
     <p><a target="_blank" href="https://tranic.one/software/vine">Click To Download</a></p>
 </div>
@@ -46,8 +40,14 @@
 </div>
 
 <div align=center>
+    <h2 align=center>About them</h2>
+    <p>Vine is a fork of <a href="https://github.com/MultiPaper/ShreddedPaper" target="_parent">ShreddedPaper</a>, redistributed under the <a href="https://github.com/LevelTranic/Vine?tab=GPL-3.0-1-ov-file#readme">GPL-3.0 license</a> . Supports multi-threading.</p>
+    <p>LevelBukkit is a fork of <a href="https://github.com/LuminolMC/Luminol" target="_parent">Luminol</a>/<a href="https://github.com/PaperMC/Folia" target="_parent">Folia</a>, republished under the <a href="https://github.com/LevelTranic/LevelBukkit?tab=MIT-1-ov-file"> MIT license</a>. Multi-threading is supported.</p>
+</div>
+
+<div align=center>
     <h2>Todo</h2>
-    <li>Implement Linear region format (Dangerous option)</li>
+    <li>Implement Linear region format (Dangerous option // Too much, I won't consider it for now.)</li>
     <li>Optional vanilla implementation</li>
     <li>More mods implement.....</li>
 </div>
