@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..36d35477b853f4b7935969d6bbb0d9ddf1ce094e
+index 0000000000000000000000000000000000000000..579b6c5ffeef094817c38d1634ca95a051270a5a
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,80 @@
+@@ -0,0 +1,82 @@
 +package one.tranic.vine.config;
 +
 +public class VineConfig {
@@ -67,6 +67,8 @@ index 0000000000000000000000000000000000000000..36d35477b853f4b7935969d6bbb0d9dd
 +    }
 +
 +    public static class Optimize {
++        public static boolean floatingPointPositive = false;
++
 +        public static boolean skipSelfRaidCheck = false;
 +
 +        /**As the name suggests, it can slightly improve world generation performance, maybe.*/

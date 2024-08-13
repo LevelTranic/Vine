@@ -136,10 +136,10 @@ index 0000000000000000000000000000000000000000..fef20e0a19560d5419f4aaa3d2d860eb
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..418c38844e03dfc91800a72eb86573592681be3d
+index 0000000000000000000000000000000000000000..89d9cb047ffe337ae9b85c59e9a3b13302fe572d
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,299 @@
+@@ -0,0 +1,301 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -323,6 +323,7 @@ index 0000000000000000000000000000000000000000..418c38844e03dfc91800a72eb8657359
 +        )
 +
 +        addDefault("optimize.noise-generation", true)
++        addDefault("optimize.floating-point-positive", false)
 +
 +        configuration.options().copyDefaults(true)
 +        configuration.save(configFile)
@@ -365,6 +366,7 @@ index 0000000000000000000000000000000000000000..418c38844e03dfc91800a72eb8657359
 +            getInt("optimize.zombie-search-and-destroy-turtle-egg.percent-chance")
 +
 +        Optimize.noiseGeneration = getBoolean("optimize.noise-generation")
++        Optimize.floatingPointPositive = getBoolean("optimize.floating-point-positive")
 +    }
 +
 +    // Vine start - Configuration file tools

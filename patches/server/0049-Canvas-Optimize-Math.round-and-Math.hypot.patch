@@ -238,7 +238,7 @@ index d04c7cee101e2591d912fc015e30c61913381b8b..37eeefd690e34b53ee0fe27826bc0bd7
  
              if (entity instanceof AbstractMinecart) {
 diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
-index d700a9d0ec5949a6a86a9d068b99d25e5fdc919d..90e6d6aafc8735b192a558d65665ec7ab61b36b4 100644
+index 0fac5e30419d65ceba348a1f7bf253766b548d9c..7d25160c3eaf7c60d1f186aedc66e67ba9a279b5 100644
 --- a/src/main/java/net/minecraft/util/Mth.java
 +++ b/src/main/java/net/minecraft/util/Mth.java
 @@ -29,7 +29,7 @@ public class Mth {
@@ -250,7 +250,7 @@ index d700a9d0ec5949a6a86a9d068b99d25e5fdc919d..90e6d6aafc8735b192a558d65665ec7a
          for (int ix = 0; ix < sineTable.length; ix++) {
              sineTable[ix] = (float)Math.sin((double)ix * Math.PI * 2.0 / 65536.0);
          }
-@@ -614,6 +614,7 @@ public class Mth {
+@@ -626,6 +626,7 @@ public class Mth {
      }
  
      public static double length(double a, double b) {
