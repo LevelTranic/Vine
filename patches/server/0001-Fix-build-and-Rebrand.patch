@@ -5,7 +5,7 @@ Subject: [PATCH] Fix build and Rebrand
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..d5c076c5cab19b24f9d8d387458d37a7e5c3bfdb 100644
+index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..220eacd0b4b0e6e51e377e64b53142c1f86abe99 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -4,6 +4,9 @@ import java.time.Instant
@@ -27,6 +27,15 @@ index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..d5c076c5cab19b24f9d8d387458d37a7
      // Paper start
      implementation("org.jline:jline-terminal-jansi:3.21.0")
      implementation("net.minecrell:terminalconsoleappender:1.3.0")
+@@ -52,7 +55,7 @@ dependencies {
+     implementation("dev.omega24:upnp4j:1.0") // Purpur
+ 
+     // Pufferfish start
+-    implementation("org.yaml:snakeyaml:1.32")
++    implementation("org.yaml:snakeyaml:2.2")
+     implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
+         exclude(group="org.yaml", module="snakeyaml")
+     }
 @@ -73,6 +76,15 @@ dependencies {
      implementation("io.papermc:reflection-rewriter-runtime:$reflectionRewriterVersion")
      implementation("io.papermc:reflection-rewriter-proxy-generator:$reflectionRewriterVersion")
