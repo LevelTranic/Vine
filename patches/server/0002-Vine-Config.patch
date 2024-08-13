@@ -5,7 +5,7 @@ Subject: [PATCH] Vine Config
 
 
 diff --git a/src/main/java/co/aikar/timings/TimingsExport.java b/src/main/java/co/aikar/timings/TimingsExport.java
-index b35a9f4c5f8960864c402ede8a51fb5ab9c4fcc0..e4b367b51bfae3f9f03227ebadca65e965513ea8 100644
+index b35a9f4c5f8960864c402ede8a51fb5ab9c4fcc0..0d63e256932bffc3aa8dde5b774fbe73b62138f9 100644
 --- a/src/main/java/co/aikar/timings/TimingsExport.java
 +++ b/src/main/java/co/aikar/timings/TimingsExport.java
 @@ -241,7 +241,8 @@ public class TimingsExport extends Thread {
@@ -14,33 +14,25 @@ index b35a9f4c5f8960864c402ede8a51fb5ab9c4fcc0..e4b367b51bfae3f9f03227ebadca65e9
              pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)), // Pufferfish
 -            pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)) // Pufferfish
 +            pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)), // Pufferfish
-+            pair("vine", mapAsJSON(one.tranic.vine.config.VineConfig.getConfigCopy(), null)) // Vine
++            pair("vine", mapAsJSON(one.tranic.vine.config.ConfigUtil.getConfigCopy(), null)) // Vine
          ));
  
          new TimingsExport(listeners, parent, history).start();
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
-index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..32d9eba81500be7ab64bd027499c96f6804a68cd 100644
+index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..9e58bce64d46a1ac12bcc067a07883069a27e482 100644
 --- a/src/main/java/net/minecraft/server/Main.java
 +++ b/src/main/java/net/minecraft/server/Main.java
-@@ -58,6 +58,7 @@ import net.minecraft.world.level.storage.LevelResource;
- import net.minecraft.world.level.storage.LevelStorageSource;
- import net.minecraft.world.level.storage.LevelSummary;
- import net.minecraft.world.level.storage.PrimaryLevelData;
-+import one.tranic.vine.config.VineConfig;
- import org.slf4j.Logger;
- 
- // CraftBukkit start
-@@ -121,6 +122,8 @@ public class Main {
+@@ -121,6 +121,8 @@ public class Main {
                  JvmProfiler.INSTANCE.start(Environment.SERVER);
              }
  
-+            VineConfig.load(); // Vine - load config
++            one.tranic.vine.config.ConfigUtil.load(); // Vine - load config
 +
              ShreddedPaperConfigurationLoader.init((File) optionset.valueOf("shreddedpaper-settings")); // ShreddedPaper
  
              // Purpur start - load config files early
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..09c17974579797588d5fbd290bc2ce9b3ebab89b 100644
+index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..9863790cfea027a775fae3c26b0f4515216dc22b 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -1,20 +1,14 @@
@@ -64,15 +56,7 @@ index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..09c17974579797588d5fbd290bc2ce9b
  import java.util.Locale;
  import java.util.Optional;
  import java.util.function.BooleanSupplier;
-@@ -55,6 +49,7 @@ import net.minecraft.world.level.GameRules;
- import net.minecraft.world.level.GameType;
- import net.minecraft.world.level.block.entity.SkullBlockEntity;
- import net.minecraft.world.level.storage.LevelStorageSource;
-+import one.tranic.vine.config.VineConfig;
- import org.slf4j.Logger;
- 
- // CraftBukkit start
-@@ -63,9 +58,6 @@ import org.apache.logging.log4j.Level;
+@@ -63,9 +57,6 @@ import org.apache.logging.log4j.Level;
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.io.IoBuilder;
  import org.bukkit.command.CommandSender;
@@ -82,12 +66,12 @@ index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..09c17974579797588d5fbd290bc2ce9b
  import org.bukkit.event.server.ServerCommandEvent;
  import org.bukkit.craftbukkit.util.Waitable; // Paper
  import org.bukkit.event.server.RemoteServerCommandEvent;
-@@ -224,6 +216,9 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -224,6 +215,9 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
          this.paperConfigurations.initializeGlobalConfiguration(this.registryAccess());
          this.paperConfigurations.initializeWorldDefaultsConfiguration(this.registryAccess());
          // Paper end - initialize global and world-defaults configuration
 +
-+        VineConfig.setCommand();
++        one.tranic.vine.config.ConfigUtil.setCommand();
 +
          // Paper start - fix converting txt to json file; convert old users earlier after PlayerList creation but before file load/save
          if (this.convertOldUsers()) {
@@ -111,17 +95,17 @@ index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c10a8b7262
+index 0000000000000000000000000000000000000000..fef20e0a19560d5419f4aaa3d2d860ebb0c56a7e
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
 @@ -0,0 +1,34 @@
 +package one.tranic.vine.commands
 +
-+import one.tranic.vine.config.VineConfig
 +import org.bukkit.command.Command
 +import org.bukkit.command.CommandSender
 +import net.kyori.adventure.text.Component
 +import net.kyori.adventure.text.format.TextColor
++import one.tranic.vine.config.ConfigUtil
 +
 +class VineCfgCommand : Command("vinecfg") {
 +    init {
@@ -139,7 +123,7 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 +            )
 +        }
 +
-+        VineConfig.reload()
++        ConfigUtil.reload()
 +
 +        sender.sendMessage(
 +            Component
@@ -150,23 +134,25 @@ index 0000000000000000000000000000000000000000..6feb7269907d2c88a9eb5b52204e55c1
 +    }
 +}
 \ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/config/VineConfig.kt b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
+diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..c5812b90c2b1cddb4c61202c9390170de2917b14
+index 0000000000000000000000000000000000000000..9309b2e8e6d4a9c896772a1fa1d4baf1667fd50d
 --- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/config/VineConfig.kt
-@@ -0,0 +1,370 @@
++++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
+@@ -0,0 +1,274 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
-+import one.tranic.vine.commands.VineCfgCommand
 +import org.bukkit.Bukkit
 +import org.bukkit.configuration.ConfigurationSection
 +import org.bukkit.configuration.MemoryConfiguration
 +import org.bukkit.configuration.file.YamlConfiguration
 +import java.io.File
 +
-+object VineConfig {
++import one.tranic.vine.commands.VineCfgCommand
++import one.tranic.vine.config.VineConfig.*
++
++object ConfigUtil {
 +    val logger: org.slf4j.Logger = MinecraftServer.LOGGER
 +    private lateinit var configuration: YamlConfiguration
 +    private var isSecureSeed: Boolean? = null
@@ -427,103 +413,5 @@ index 0000000000000000000000000000000000000000..c5812b90c2b1cddb4c61202c9390170d
 +        function(getString(path))
 +    }
 +    // Vine end - Configuration file tools
-+
-+    /**This is some fix*/
-+    object Fix {
-+        /**This is just a testing option, turning it on or off will not change anything.*/
-+        @JvmField
-+        var network = false
-+
-+        /**Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.*/
-+        @JvmField
-+        var netherPortal = false
-+
-+        /**
-+         * Fixed a bug in Paper where anvils could become drops at y=0 or y=-1.
-+         * This may not be useful as the implementation is crude, you can install the fix plugin to fix it additionally if you can.
-+         */
-+        @JvmField
-+        var anvilDrop = true
-+
-+        @JvmField
-+        var anvilDropLogger = false
-+
-+        /**Fixed the bug that the display frame in water was destroyed by TNT.*/
-+        @JvmField
-+        var explosionBreaksItemFrameInWater = false
-+
-+        /**Fixes some entities not bouncing on slime blocks and getting stuck*/
-+        @JvmField
-+        var incorrectBounceLogic = false
-+    }
-+
-+    object Feature {
-+        @JvmField
-+        var vanillaHopper = false
-+
-+        @JvmField
-+        var flattenTriangularDistribution = false
-+
-+        /**zero tick plants is back now!*/
-+        @JvmField
-+        var zeroTickPlants = false
-+
-+        /**
-+         * Switch to a 1024-bit secure seed to protect it from being cracked.
-+         * Destroy the ambitions of those cheaters.
-+         * Of course I haven't confirmed whether it's really possible XD
-+         * */
-+        @JvmField
-+        var secureSeed = false
-+
-+        /**This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.*/
-+        @JvmField
-+        var disableSpark = true
-+
-+        /**
-+         * This can prevent some devices that utilize vanilla abilities from being
-+         * damaged when the server crashes or shuts down suddenly, but it is not a
-+         * panacea, so take precautions.*/
-+        object DSE {
-+            /**Do not save tnt entities*/
-+            @JvmField
-+            var primedTNT = false
-+
-+            /**Do not save falling blocks*/
-+            @JvmField
-+            var fallingBlock = false
-+        }
-+    }
-+
-+    /**Some optional optimizations*/
-+    object Optimize {
-+        /**As the name suggests, it can slightly improve world generation performance, maybe.*/
-+        @JvmField
-+        var noiseGeneration = true
-+
-+        /**Optimize stacked minecarts*/
-+        object Minecart {
-+            @JvmField
-+            var enabled = true
-+
-+            @JvmField
-+            var skipTickCount = 30
-+        }
-+
-+        /**
-+         * Entity re-pathing optimization
-+         * If the entity has already determined the path, it will not search the path as frequently.
-+         */
-+        @JvmField
-+        var mobRePathfinding = true
-+
-+        object TurtleEggSearch {
-+            @JvmField
-+            var enabled = false
-+
-+            @JvmField
-+            var percentChance = 40
-+        }
-+    }
 +}
 \ No newline at end of file
