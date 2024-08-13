@@ -136,10 +136,10 @@ index 0000000000000000000000000000000000000000..fef20e0a19560d5419f4aaa3d2d860eb
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..9309b2e8e6d4a9c896772a1fa1d4baf1667fd50d
+index 0000000000000000000000000000000000000000..d2d154541cf6c96853a14aa5419d31a29894d20e
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,274 @@
+@@ -0,0 +1,290 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -411,6 +411,22 @@ index 0000000000000000000000000000000000000000..9309b2e8e6d4a9c896772a1fa1d4baf1
 +
 +    private fun getString(path: String, function: (it: String?) -> Unit) {
 +        function(getString(path))
++    }
++
++    private fun getList(path: String): MutableList<*>? {
++        return configuration.getList(path)
++    }
++
++    private fun getStringList(path: String): MutableList<String> {
++        return configuration.getStringList(path)
++    }
++
++    private fun getStringList(path: String, function: (it: MutableList<String>) -> Unit) {
++        function(getStringList(path))
++    }
++
++    private fun getMapList(path: String): MutableList<MutableMap<*, *>> {
++        return configuration.getMapList(path)
 +    }
 +    // Vine end - Configuration file tools
 +}
