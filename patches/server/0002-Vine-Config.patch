@@ -136,10 +136,10 @@ index 0000000000000000000000000000000000000000..fef20e0a19560d5419f4aaa3d2d860eb
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..d2d154541cf6c96853a14aa5419d31a29894d20e
+index 0000000000000000000000000000000000000000..418c38844e03dfc91800a72eb86573592681be3d
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,290 @@
+@@ -0,0 +1,299 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -299,6 +299,14 @@ index 0000000000000000000000000000000000000000..d2d154541cf6c96853a14aa5419d31a2
 +        addDefault("optimize.minecart.skipTickCount", 30)
 +
 +        addDefault(
++            "optimize.raider-die-skip-self-raid-check",
++            false,
++            listOf(
++                "Whether to skip some raid checks.",
++                "Enabling this will significantly reduce the server's performance."
++            )
++        )
++        addDefault(
 +            "optimize.mob-re-pathfinding",
 +            true,
 +            "If true, disables the frequent pathfinds done while already following a path"
@@ -349,6 +357,7 @@ index 0000000000000000000000000000000000000000..d2d154541cf6c96853a14aa5419d31a2
 +        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
 +        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
 +
++        Optimize.skipSelfRaidCheck = getBoolean("optimize.raider-die-skip-self-raid-check")
 +        Optimize.mobRePathfinding = getBoolean("optimize.mob-re-pathfinding")
 +        Optimize.TurtleEggSearch.enabled =
 +            getBoolean("optimize.zombie-search-and-destroy-turtle-egg.enabled")
