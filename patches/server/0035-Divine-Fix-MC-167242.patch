@@ -6,7 +6,7 @@ Subject: [PATCH] Divine: Fix MC-167242
 See https://bugs.mojang.com/browse/MC-167242
 
 diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
-index 971f2d594ead143f34911eea857203aac5bdd0b5..6640db59d00ae32d7d765e4be5ac53c1bb47ff91 100644
+index 971f2d594ead143f34911eea857203aac5bdd0b5..d4579e9053a8ec153685ea90d0db0f8a33883fe5 100644
 --- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
 +++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
 @@ -995,6 +995,11 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
@@ -14,7 +14,7 @@ index 971f2d594ead143f34911eea857203aac5bdd0b5..6640db59d00ae32d7d765e4be5ac53c1
                  // CraftBukkit end
                  this.releaseAllPois();
 +
-+                if(this.isSleeping()) {
++                if (this.isSleeping()) {
 +                    this.stopSleeping();
 +                }
 +

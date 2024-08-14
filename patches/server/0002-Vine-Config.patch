@@ -136,10 +136,10 @@ index 0000000000000000000000000000000000000000..fef20e0a19560d5419f4aaa3d2d860eb
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..89d9cb047ffe337ae9b85c59e9a3b13302fe572d
+index 0000000000000000000000000000000000000000..f0a68285c6f86c07cf5547487ee44c4ba6441ce3
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,301 @@
+@@ -0,0 +1,299 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -252,7 +252,6 @@ index 0000000000000000000000000000000000000000..89d9cb047ffe337ae9b85c59e9a3b133
 +            "fix.anvil-drop.debug", false,
 +            "Whether to print detailed information to the console when this issue is triggered"
 +        )
-+        addDefault("fix.network", false, "This is a testing option, if you don't know what it does, don't enable it.")
 +        addDefault(
 +            "fix.nether-portal",
 +            false,
@@ -335,7 +334,6 @@ index 0000000000000000000000000000000000000000..89d9cb047ffe337ae9b85c59e9a3b133
 +
 +        Fix.anvilDrop = getBoolean("fix.anvil-drop.enabled")
 +        Fix.anvilDropLogger = getBoolean("fix.anvil-drop.debug")
-+        Fix.network = getBoolean("fix.network")
 +        Fix.netherPortal = getBoolean("fix.nether-portal")
 +
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")

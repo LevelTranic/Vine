@@ -6,18 +6,15 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..579b6c5ffeef094817c38d1634ca95a051270a5a
+index 0000000000000000000000000000000000000000..4b3f4376006e9f2c910a253078cfa7217b58cc78
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,82 @@
+@@ -0,0 +1,79 @@
 +package one.tranic.vine.config;
 +
 +public class VineConfig {
 +    /**This is some fix*/
 +    public static class Fix {
-+        /**This is just a testing option, turning it on or off will not change anything.*/
-+        public static boolean network = false;
-+
 +        /**Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.*/
 +        public static boolean netherPortal = false;
 +
