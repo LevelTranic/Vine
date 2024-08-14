@@ -1,0 +1,29 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Wed, 14 Aug 2024 17:15:49 +0800
+Subject: [PATCH] Store gamerules in fastutil hashmap
+
+You can find the original code on https://github.com/CaffeineMC/lithium-fabric
+
+diff --git a/src/main/java/net/minecraft/world/level/GameRules.java b/src/main/java/net/minecraft/world/level/GameRules.java
+index 485b3a43eedc53dbdc6a6295cbf27c1b27541454..83085880db088254db016fddf02794e96f621fdb 100644
+--- a/src/main/java/net/minecraft/world/level/GameRules.java
++++ b/src/main/java/net/minecraft/world/level/GameRules.java
+@@ -142,14 +142,14 @@ public class GameRules {
+ 
+     public GameRules() {
+         // Paper start - Perf: Use array for gamerule storage
+-        this((Map) GameRules.GAME_RULE_TYPES.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, (entry) -> {
+-            return ((GameRules.Type) entry.getValue()).createRule();
++        this(GameRules.GAME_RULE_TYPES.entrySet().stream().collect(ImmutableMap.toImmutableMap(Entry::getKey, (entry) -> {
++            return entry.getValue().createRule();
+         })));
+         // Paper end - Perf: Use array for gamerule storage
+     }
+ 
+     private GameRules(Map<GameRules.Key<?>, GameRules.Value<?>> rules) {
+-        this.rules = rules;
++        this.rules = new it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap<>(rules); // Lithium - store gamerules in fastutil hashmap
+ 
+         // Paper start - Perf: Use array for gamerule storage
+         int arraySize = rules.keySet().stream().mapToInt(key -> key.gameRuleIndex).max().orElse(-1) + 1;
