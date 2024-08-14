@@ -12,6 +12,15 @@
 ---
 > **It is still unstable at present, please choose carefully.**
 > 
+> A number of new optimizations we've introduced have successfully 
+> suppressed some lag spikes, but they may have some unexpected 
+> consequences. If you encounter such problems caused by optimizations, 
+> please report them in a timely manner.
+> 
+> The Discord server is still under construction.
+> 
+> ----
+> 
 > What is certain is that Vine will not launch any proprietary API.
 > You should use FoliaAPI, FoliaLib, ShreddedPaperAPI, or MultiLib 
 > (for Folia, there is no GlobalRegion scheduling) to develop plugins.
@@ -22,21 +31,8 @@
 > (most of the time).
 
 <div align=center>
-    <h2>Tranic Server</h2>
-    <a title="Vine for MultiPaper/ShreddedPaper" href="https://github.com/LevelTranic/Vine"><img width="30%" src="assets/Vine-Banner.png" alt=""/></a>
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    <a title="LevelBukkit for PaperMC/Folia & LuminolMC/Luminol" href="https://github.com/LevelTranic/LevelBukkit"><img width="30%" src="assets/LevelBukkit-Banner.png" alt=""/></a>
-    <br/><br/>
-</div>
-
-<div align=center>
     <h2>Download</h2>
     <p><a target="_blank" href="https://tranic.one/software/vine">Click To Download</a></p>
-</div>
-
-<div align=center>
-    <h2>Contact Us</h2>
-    <p>Our Discord server is still under construction and I don't have that much time to maintain it all. For now, I recommend filing issues on Github as much as possible.</p>
 </div>
 
 <div align=center>
@@ -59,5 +55,19 @@
 - Vine Wiki: [[*]](https://github.com/LevelTranic/Vine/wiki)
 - What is multithreading in Folia: [[1]](https://docs.papermc.io/folia/reference/overview)&nbsp;&nbsp;[[2]](https://docs.papermc.io/folia/reference/region-logic)
 - What is multithreading in ShreddedPaper: [[1]](https://github.com/MultiPaper/ShreddedPaper/blob/main/HOW_IT_WORKS.md)&nbsp;&nbsp;[[2]](https://github.com/MultiPaper/ShreddedPaper/blob/main/DEVELOPING_A_MULTITHREAD_PLUGIN.md)
+
+
+<div align=center>
+    <h2>Tranic Server</h2>
+    <a title="Vine for MultiPaper/ShreddedPaper" href="https://github.com/LevelTranic/Vine"><img width="30%" src="assets/Vine-Banner.png" alt=""/></a>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <a title="LevelBukkit for PaperMC/Folia & LuminolMC/Luminol" href="https://github.com/LevelTranic/LevelBukkit"><img width="30%" src="assets/LevelBukkit-Banner.png" alt=""/></a>
+    <br/><br/>
+</div>
+
+<div align=center>
+    <h2>Contact Us</h2>
+    <p>Our Discord server is still under construction and I don't have that much time to maintain it all. For now, I recommend filing issues on Github as much as possible.</p>
+</div>
 
 <br/><br/>
