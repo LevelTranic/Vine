@@ -1,0 +1,82 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martijn Muijsers <martijnmuijsers@live.nl>
+Date: Wed, 30 Nov 2022 12:57:37 +0100
+Subject: [PATCH] Gale: Specific interval TPS API
+
+License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+Gale - https://galemc.org
+
+diff --git a/src/main/java/org/bukkit/Bukkit.java b/src/main/java/org/bukkit/Bukkit.java
+index 85f557db3be4b9b688c4e2f35b37bc2dab2efcb5..37511cbe10e3341c32877c85652d6c7f581137f4 100644
+--- a/src/main/java/org/bukkit/Bukkit.java
++++ b/src/main/java/org/bukkit/Bukkit.java
+@@ -2377,6 +2377,35 @@ public final class Bukkit {
+         return server.getTPS();
+     }
+ 
++    // Gale start - specific interval TPS API
++    /**
++      * Gets the average server TPS over the last 1 minute
++      *
++      * @return the average server TPS over the last 1 minute
++      */
++    public static double get1MinuteTPSAverage() {
++        return server.get1MinuteTPSAverage();
++    }
++
++    /**
++      * Gets the average server TPS over the last 5 minutes
++      *
++      * @return the average server TPS over the last 5 minutes
++      */
++    public static double get5MinuteTPSAverage() {
++        return server.get5MinuteTPSAverage();
++    }
++
++    /**
++      * Gets the average server TPS over the last 15 minutes
++      *
++      * @return the average server TPS over the last 15 minutes
++      */
++    public static double get15MinuteTPSAverage() {
++        return server.get15MinuteTPSAverage();
++    }
++    // Gale end - specific interval TPS API
++
+     /**
+      * Get a sample of the servers last tick times (in nanos)
+      *
+diff --git a/src/main/java/org/bukkit/Server.java b/src/main/java/org/bukkit/Server.java
+index 0c7c8b2f454f665e351dcd5d7230009aeca401a6..a8b750f05b8c9aa079a6983333f05fac355012de 100644
+--- a/src/main/java/org/bukkit/Server.java
++++ b/src/main/java/org/bukkit/Server.java
+@@ -2034,6 +2034,29 @@ public interface Server extends PluginMessageRecipient, net.kyori.adventure.audi
+     @NotNull
+     public double[] getTPS();
+ 
++    // Gale start - specific interval TPS API
++    /**
++      * Gets the average server TPS over the last 1 minute
++      *
++      * @return the average server TPS over the last 1 minute
++      */
++    double get1MinuteTPSAverage();
++
++    /**
++      * Gets the average server TPS over the last 5 minutes
++      *
++      * @return the average server TPS over the last 5 minutes
++      */
++    double get5MinuteTPSAverage();
++
++    /**
++      * Gets the average server TPS over the last 15 minutes
++      *
++      * @return the average server TPS over the last 15 minutes
++      */
++    double get15MinuteTPSAverage();
++    // Gale end - specific interval TPS API
++
+     /**
+      * Get a sample of the servers last tick times (in nanos)
+      *
