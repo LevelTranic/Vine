@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martijn Muijsers <martijnmuijsers@live.nl>
+Date: Sun, 25 Dec 2022 20:51:32 +0100
+Subject: [PATCH] Gale: Optimize matching item checks
+
+License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+Gale - https://galemc.org
+
+diff --git a/src/main/java/net/minecraft/world/item/ItemStack.java b/src/main/java/net/minecraft/world/item/ItemStack.java
+index 04c29d349b2a5952b209e1f6c9503f4d6fd376d0..c042b7587fec85c160f1c1c4fb6ec4615a1ec82e 100644
+--- a/src/main/java/net/minecraft/world/item/ItemStack.java
++++ b/src/main/java/net/minecraft/world/item/ItemStack.java
+@@ -857,7 +857,7 @@ public final class ItemStack implements DataComponentHolder {
+     }
+ 
+     public static boolean matches(ItemStack left, ItemStack right) {
+-        return left == right ? true : (left.getCount() != right.getCount() ? false : ItemStack.isSameItemSameComponents(left, right));
++        return left == right || (left.getCount() == right.getCount() && ItemStack.isSameItemSameComponents(left, right)); // Gale - optimize identical item checks
+     }
+ 
+     /** @deprecated */
+@@ -877,11 +877,11 @@ public final class ItemStack implements DataComponentHolder {
+     }
+ 
+     public static boolean isSameItem(ItemStack left, ItemStack right) {
+-        return left.is(right.getItem());
++        return left == right || left.is(right.getItem()); // Gale - optimize identical item checks
+     }
+ 
+     public static boolean isSameItemSameComponents(ItemStack stack, ItemStack otherStack) {
+-        return !stack.is(otherStack.getItem()) ? false : (stack.isEmpty() && otherStack.isEmpty() ? true : Objects.equals(stack.components, otherStack.components));
++        return stack == otherStack || (stack.is(otherStack.getItem()) && (stack.isEmpty() && otherStack.isEmpty() || Objects.equals(stack.components, otherStack.components))); // Gale - optimize identical item checks
+     }
+ 
+     public static MapCodec<ItemStack> lenientOptionalFieldOf(String fieldName) {
