@@ -104,25 +104,10 @@ index 430f462955f599907b5300809d312c79e2e24b33..22c9c5ef26229c57fb27776b5a49cc77
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index 9fb833a04c902a54118d99284076ec4401f8799b..e848024e97a84ab6f668a4c64ab0a99ed1a5f5dd 100644
+index 9fb833a04c902a54118d99284076ec4401f8799b..e93a0feb38009ced41a0e312426b1aa682208a9d 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-@@ -2,10 +2,7 @@ package com.destroystokyo.paper;
- 
- import com.destroystokyo.paper.util.VersionFetcher;
- import com.google.common.base.Charsets;
--import com.google.common.io.Resources;
- import com.google.gson.Gson;
--import com.google.gson.JsonArray;
--import com.google.gson.JsonElement;
- import com.google.gson.JsonObject;
- import com.google.gson.JsonSyntaxException;
- import com.mojang.logging.LogUtils;
-@@ -17,11 +14,9 @@ import java.net.HttpURLConnection;
- import java.net.URI;
- import java.util.Optional;
- import java.util.OptionalInt;
--import java.util.stream.StreamSupport;
+@@ -21,7 +21,6 @@ import java.util.stream.StreamSupport;
  import net.kyori.adventure.text.Component;
  import net.kyori.adventure.text.event.ClickEvent;
  import net.kyori.adventure.text.format.NamedTextColor;
@@ -130,7 +115,7 @@ index 9fb833a04c902a54118d99284076ec4401f8799b..e848024e97a84ab6f668a4c64ab0a99e
  import org.checkerframework.checker.nullness.qual.NonNull;
  import org.checkerframework.checker.nullness.qual.Nullable;
  import org.checkerframework.framework.qual.DefaultQualifier;
-@@ -36,7 +31,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+@@ -36,7 +35,7 @@ public class PaperVersionFetcher implements VersionFetcher {
      private static final int DISTANCE_ERROR = -1;
      private static final int DISTANCE_UNKNOWN = -2;
      // Purpur start
@@ -139,7 +124,7 @@ index 9fb833a04c902a54118d99284076ec4401f8799b..e848024e97a84ab6f668a4c64ab0a99e
      private static int distance = DISTANCE_UNKNOWN; public int distance() { return distance; }
      // Purpur end
  
-@@ -52,7 +47,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+@@ -52,7 +51,7 @@ public class PaperVersionFetcher implements VersionFetcher {
          if (build.buildNumber().isEmpty() && build.gitCommit().isEmpty()) {
              updateMessage = text("You are running a development version without access to version information", color(0xFF5300));
          } else {
@@ -148,56 +133,42 @@ index 9fb833a04c902a54118d99284076ec4401f8799b..e848024e97a84ab6f668a4c64ab0a99e
          }
          final @Nullable Component history = this.getHistory();
  
-@@ -63,14 +58,11 @@ public class PaperVersionFetcher implements VersionFetcher {
-         //int distance = DISTANCE_ERROR; // Purpur - use field
- 
-         final OptionalInt buildNumber = build.buildNumber();
--        if (buildNumber.isPresent()) {
--            distance = fetchDistanceFromSiteApi(build, buildNumber.getAsInt());
--        } else {
--            final Optional<String> gitBranch = build.gitBranch();
--            final Optional<String> gitCommit = build.gitCommit();
--            if (gitBranch.isPresent() && gitCommit.isPresent()) {
--                distance = fetchDistanceFromGitHub(repo, gitBranch.get(), gitCommit.get());
--            }
-+
-+        final Optional<String> gitBranch = build.gitBranch();
-+        final Optional<String> gitCommit = build.gitCommit();
-+        if (gitBranch.isPresent() && gitCommit.isPresent()) {
-+            distance = fetchDistanceFromGitHub(repo, gitBranch.get(), gitCommit.get());
-         }
- 
-         return switch (distance) {
-@@ -86,29 +78,6 @@ public class PaperVersionFetcher implements VersionFetcher {
+@@ -78,19 +77,19 @@ public class PaperVersionFetcher implements VersionFetcher {
+             case 0 -> text("* You are running the latest version", NamedTextColor.GREEN); // Purpur
+             case DISTANCE_UNKNOWN -> text("* Unknown version", NamedTextColor.YELLOW); // Purpur
+             default -> text("* You are " + distance + " version(s) behind", NamedTextColor.YELLOW) // Purpur
+-                .append(Component.newline())
+-                .append(text("Download the new version at: ")
+-                    .append(text(DOWNLOAD_PAGE, NamedTextColor.GOLD)
+-                        .hoverEvent(text("Click to open", NamedTextColor.WHITE))
+-                        .clickEvent(ClickEvent.openUrl(DOWNLOAD_PAGE))));
++                    .append(Component.newline())
++                    .append(text("Download the new version at: ")
++                            .append(text(DOWNLOAD_PAGE, NamedTextColor.GOLD)
++                                    .hoverEvent(text("Click to open", NamedTextColor.WHITE))
++                                    .clickEvent(ClickEvent.openUrl(DOWNLOAD_PAGE))));
          };
      }
  
--    private static int fetchDistanceFromSiteApi(final ServerBuildInfo build, final int jenkinsBuild) {
--        try {
--            try (final BufferedReader reader = Resources.asCharSource(
+     private static int fetchDistanceFromSiteApi(final ServerBuildInfo build, final int jenkinsBuild) {
+         try {
+             try (final BufferedReader reader = Resources.asCharSource(
 -                    URI.create("https://api.multipaper.io/v2/projects/shreddedpaper/versions/" + build.minecraftVersionId()).toURL(), // Purpur // ShreddedPaper
 -                Charsets.UTF_8
--            ).openBufferedStream()) {
--                final JsonObject json = new Gson().fromJson(reader, JsonObject.class);
--                final JsonArray builds = json.getAsJsonArray("builds"); // Purpur // ShreddedPaper
--                final int latest = StreamSupport.stream(builds.spliterator(), false)
--                        .mapToInt(JsonElement::getAsInt)
--                        .max()
--                        .orElseThrow(); // ShreddedPaper
--                return latest - jenkinsBuild;
--            } catch (final JsonSyntaxException ex) {
++                    URI.create("https://mars.tranic.one/v2/projects/vine/versions/" + build.minecraftVersionId()).toURL(), // Purpur // ShreddedPaper
++                    Charsets.UTF_8
+             ).openBufferedStream()) {
+                 final JsonObject json = new Gson().fromJson(reader, JsonObject.class);
+                 final JsonArray builds = json.getAsJsonArray("builds"); // Purpur // ShreddedPaper
+@@ -100,7 +99,7 @@ public class PaperVersionFetcher implements VersionFetcher {
+                         .orElseThrow(); // ShreddedPaper
+                 return latest - jenkinsBuild;
+             } catch (final JsonSyntaxException ex) {
 -                LOGGER.error("Error parsing json from ShreddedPaper's downloads API", ex); // Purpur // ShreddedPaper
--                return DISTANCE_ERROR;
--            }
--        } catch (final IOException e) {
--            LOGGER.error("Error while parsing version", e);
--            return DISTANCE_ERROR;
--        }
--    }
--
-     // Contributed by Techcable <Techcable@outlook.com> in GH-65
-     private static int fetchDistanceFromGitHub(final String repo, final String branch, final String hash) {
-         try {
++                LOGGER.error("Error parsing json from Vine's downloads API", ex); // Purpur // ShreddedPaper // Vine
+                 return DISTANCE_ERROR;
+             }
+         } catch (final IOException e) {
 diff --git a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java b/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
 index 9f512c6dd970d013a8dc5d8f4e37c5dce3f38bef..c0a494573cac1c6b0fbf97fba2d46b8dfb57addc 100644
 --- a/src/main/java/com/destroystokyo/paper/console/PaperConsole.java
@@ -394,6 +365,19 @@ index e8437d039af0457fc6fc877def12f973ab263735..f1c32f16b763540862595035152c5ddc
                  // We don't need to parse pending
                  // (async tasks must live with race-conditions if they attempt to cancel between these few lines of code)
              }
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+index 0d3a353c69a54b588e7a43ed1d286ee3253a8e8f..6caf204820871f3aaa59df5e04a121f2b12c0389 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/CraftMagicNumbers.java
+@@ -504,7 +504,7 @@ public final class CraftMagicNumbers implements UnsafeValues {
+ 
+     @Override
+     public com.destroystokyo.paper.util.VersionFetcher getVersionFetcher() {
+-        return new gg.pufferfish.pufferfish.PufferfishVersionFetcher(); // Pufferfish
++        return new com.destroystokyo.paper.PaperVersionFetcher(); // Vine - Restore original behavior
+     }
+ 
+     @Override
 diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
 index ed2f3845afed661a5f620efc071cd71c2bc7d613..22143f7f9bc8d8b26162e0e9f7be97dfb7d9ea1e 100644
 --- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
