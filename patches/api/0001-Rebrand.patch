@@ -18,6 +18,19 @@ index 7aa138f7123dcfb7d1d9ae9efcf2359522f5d2fd..ab1116a3abbce6c3c5a6fb484a005302
  }
  // Pufferfish End
  
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfo.java b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+index 7107eabf02d9d9b69d97c978ba421ad52031ec3f..5835ffe0ad932f3a6fa0617f4f897a95eb9c126f 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfo.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+@@ -22,7 +22,7 @@ public interface ServerBuildInfo {
+     /**
+      * The brand id for Purpur.
+      */
+-    Key BRAND_PURPUR_ID = Key.key("purpurmc", "purpur");
++    Key BRAND_PURPUR_ID = Key.key("tranic", "vine");
+     // Purpur end
+ 
+     /**
 diff --git a/src/main/java/org/bukkit/command/defaults/VersionCommand.java b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
 index 0ec64c622ebfaeb9bc607ba774620ccc7233021b..852161d3549ffe9afc5bb6184d9af8259ee1d9bb 100644
 --- a/src/main/java/org/bukkit/command/defaults/VersionCommand.java

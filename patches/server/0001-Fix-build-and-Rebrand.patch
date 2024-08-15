@@ -104,7 +104,7 @@ index 430f462955f599907b5300809d312c79e2e24b33..22c9c5ef26229c57fb27776b5a49cc77
                  metrics.addCustomChart(new Metrics.DrilldownPie("java_version", () -> {
                      Map<String, Map<String, Integer>> map = new HashMap<>();
 diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
-index 9fb833a04c902a54118d99284076ec4401f8799b..1994544bb3f1fda1d4049e3a8b04d33d8f9313bf 100644
+index 9fb833a04c902a54118d99284076ec4401f8799b..e848024e97a84ab6f668a4c64ab0a99ed1a5f5dd 100644
 --- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 +++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
 @@ -2,10 +2,7 @@ package com.destroystokyo.paper;
@@ -135,7 +135,7 @@ index 9fb833a04c902a54118d99284076ec4401f8799b..1994544bb3f1fda1d4049e3a8b04d33d
      private static final int DISTANCE_UNKNOWN = -2;
      // Purpur start
 -    private static final String DOWNLOAD_PAGE = "https://multipaper.io/shreddedpaper/download.html";
-+    private static final String DOWNLOAD_PAGE = "https://github.com/LevelTranic/Vine/releases";
++    private static final String DOWNLOAD_PAGE = "https://tranic.one/downloads/vine";
      private static int distance = DISTANCE_UNKNOWN; public int distance() { return distance; }
      // Purpur end
  
@@ -286,7 +286,7 @@ index 63f9c70666eaa90c68fa342e435bcfbd31ef73ae..f4e02f45f617094f91a7d51b86e47aa0
                  CrashReport.LOGGER.error("Could not save crash report to {}", file, throwable);
                  flag = false;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index edc9a4c2aa5621f520525c9846df09d177f0765f..f7027cc3bb94333887233802f885eff7aa8711fa 100644
+index 7f725ba3071c4be51f075569f8a0d66756b0d1d8..ccd25a26cfd3b4075279bb89657563fb7f2fbd21 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -3,9 +3,6 @@ package net.minecraft.server;
