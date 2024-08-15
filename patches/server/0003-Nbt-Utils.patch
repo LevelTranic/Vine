@@ -48,10 +48,10 @@ index 6b2c2e2f782630a3b7e25532260cc61e02c8049f..56a9760c28212ed448465b01682c2e68
  }
 diff --git a/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt b/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..50c9ce0b69402c48a62e5bfd01eb19abfe1f872c
+index 0000000000000000000000000000000000000000..78929c22d21e4a65dddcc0dc7a8bbcca76ee29a2
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,40 @@
 +package one.tranic.vine.commands
 +
 +import net.kyori.adventure.text.Component
@@ -69,12 +69,19 @@ index 0000000000000000000000000000000000000000..50c9ce0b69402c48a62e5bfd01eb19ab
 +    }
 +
 +    override fun execute(sender: CommandSender, commandLabel: String, args: Array<String>): Boolean {
++        if (sender !is Player) {
++            sender.sendMessage(Component
++                .text("The actual executor must be the player!")
++                .color(TextColor.color(255, 0, 0)))
++            return true
++        }
 +        if (!this.testPermission(sender)) {
 +            sender.sendMessage(
 +                Component
 +                    .text("No permission to execute this command!")
 +                    .color(TextColor.color(255, 0, 0))
 +            )
++            return true
 +        }
 +
 +        val status = Portal.getAllowSpecPortal(sender as Player)
