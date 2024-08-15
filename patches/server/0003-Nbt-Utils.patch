@@ -48,7 +48,7 @@ index 6b2c2e2f782630a3b7e25532260cc61e02c8049f..56a9760c28212ed448465b01682c2e68
  }
 diff --git a/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt b/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..e41958e878e2119cbdb8f8c7f852929bd82e24c4
+index 0000000000000000000000000000000000000000..0724899f44f3e417c8cd0c13acc388f97af6101b
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt
 @@ -0,0 +1,43 @@
@@ -83,8 +83,8 @@ index 0000000000000000000000000000000000000000..e41958e878e2119cbdb8f8c7f852929b
 +            return true
 +        }
 +
-+        val status = Portal.getAllowSpecPortal(sender as net.minecraft.world.entity.player.Player)
-+        Portal.setAllowSpecPortal(sender as net.minecraft.world.entity.player.Player)
++        val status = Portal.getAllowSpecPortal(sender)
++        Portal.setAllowSpecPortal(sender)
 +        sender.sendMessage(
 +            Component.text("Data Update - \"Vine.Storage.SPEC_PORTAL\" - $status => ${!status}", TextColor.color(255, 255, 255))
 +        )
@@ -110,17 +110,27 @@ index dc9d4d6e51f1ca663b409a039d8ad33c9c4b85d8..08cb66f391bfa08820714cd3636efe8d
      @JvmStatic
 diff --git a/src/main/kotlin/one/tranic/vine/nbt/Portal.kt b/src/main/kotlin/one/tranic/vine/nbt/Portal.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..366e9cc75376062b2b7a55bdf649904e6b482624
+index 0000000000000000000000000000000000000000..9c7b0feaa5ff7ea80ed8f67fd6a39321b0144bc3
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/nbt/Portal.kt
-@@ -0,0 +1,14 @@
+@@ -0,0 +1,24 @@
 +package one.tranic.vine.nbt
 +
++import net.minecraft.server.MinecraftServer
 +import net.minecraft.world.entity.player.Player
 +
 +object Portal {
++    fun getAllowSpecPortal(p: org.bukkit.entity.Player): Boolean {
++        val minecraftPlayer = MinecraftServer.getServer().playerList.getPlayer(p.uniqueId)
++        return if (minecraftPlayer != null) getAllowSpecPortal(minecraftPlayer) else false
++    }
++
 +    fun getAllowSpecPortal(p: Player): Boolean {
 +        return p.requestVineStorage().getBoolean("SPEC_PORTAL")
++    }
++
++    fun setAllowSpecPortal(p: org.bukkit.entity.Player) {
++        MinecraftServer.getServer().playerList.getPlayer(p.uniqueId)?.let { setAllowSpecPortal(it) }
 +    }
 +
 +    fun setAllowSpecPortal(p: Player) {
