@@ -1,0 +1,75 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Thu, 15 Aug 2024 15:34:07 +0800
+Subject: [PATCH] lithium: precompute shape arrays
+
+You can find the original code on https://github.com/CaffeineMC/lithium-fabric
+
+diff --git a/src/main/java/net/minecraft/core/Direction.java b/src/main/java/net/minecraft/core/Direction.java
+index ab289a6ca85459e03acb2089c6b9e931caa9c873..ec01f8fc027fec96ce97d1faee2829d21cdc2f5d 100644
+--- a/src/main/java/net/minecraft/core/Direction.java
++++ b/src/main/java/net/minecraft/core/Direction.java
+@@ -46,7 +46,7 @@ public enum Direction implements StringRepresentable {
+     private final Direction.Axis axis;
+     private final Direction.AxisDirection axisDirection;
+     private final Vec3i normal;
+-    private static final Direction[] VALUES = values();
++    public static final Direction[] VALUES = values(); // Vine - lithium: precompute shape arrays
+     private static final Direction[] BY_3D_DATA = Arrays.stream(VALUES)
+         .sorted(Comparator.comparingInt(direction -> direction.data3d))
+         .toArray(Direction[]::new);
+diff --git a/src/main/java/net/minecraft/world/phys/shapes/CubePointRange.java b/src/main/java/net/minecraft/world/phys/shapes/CubePointRange.java
+index a544db042c8d2ecec8d323770552c4f10ca758a6..6176f2b88070646b87b6b7b8b27448b1d064482f 100644
+--- a/src/main/java/net/minecraft/world/phys/shapes/CubePointRange.java
++++ b/src/main/java/net/minecraft/world/phys/shapes/CubePointRange.java
+@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.doubles.AbstractDoubleList;
+ 
+ public class CubePointRange extends AbstractDoubleList {
+     private final int parts;
++    private double scale; // Vine - lithium: precompute shape arrays
+ 
+     CubePointRange(int sectionCount) {
+         if (sectionCount <= 0) {
+@@ -11,10 +12,11 @@ public class CubePointRange extends AbstractDoubleList {
+         } else {
+             this.parts = sectionCount;
+         }
++        this.scale = 1.0D / sectionCount; // Vine - lithium: precompute shape arrays
+     }
+ 
+     public double getDouble(int i) {
+-        return (double)i / (double)this.parts;
++        return i * this.scale; // Vine - lithium: precompute shape arrays
+     }
+ 
+     public int size() {
+diff --git a/src/main/java/net/minecraft/world/phys/shapes/CubeVoxelShape.java b/src/main/java/net/minecraft/world/phys/shapes/CubeVoxelShape.java
+index b9af1d14c7815c99273bce8165cf384d669c1a75..c8e23fb3e9835229f2be6e7c615e69e7bd40e632 100644
+--- a/src/main/java/net/minecraft/world/phys/shapes/CubeVoxelShape.java
++++ b/src/main/java/net/minecraft/world/phys/shapes/CubeVoxelShape.java
+@@ -5,6 +5,8 @@ import net.minecraft.core.Direction;
+ import net.minecraft.util.Mth;
+ 
+ public final class CubeVoxelShape extends VoxelShape {
++    private DoubleList[] list; // Vine - lithium: precompute shape arrays
++
+     protected CubeVoxelShape(DiscreteVoxelShape voxels) {
+         super(voxels);
+         this.initCache(); // Paper - optimise collisions
+@@ -12,7 +14,15 @@ public final class CubeVoxelShape extends VoxelShape {
+ 
+     @Override
+     protected DoubleList getCoords(Direction.Axis axis) {
+-        return new CubePointRange(this.shape.getSize(axis));
++        // Vine start - lithium: precompute shape arrays
++        if (this.list == null) {
++            this.list = new DoubleList[Direction.Axis.VALUES.length];
++            for (Direction.Axis existingAxis : Direction.Axis.VALUES) {
++                this.list[existingAxis.ordinal()] = new CubePointRange(this.shape.getSize(axis));
++            }
++        }
++        return this.list[axis.ordinal()];
++        // Vine end
+     }
+ 
+     @Override
