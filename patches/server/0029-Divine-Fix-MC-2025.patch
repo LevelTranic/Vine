@@ -10,13 +10,13 @@ Original post on Mojira: https://bugs.mojang.com/browse/MC-2025
 Fix taken from Reddit: https://redd.it/8pgd4q
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 62a3618206564fe53a28488ac092381dd896dd8f..a78b716e8e6256eabffa35da901ebe00e4feb723 100644
+index 1390bc0f51ea2c957e470135eba1564f02840de9..85253a71c4134513d5fdefc5f60c6c969999e455 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -2605,6 +2605,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
-                 nbttagcompound.putBoolean("Purpur.FireImmune", immuneToFire);
-             }
-             // Purpur end
+@@ -2609,6 +2609,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+ 
+             nbttagcompound.put("Vine.Storage", vineStorage); // Vine - vine data bundler
+             nbttagcompound.put("Leaves.Data", leavesData); // Leaves - leaves ex data
 +
 +            // DivineMC start - Fix MC-2025
 +            // This fix was taken from Reddit: https://redd.it/8pgd4q
@@ -28,6 +28,6 @@ index 62a3618206564fe53a28488ac092381dd896dd8f..a78b716e8e6256eabffa35da901ebe00
 +            nbttagcompound.put("DivineMC.BoundingBox", boundingBoxList);
 +            // DivineMC end
 +
-             nbttagcompound.put("Leaves.Data", leavesData); // Leaves - leaves ex data
              return nbttagcompound;
          } catch (Throwable throwable) {
+             CrashReport crashreport = CrashReport.forThrowable(throwable, "Saving entity NBT");

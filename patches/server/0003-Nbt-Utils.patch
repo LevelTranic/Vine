@@ -1,0 +1,121 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Thu, 15 Aug 2024 16:49:08 +0800
+Subject: [PATCH] Nbt Utils
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 6b2c2e2f782630a3b7e25532260cc61e02c8049f..56a9760c28212ed448465b01682c2e6856191d5c 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -436,6 +436,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     public boolean activatedPriorityReset = false; // Pufferfish - DAB
+     public int activatedPriority = gg.pufferfish.pufferfish.PufferfishConfig.maximumActivationPrio; // Pufferfish - DAB (golf score)
+     public final BlockPos.MutableBlockPos cachedBlockPos = new BlockPos.MutableBlockPos(); // Pufferfish - reduce entity allocations
++    private CompoundTag vineStorage = new CompoundTag(); // Vine - Vine data bundler
+ 
+     public void setOrigin(@javax.annotation.Nonnull Location location) {
+         this.origin = location.toVector();
+@@ -2604,6 +2605,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+                 nbttagcompound.putBoolean("Purpur.FireImmune", immuneToFire);
+             }
+             // Purpur end
++
++            nbttagcompound.put("Vine.Storage", vineStorage); // Vine - vine data bundler
+             return nbttagcompound;
+         } catch (Throwable throwable) {
+             CrashReport crashreport = CrashReport.forThrowable(throwable, "Saving entity NBT");
+@@ -2756,6 +2759,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+                 immuneToFire = nbt.getBoolean("Purpur.FireImmune");
+             }
+             // Purpur end
++            // Vine start - vine data bundler
++            if (nbt.contains("Vine.Storage")) {
++                vineStorage = nbt.getCompound("Vine.Storage");
++            }
++            // Vine end - vine data bundler
+ 
+         } catch (Throwable throwable) {
+             CrashReport crashreport = CrashReport.forThrowable(throwable, "Loading entity NBT");
+@@ -5193,4 +5201,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+         return false;
+     }
+     // Purpur end
++    // Vine start - vine data bundler
++    public CompoundTag requestVineStorage() {
++        return vineStorage;
++    }
+ }
+diff --git a/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt b/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..50c9ce0b69402c48a62e5bfd01eb19abfe1f872c
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt
+@@ -0,0 +1,33 @@
++package one.tranic.vine.commands
++
++import net.kyori.adventure.text.Component
++import net.kyori.adventure.text.format.TextColor
++import net.minecraft.world.entity.player.Player
++import one.tranic.vine.nbt.Portal
++import org.bukkit.command.Command
++import org.bukkit.command.CommandSender
++
++class SpecPortalCommand : Command("specportal") {
++    init {
++        this.permission = "vine.commands.specportal"
++        this.setDescription("Switch whether the observer is allowed to pass through the portal state")
++        this.setUsage("/specportal")
++    }
++
++    override fun execute(sender: CommandSender, commandLabel: String, args: Array<String>): Boolean {
++        if (!this.testPermission(sender)) {
++            sender.sendMessage(
++                Component
++                    .text("No permission to execute this command!")
++                    .color(TextColor.color(255, 0, 0))
++            )
++        }
++
++        val status = Portal.getAllowSpecPortal(sender as Player)
++        Portal.setAllowSpecPortal(sender as Player)
++        sender.sendMessage(
++            Component.text("Data Update - \"Vine.Storage.SPEC_PORTAL\" - $status => ${!status}", TextColor.color(255, 255, 255))
++        )
++        return true
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
+index dc9d4d6e51f1ca663b409a039d8ad33c9c4b85d8..08cb66f391bfa08820714cd3636efe8d3beee2df 100644
+--- a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
++++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
+@@ -18,6 +18,7 @@ object ConfigUtil {
+     @JvmStatic
+     fun setCommand() {
+         Bukkit.getCommandMap().register("vinecfg", "vine", VineCfgCommand())
++        Bukkit.getCommandMap().register("specportal", "vine", SpecPortalCommand())
+     }
+ 
+     @JvmStatic
+diff --git a/src/main/kotlin/one/tranic/vine/nbt/Portal.kt b/src/main/kotlin/one/tranic/vine/nbt/Portal.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..366e9cc75376062b2b7a55bdf649904e6b482624
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/nbt/Portal.kt
+@@ -0,0 +1,14 @@
++package one.tranic.vine.nbt
++
++import net.minecraft.world.entity.player.Player
++
++object Portal {
++    fun getAllowSpecPortal(p: Player): Boolean {
++        return p.requestVineStorage().getBoolean("SPEC_PORTAL")
++    }
++
++    fun setAllowSpecPortal(p: Player) {
++        val s = !p.requestVineStorage().getBoolean("SPEC_PORTAL")
++        p.requestVineStorage().putBoolean("SPEC_PORTAL", s)
++    }
++}
+\ No newline at end of file

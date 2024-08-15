@@ -27,7 +27,7 @@ index 1d6b3fe2ce240af4ede61588795456b046eee6c9..cdcb1bff7913bfe86fed008271016a31
  
      public static long getCoordinateKey(final ChunkPos pair) {
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 031e41ca6020cf0025457a9e52d92e1eb89f89f7..62a3618206564fe53a28488ac092381dd896dd8f 100644
+index 24c4140e44b021728e39310f4e8bb93ada4adc0f..1390bc0f51ea2c957e470135eba1564f02840de9 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -315,7 +315,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess

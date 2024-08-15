@@ -5,7 +5,7 @@ Subject: [PATCH] Leaves: Raider die skip self raid check
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/raid/Raider.java b/src/main/java/net/minecraft/world/entity/raid/Raider.java
-index 4a8fa7e5844b5cd12ef6b113f988b715c7a3ef64..8d9efd1071aa083730dacf97d4f003984db2de20 100644
+index 4a8fa7e5844b5cd12ef6b113f988b715c7a3ef64..49c64c736691bbfc26499a0a839258a6f133eb90 100644
 --- a/src/main/java/net/minecraft/world/entity/raid/Raider.java
 +++ b/src/main/java/net/minecraft/world/entity/raid/Raider.java
 @@ -128,7 +128,7 @@ public abstract class Raider extends PatrollingMonster {

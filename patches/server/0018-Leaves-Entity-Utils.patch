@@ -5,29 +5,29 @@ Subject: [PATCH] Leaves: Entity Utils
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 6b2c2e2f782630a3b7e25532260cc61e02c8049f..031e41ca6020cf0025457a9e52d92e1eb89f89f7 100644
+index 56a9760c28212ed448465b01682c2e6856191d5c..24c4140e44b021728e39310f4e8bb93ada4adc0f 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -436,6 +436,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
-     public boolean activatedPriorityReset = false; // Pufferfish - DAB
+@@ -437,6 +437,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      public int activatedPriority = gg.pufferfish.pufferfish.PufferfishConfig.maximumActivationPrio; // Pufferfish - DAB (golf score)
      public final BlockPos.MutableBlockPos cachedBlockPos = new BlockPos.MutableBlockPos(); // Pufferfish - reduce entity allocations
+     private CompoundTag vineStorage = new CompoundTag(); // Vine - Vine data bundler
 +    private CompoundTag leavesData = new CompoundTag(); // Leaves - Leaves ex data
  
      public void setOrigin(@javax.annotation.Nonnull Location location) {
          this.origin = location.toVector();
-@@ -2604,6 +2605,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
-                 nbttagcompound.putBoolean("Purpur.FireImmune", immuneToFire);
-             }
+@@ -2607,6 +2608,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
              // Purpur end
+ 
+             nbttagcompound.put("Vine.Storage", vineStorage); // Vine - vine data bundler
 +            nbttagcompound.put("Leaves.Data", leavesData); // Leaves - leaves ex data
              return nbttagcompound;
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.forThrowable(throwable, "Saving entity NBT");
-@@ -2756,6 +2758,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
-                 immuneToFire = nbt.getBoolean("Purpur.FireImmune");
+@@ -2764,6 +2766,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+                 vineStorage = nbt.getCompound("Vine.Storage");
              }
-             // Purpur end
+             // Vine end - vine data bundler
 +            // Leaves start - leaves ex data
 +            if (nbt.contains("Leaves.Data")) {
 +                leavesData = nbt.getCompound("Leaves.Data");
@@ -36,10 +36,10 @@ index 6b2c2e2f782630a3b7e25532260cc61e02c8049f..031e41ca6020cf0025457a9e52d92e1e
  
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.forThrowable(throwable, "Loading entity NBT");
-@@ -5193,4 +5200,10 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
-         return false;
+@@ -5205,4 +5212,10 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     public CompoundTag requestVineStorage() {
+         return vineStorage;
      }
-     // Purpur end
 +
 +    // Leaves start - leaves ex data
 +    public CompoundTag getLeavesData() {

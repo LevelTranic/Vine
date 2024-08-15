@@ -11,7 +11,7 @@ try fix: https://github.com/PaperMC/Folia/issues/217
 This fix may work, but its implementation is not elegant, so it will not be submitted upstream
 
 diff --git a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
-index dff811b873e70fda660e7cfd2e1b688ca4e0db56..e42f6c37482930d11fdba12fbe3ece246fab7068 100644
+index d504d10fbe45dfe3f2f3d08d2473df6cd18f6dcf..6efc2b644f6ef7fa4632376719352071f2a8f6d0 100644
 --- a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
 @@ -1,7 +1,6 @@
@@ -38,7 +38,7 @@ index dff811b873e70fda660e7cfd2e1b688ca4e0db56..e42f6c37482930d11fdba12fbe3ece24
  import net.minecraft.world.item.context.DirectionalPlaceContext;
  import net.minecraft.world.level.ClipContext;
  import net.minecraft.world.level.GameRules;
-@@ -189,12 +188,24 @@ public class FallingBlockEntity extends Entity {
+@@ -182,12 +181,24 @@ public class FallingBlockEntity extends Entity {
                  } else {
                      BlockState iblockdata = this.level().getBlockState(blockposition);
  
@@ -64,7 +64,7 @@ index dff811b873e70fda660e7cfd2e1b688ca4e0db56..e42f6c37482930d11fdba12fbe3ece24
  
                              if (flag2 && flag4) {
                                  if (this.blockState.hasProperty(BlockStateProperties.WATERLOGGED) && this.level().getFluidState(blockposition).getType() == Fluids.WATER) {
-@@ -219,11 +230,8 @@ public class FallingBlockEntity extends Entity {
+@@ -212,11 +223,8 @@ public class FallingBlockEntity extends Entity {
  
                                          if (tileentity != null) {
                                              CompoundTag nbttagcompound = tileentity.saveWithoutMetadata(this.level().registryAccess());
@@ -77,7 +77,7 @@ index dff811b873e70fda660e7cfd2e1b688ca4e0db56..e42f6c37482930d11fdba12fbe3ece24
                                                  nbttagcompound.put(s, this.blockData.get(s).copy());
                                              }
  
-@@ -236,12 +244,18 @@ public class FallingBlockEntity extends Entity {
+@@ -229,12 +237,18 @@ public class FallingBlockEntity extends Entity {
                                              tileentity.setChanged();
                                          }
                                      }
@@ -96,7 +96,7 @@ index dff811b873e70fda660e7cfd2e1b688ca4e0db56..e42f6c37482930d11fdba12fbe3ece24
                                  this.discard(EntityRemoveEvent.Cause.DROP); // CraftBukkit - add Bukkit remove cause
                                  if (this.dropItem && this.level().getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                                      this.callOnBrokenAfterFall(block, blockposition);
-@@ -354,9 +368,9 @@ public class FallingBlockEntity extends Entity {
+@@ -347,9 +361,9 @@ public class FallingBlockEntity extends Entity {
          }
  
          // Paper start - Expand FallingBlock API
