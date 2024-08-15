@@ -48,15 +48,14 @@ index 6b2c2e2f782630a3b7e25532260cc61e02c8049f..56a9760c28212ed448465b01682c2e68
  }
 diff --git a/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt b/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..78929c22d21e4a65dddcc0dc7a8bbcca76ee29a2
+index 0000000000000000000000000000000000000000..e41958e878e2119cbdb8f8c7f852929bd82e24c4
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/commands/SpecPortalCommand.kt
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,43 @@
 +package one.tranic.vine.commands
 +
 +import net.kyori.adventure.text.Component
 +import net.kyori.adventure.text.format.TextColor
-+import net.minecraft.world.entity.player.Player
 +import one.tranic.vine.nbt.Portal
 +import org.bukkit.command.Command
 +import org.bukkit.command.CommandSender
@@ -69,7 +68,7 @@ index 0000000000000000000000000000000000000000..78929c22d21e4a65dddcc0dc7a8bbcca
 +    }
 +
 +    override fun execute(sender: CommandSender, commandLabel: String, args: Array<String>): Boolean {
-+        if (sender !is Player) {
++        if (sender !is org.bukkit.entity.Player) {
 +            sender.sendMessage(Component
 +                .text("The actual executor must be the player!")
 +                .color(TextColor.color(255, 0, 0)))
@@ -84,12 +83,16 @@ index 0000000000000000000000000000000000000000..78929c22d21e4a65dddcc0dc7a8bbcca
 +            return true
 +        }
 +
-+        val status = Portal.getAllowSpecPortal(sender as Player)
-+        Portal.setAllowSpecPortal(sender as Player)
++        val status = Portal.getAllowSpecPortal(sender as net.minecraft.world.entity.player.Player)
++        Portal.setAllowSpecPortal(sender as net.minecraft.world.entity.player.Player)
 +        sender.sendMessage(
 +            Component.text("Data Update - \"Vine.Storage.SPEC_PORTAL\" - $status => ${!status}", TextColor.color(255, 255, 255))
 +        )
 +        return true
++    }
++
++    override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> {
++        return emptyList()
 +    }
 +}
 \ No newline at end of file
