@@ -95,10 +95,10 @@ index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..fef20e0a19560d5419f4aaa3d2d860ebb0c56a7e
+index 0000000000000000000000000000000000000000..df01651da27e611d5764618827192d3148ea4b79
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,39 @@
 +package one.tranic.vine.commands
 +
 +import org.bukkit.command.Command
@@ -121,6 +121,7 @@ index 0000000000000000000000000000000000000000..fef20e0a19560d5419f4aaa3d2d860eb
 +                    .text("No permission to execute this command!")
 +                    .color(TextColor.color(255, 0, 0))
 +            )
++            return true
 +        }
 +
 +        ConfigUtil.reload()
@@ -131,6 +132,10 @@ index 0000000000000000000000000000000000000000..fef20e0a19560d5419f4aaa3d2d860eb
 +                .color(TextColor.color(0, 255, 0))
 +        )
 +        return true
++    }
++
++    override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> {
++        return emptyList()
 +    }
 +}
 \ No newline at end of file
