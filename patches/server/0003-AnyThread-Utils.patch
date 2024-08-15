@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Thu, 15 Aug 2024 21:46:57 +0800
+Subject: [PATCH] AnyThread Utils
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/util/AnyThread.kt b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e41970bcdb414e9c6d546bb4de7209f18c2459f9
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
+@@ -0,0 +1,15 @@
++package one.tranic.vine.util
++
++import one.tranic.vine.config.ConfigUtil
++import java.util.concurrent.ThreadFactory
++
++object AnyThread {
++    @JvmStatic
++    fun getFactory(): ThreadFactory {
++        return if (ConfigUtil.isPlatform == false) {
++            Thread.ofVirtual().factory()
++        } else {
++            Thread.ofPlatform().factory()
++        }
++    }
++}
+\ No newline at end of file

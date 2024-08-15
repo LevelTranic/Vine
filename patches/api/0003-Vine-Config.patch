@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..4b3f4376006e9f2c910a253078cfa7217b58cc78
+index 0000000000000000000000000000000000000000..12821dbb71851c060bf5469c3898d931364642e8
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,79 @@
+@@ -0,0 +1,84 @@
 +package one.tranic.vine.config;
 +
 +public class VineConfig {
@@ -33,6 +33,11 @@ index 0000000000000000000000000000000000000000..4b3f4376006e9f2c910a253078cfa721
 +    }
 +
 +    public static class Feature {
++        /**Try virtual threads. Once enabled, all explicit platform threads
++         * will be replaced with virtual threads as much as possible, which
++         * may have some adverse consequences. Please enable it with caution.*/
++        public static boolean tryVirtualThreads = false;
++
 +        public static boolean vanillaHopper = false;
 +
 +        public static boolean flattenTriangularDistribution = false;

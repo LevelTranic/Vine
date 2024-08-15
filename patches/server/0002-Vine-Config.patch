@@ -141,10 +141,10 @@ index 0000000000000000000000000000000000000000..df01651da27e611d5764618827192d31
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..dc9d4d6e51f1ca663b409a039d8ad33c9c4b85d8
+index 0000000000000000000000000000000000000000..0473ce938e26cbaae62550b0239165a40838c407
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,299 @@
+@@ -0,0 +1,322 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -161,6 +161,7 @@ index 0000000000000000000000000000000000000000..dc9d4d6e51f1ca663b409a039d8ad33c
 +    val logger: org.slf4j.Logger = MinecraftServer.LOGGER
 +    private lateinit var configuration: YamlConfiguration
 +    private var isSecureSeed: Boolean? = null
++    public var isPlatform: Boolean? = null
 +
 +    @JvmStatic
 +    fun setCommand() {
@@ -291,6 +292,15 @@ index 0000000000000000000000000000000000000000..dc9d4d6e51f1ca663b409a039d8ad33c
 +                "cannot continue to load maps."
 +            )
 +        )
++        addDefault(
++            "feature.try-virtual-threads",
++            false,
++            listOf(
++                "Try virtual threads. Once enabled, all explicit platform threads will ",
++                "be replaced with virtual threads as much as possible, which may have ",
++                "some adverse consequences. Please enable it with caution."
++            )
++        )
 +
 +        addDefault(
 +            "optimize.minecart.enabled", true,
@@ -341,6 +351,19 @@ index 0000000000000000000000000000000000000000..dc9d4d6e51f1ca663b409a039d8ad33c
 +        Fix.anvilDropLogger = getBoolean("fix.anvil-drop.debug")
 +        Fix.netherPortal = getBoolean("fix.nether-portal")
 +
++        getBoolean("feature.try-virtual-threads") {
++            if (isPlatform == null) {
++                if (it) {
++                    logger.warn("Virtual threads are enabled.")
++                    logger.warn("Vine will try to replace all explicit platform threads with virtual threads, which may have some undesirable consequences. Do not use it in production if you are not sure it will be stable.")
++                    logger.warn("The ShreddedPaper thread will continue to use the platform thread.")
++                }
++                Feature.tryVirtualThreads = it
++                isPlatform = !it
++            } else if (it == isPlatform) {
++                logger.error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
++            }
++        }
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
 +        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
@@ -354,7 +377,7 @@ index 0000000000000000000000000000000000000000..dc9d4d6e51f1ca663b409a039d8ad33c
 +                isSecureSeed = it
 +                if (it) logger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
 +            } else if (isSecureSeed != it) {
-+                logger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime")
++                logger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
 +            }
 +        }
 +

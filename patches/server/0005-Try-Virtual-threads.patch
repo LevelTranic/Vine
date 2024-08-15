@@ -1,0 +1,169 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Thu, 15 Aug 2024 21:42:18 +0800
+Subject: [PATCH] Try Virtual threads
+
+
+diff --git a/src/main/java/gg/pufferfish/pufferfish/util/AsyncExecutor.java b/src/main/java/gg/pufferfish/pufferfish/util/AsyncExecutor.java
+index 8e5323d5d9af25c8a85c4b34a6be76cfc54384cf..22d1cd46bae73f940b1c08a8098a9c05adda035d 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/util/AsyncExecutor.java
++++ b/src/main/java/gg/pufferfish/pufferfish/util/AsyncExecutor.java
+@@ -17,7 +17,11 @@ public class AsyncExecutor implements Runnable {
+ 	private volatile boolean killswitch = false;
+ 	
+ 	public AsyncExecutor(String threadName) {
+-		this.thread = new Thread(this, threadName);
++		if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
++			this.thread = Thread.ofVirtual().name(threadName).unstarted(this);
++		} else {
++			this.thread = new Thread(this, threadName);
++		}
+ 	}
+ 	
+ 	public void start() {
+diff --git a/src/main/java/io/papermc/paper/pluginremap/PluginRemapper.java b/src/main/java/io/papermc/paper/pluginremap/PluginRemapper.java
+index 265c636abfd63f9ba0b0f0198867a10401c14da1..4a0afb7d428e0d6f990efd15ee9ae434b4118be7 100644
+--- a/src/main/java/io/papermc/paper/pluginremap/PluginRemapper.java
++++ b/src/main/java/io/papermc/paper/pluginremap/PluginRemapper.java
+@@ -429,6 +429,7 @@ public final class PluginRemapper {
+             TimeUnit.SECONDS,
+             ScalingThreadPool.createUnboundedQueue(),
+             new ThreadFactoryBuilder()
++                .setThreadFactory(one.tranic.vine.util.AnyThread.getFactory())
+                 .setNameFormat("Paper Plugin Remapper Thread - %1$d")
+                 .setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(LOGGER))
+                 .build(),
+diff --git a/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaAsyncScheduler.java b/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaAsyncScheduler.java
+index 374abffb9f1ce1a308822aed13038e77fe9ca08b..75e7e810da6da6e5e6624c40048a98fff7b627d0 100644
+--- a/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaAsyncScheduler.java
++++ b/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaAsyncScheduler.java
+@@ -31,12 +31,17 @@ public final class FoliaAsyncScheduler implements AsyncScheduler {
+ 
+             @Override
+             public Thread newThread(final Runnable run) {
+-                final Thread ret = new Thread(run);
++                final Thread ret;
++                if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
++                    ret = Thread.ofVirtual().unstarted(run);
++                } else {
++                    ret = new Thread(run);
++                }
+ 
+                 ret.setName("Folia Async Scheduler Thread #" + this.idGenerator.getAndIncrement());
+                 ret.setPriority(Thread.NORM_PRIORITY - 1);
+                 ret.setUncaughtExceptionHandler((final Thread thread, final Throwable thr) -> {
+-                    LOGGER.error("Uncaught exception in thread: " + thread.getName(), thr);
++                    LOGGER.error("Uncaught exception in thread: {}", thread.getName(), thr);
+                 });
+ 
+                 return ret;
+@@ -47,8 +52,12 @@ public final class FoliaAsyncScheduler implements AsyncScheduler {
+     private final ScheduledExecutorService timerThread = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+         @Override
+         public Thread newThread(final Runnable run) {
+-            final Thread ret = new Thread(run);
+-
++            final Thread ret;
++            if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
++                ret = Thread.ofVirtual().unstarted(run);
++            } else {
++                ret = new Thread(run);
++            }
+             ret.setName("Folia Async Scheduler Thread Timer");
+             ret.setPriority(Thread.NORM_PRIORITY + 1);
+             ret.setUncaughtExceptionHandler((final Thread thread, final Throwable thr) -> {
+diff --git a/src/main/java/io/papermc/paper/util/MCUtil.java b/src/main/java/io/papermc/paper/util/MCUtil.java
+index 1d6b3fe2ce240af4ede61588795456b046eee6c9..0e1dedb9baf70bd788a665e3cd7e53aa5f55def3 100644
+--- a/src/main/java/io/papermc/paper/util/MCUtil.java
++++ b/src/main/java/io/papermc/paper/util/MCUtil.java
+@@ -67,6 +67,7 @@ public final class MCUtil {
+         new ThreadFactoryBuilder()
+             .setNameFormat("Paper Async Task Handler Thread - %1$d")
+             .setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(MinecraftServer.LOGGER))
++            .setThreadFactory(one.tranic.vine.util.AnyThread.getFactory())
+             .build()
+     );
+     public static final ThreadPoolExecutor cleanerExecutor = new ThreadPoolExecutor(
+@@ -75,6 +76,7 @@ public final class MCUtil {
+         new ThreadFactoryBuilder()
+             .setNameFormat("Paper Object Cleaner")
+             .setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(MinecraftServer.LOGGER))
++            .setThreadFactory(one.tranic.vine.util.AnyThread.getFactory())
+             .build()
+     );
+ 
+diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java
+index 3c1992e212a6d6f1db4d5b807b38d71913619fc0..9533caf3c4afde5de9a3bc0723b65913d9004a46 100644
+--- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java
++++ b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java
+@@ -40,9 +40,9 @@ public class CraftAsyncScheduler extends CraftScheduler {
+ 
+     private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
+             4, Integer.MAX_VALUE,30L, TimeUnit.SECONDS, new SynchronousQueue<>(),
+-            new ThreadFactoryBuilder().setNameFormat("Craft Scheduler Thread - %1$d").build());
++            new ThreadFactoryBuilder().setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("Craft Scheduler Thread - %1$d").build());
+     private final Executor management = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder()
+-            .setNameFormat("Craft Async Scheduler Management Thread").build());
++            .setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("Craft Async Scheduler Management Thread").build());
+     private final List<CraftTask> temp = new ArrayList<>();
+ 
+     CraftAsyncScheduler() {
+diff --git a/src/main/java/org/spigotmc/RestartCommand.java b/src/main/java/org/spigotmc/RestartCommand.java
+index da7d5efd76c9ef92e9ce22860fec791890a687be..66ff6ef5e9a5dd7fbeac4edae5a8e2c833c2fd8d 100644
+--- a/src/main/java/org/spigotmc/RestartCommand.java
++++ b/src/main/java/org/spigotmc/RestartCommand.java
+@@ -2,6 +2,8 @@ package org.spigotmc;
+ 
+ import java.io.File;
+ import java.util.List;
++import java.util.Locale;
++
+ import net.minecraft.server.MinecraftServer;
+ import net.minecraft.server.level.ServerPlayer;
+ import org.bukkit.command.Command;
+@@ -143,28 +145,30 @@ public class RestartCommand extends Command
+         String[] split = restartScript.split( " " );
+         if ( split.length > 0 && new File( split[0] ).isFile() )
+         {
+-            Thread shutdownHook = new Thread()
+-            {
+-                @Override
+-                public void run()
++            Runnable run = () -> {
++                try
+                 {
+-                    try
++                    String os = System.getProperty( "os.name" ).toLowerCase(java.util.Locale.ENGLISH);
++                    if ( os.contains( "win" ) )
+                     {
+-                        String os = System.getProperty( "os.name" ).toLowerCase(java.util.Locale.ENGLISH);
+-                        if ( os.contains( "win" ) )
+-                        {
+-                            Runtime.getRuntime().exec( "cmd /c start " + restartScript );
+-                        } else
+-                        {
+-                            Runtime.getRuntime().exec( "sh " + restartScript );
+-                        }
+-                    } catch ( Exception e )
++                        Runtime.getRuntime().exec( "cmd /c start " + restartScript );
++                    } else
+                     {
+-                        e.printStackTrace();
++                        Runtime.getRuntime().exec( "sh " + restartScript );
+                     }
++                } catch ( Exception e )
++                {
++                    e.printStackTrace();
+                 }
+             };
+ 
++            Thread shutdownHook;
++            if (!one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
++                shutdownHook = new Thread(run);
++            } else {
++                shutdownHook = Thread.ofVirtual().unstarted(run);
++            }
++
+             shutdownHook.setDaemon( true );
+             Runtime.getRuntime().addShutdownHook( shutdownHook );
+             return true;

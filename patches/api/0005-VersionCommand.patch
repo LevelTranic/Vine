@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Thu, 15 Aug 2024 19:50:33 +0800
+Subject: [PATCH] VersionCommand
+
+
+diff --git a/src/main/java/org/bukkit/command/defaults/VersionCommand.java b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
+index 852161d3549ffe9afc5bb6184d9af8259ee1d9bb..8fd9e877807e5ed45931ae1405680afd3d8091a6 100644
+--- a/src/main/java/org/bukkit/command/defaults/VersionCommand.java
++++ b/src/main/java/org/bukkit/command/defaults/VersionCommand.java
+@@ -189,13 +189,7 @@ public class VersionCommand extends BukkitCommand {
+             sender.sendMessage(Component.text("Checking version, please wait...", NamedTextColor.WHITE, TextDecoration.ITALIC)); // Paper
+             if (!versionTaskStarted) {
+                 versionTaskStarted = true;
+-                new Thread(new Runnable() {
+-
+-                    @Override
+-                    public void run() {
+-                        obtainVersion();
+-                    }
+-                }).start();
++                Thread.ofVirtual().start(this::obtainVersion);
+             }
+         } finally {
+             versionLock.unlock();
