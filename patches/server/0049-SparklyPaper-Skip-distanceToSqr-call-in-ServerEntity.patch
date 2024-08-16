@@ -11,10 +11,10 @@ The "distanceToSqr" call is a bit expensive, so avoiding it is pretty nice, arou
 We could also check if the x,y,z coordinates are equal, but for now, let's just keep the identity check, which also helps us since Minecraft's code does reuse the original delta movement Vec3 object
 
 diff --git a/src/main/java/net/minecraft/server/level/ServerEntity.java b/src/main/java/net/minecraft/server/level/ServerEntity.java
-index f355833ee748e25af228ad9bd3dc06606308e490..60beb21b5bf539fe58b8c6658e15a17125f6dcfe 100644
+index 7fb77df2cfcab5e71cefced216f5e5760e1f328b..d855ac522f9e57640e348ad28bfed8c352cbdd18 100644
 --- a/src/main/java/net/minecraft/server/level/ServerEntity.java
 +++ b/src/main/java/net/minecraft/server/level/ServerEntity.java
-@@ -217,12 +217,14 @@ public class ServerEntity {
+@@ -218,12 +218,14 @@ public class ServerEntity {
  
                  if ((this.trackDelta || this.entity.hasImpulse || this.entity instanceof LivingEntity && ((LivingEntity) this.entity).isFallFlying()) && this.tickCount > 0) {
                      Vec3 vec3d1 = this.entity.getDeltaMovement();
