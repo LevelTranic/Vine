@@ -4,20 +4,29 @@ Date: Thu, 15 Aug 2024 21:42:18 +0800
 Subject: [PATCH] Try Virtual threads
 
 
+diff --git a/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java b/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
+index 57cf697b0916a3b0ac0232422a5a4ba423427dc3..fe7f87fefcc99867c24f59dd66cb2971e7a414dd 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
++++ b/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
+@@ -34,7 +34,7 @@ public class ProfilingManager {
+ 
+     private static Flare currentFlare;
+     private static ScheduledFuture<?> currentTask = null;
+-    private static ScheduledExecutorService ses = new ScheduledThreadPoolExecutor(1);
++    private static final ScheduledExecutorService ses = new ScheduledThreadPoolExecutor(1, one.tranic.vine.util.AnyThread.getFactory());
+ 
+     public static synchronized boolean isProfiling() {
+         return currentFlare != null && currentFlare.isRunning();
 diff --git a/src/main/java/gg/pufferfish/pufferfish/util/AsyncExecutor.java b/src/main/java/gg/pufferfish/pufferfish/util/AsyncExecutor.java
-index 8e5323d5d9af25c8a85c4b34a6be76cfc54384cf..22d1cd46bae73f940b1c08a8098a9c05adda035d 100644
+index 8e5323d5d9af25c8a85c4b34a6be76cfc54384cf..84e7a1527b55e8c1d4fa10bfc295cb789e64afe2 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/util/AsyncExecutor.java
 +++ b/src/main/java/gg/pufferfish/pufferfish/util/AsyncExecutor.java
-@@ -17,7 +17,11 @@ public class AsyncExecutor implements Runnable {
+@@ -17,7 +17,7 @@ public class AsyncExecutor implements Runnable {
  	private volatile boolean killswitch = false;
  	
  	public AsyncExecutor(String threadName) {
 -		this.thread = new Thread(this, threadName);
-+		if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
-+			this.thread = Thread.ofVirtual().name(threadName).unstarted(this);
-+		} else {
-+			this.thread = new Thread(this, threadName);
-+		}
++		this.thread = one.tranic.vine.util.AnyThread.getThread(this, threadName);
  	}
  	
  	public void start() {
@@ -34,21 +43,16 @@ index 265c636abfd63f9ba0b0f0198867a10401c14da1..4a0afb7d428e0d6f990efd15ee9ae434
                  .setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(LOGGER))
                  .build(),
 diff --git a/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaAsyncScheduler.java b/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaAsyncScheduler.java
-index 374abffb9f1ce1a308822aed13038e77fe9ca08b..75e7e810da6da6e5e6624c40048a98fff7b627d0 100644
+index 374abffb9f1ce1a308822aed13038e77fe9ca08b..31d116e17795c91a4d62fc046fde58a5107519da 100644
 --- a/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaAsyncScheduler.java
 +++ b/src/main/java/io/papermc/paper/threadedregions/scheduler/FoliaAsyncScheduler.java
-@@ -31,12 +31,17 @@ public final class FoliaAsyncScheduler implements AsyncScheduler {
+@@ -31,12 +31,11 @@ public final class FoliaAsyncScheduler implements AsyncScheduler {
  
              @Override
              public Thread newThread(final Runnable run) {
 -                final Thread ret = new Thread(run);
-+                final Thread ret;
-+                if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
-+                    ret = Thread.ofVirtual().unstarted(run);
-+                } else {
-+                    ret = new Thread(run);
-+                }
- 
+-
++                final Thread ret = one.tranic.vine.util.AnyThread.getThread(run);
                  ret.setName("Folia Async Scheduler Thread #" + this.idGenerator.getAndIncrement());
                  ret.setPriority(Thread.NORM_PRIORITY - 1);
                  ret.setUncaughtExceptionHandler((final Thread thread, final Throwable thr) -> {
@@ -57,18 +61,13 @@ index 374abffb9f1ce1a308822aed13038e77fe9ca08b..75e7e810da6da6e5e6624c40048a98ff
                  });
  
                  return ret;
-@@ -47,8 +52,12 @@ public final class FoliaAsyncScheduler implements AsyncScheduler {
+@@ -47,8 +46,7 @@ public final class FoliaAsyncScheduler implements AsyncScheduler {
      private final ScheduledExecutorService timerThread = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
          @Override
          public Thread newThread(final Runnable run) {
 -            final Thread ret = new Thread(run);
 -
-+            final Thread ret;
-+            if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
-+                ret = Thread.ofVirtual().unstarted(run);
-+            } else {
-+                ret = new Thread(run);
-+            }
++            final Thread ret = one.tranic.vine.util.AnyThread.getThread(run);
              ret.setName("Folia Async Scheduler Thread Timer");
              ret.setPriority(Thread.NORM_PRIORITY + 1);
              ret.setUncaughtExceptionHandler((final Thread thread, final Throwable thr) -> {
@@ -93,20 +92,15 @@ index 1d6b3fe2ce240af4ede61588795456b046eee6c9..0e1dedb9baf70bd788a665e3cd7e53aa
      );
  
 diff --git a/src/main/java/net/minecraft/Util.java b/src/main/java/net/minecraft/Util.java
-index 0bd367235f80c1f0d319a6aa5130d82ad82d895c..fbd6f8afb4cb47f630c67f83904d36ff0148f979 100644
+index 0bd367235f80c1f0d319a6aa5130d82ad82d895c..74cbfd82951cc4e8e4289e86b1b880e4b0c93acd 100644
 --- a/src/main/java/net/minecraft/Util.java
 +++ b/src/main/java/net/minecraft/Util.java
-@@ -100,10 +100,15 @@ public class Util {
+@@ -100,10 +100,10 @@ public class Util {
  
          @Override
          public Thread newThread(Runnable run) {
 -            Thread ret = new Thread(run);
-+            Thread ret;
-+            if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads){
-+                ret = Thread.ofVirtual().unstarted(run);
-+            } else {
-+                ret = new Thread(run);
-+            }
++            Thread ret = one.tranic.vine.util.AnyThread.getThread(run);
              ret.setName("Profile Lookup Executor #" + this.count.getAndIncrement());
              ret.setUncaughtExceptionHandler((Thread thread, Throwable throwable) -> {
 -                LOGGER.error("Uncaught exception in thread " + thread.getName(), throwable);
@@ -114,21 +108,35 @@ index 0bd367235f80c1f0d319a6aa5130d82ad82d895c..fbd6f8afb4cb47f630c67f83904d36ff
              });
              return ret;
          }
-@@ -255,7 +260,13 @@ public class Util {
+@@ -255,7 +255,7 @@ public class Util {
      private static ExecutorService makeIoExecutor(String namePrefix, boolean daemon) {
          AtomicInteger atomicInteger = new AtomicInteger(1);
          return Executors.newCachedThreadPool(runnable -> {
 -            Thread thread = new Thread(runnable);
-+            Thread thread;
-+            if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads){
-+                thread = Thread.ofVirtual().unstarted(runnable);
-+            } else {
-+                thread = new Thread(runnable);
-+            }
-+
++            Thread thread = one.tranic.vine.util.AnyThread.getThread(runnable);
              thread.setName(namePrefix + atomicInteger.getAndIncrement());
              thread.setDaemon(daemon);
              thread.setUncaughtExceptionHandler(Util::onThreadException);
+@@ -752,6 +752,7 @@ public class Util {
+                 }
+             }
+         };
++
+         thread.setDaemon(true);
+         thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(LOGGER));
+         thread.start();
+diff --git a/src/main/java/net/minecraft/commands/Commands.java b/src/main/java/net/minecraft/commands/Commands.java
+index 4288d131d24e0b71d8ae4af07f0a7f98d07e624d..db9fa67c9cc562a6436a311087dbf7e62c1b39ec 100644
+--- a/src/main/java/net/minecraft/commands/Commands.java
++++ b/src/main/java/net/minecraft/commands/Commands.java
+@@ -494,6 +494,7 @@ public class Commands {
+         new java.util.concurrent.LinkedBlockingQueue<>(),
+         new com.google.common.util.concurrent.ThreadFactoryBuilder()
+             .setNameFormat("Paper Async Command Builder Thread Pool - %1$d")
++            .setThreadFactory(one.tranic.vine.util.AnyThread.getFactory())
+             .setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(net.minecraft.server.MinecraftServer.LOGGER))
+             .build(),
+         new java.util.concurrent.ThreadPoolExecutor.DiscardPolicy()
 diff --git a/src/main/java/net/minecraft/network/Connection.java b/src/main/java/net/minecraft/network/Connection.java
 index 4dc0b2d15ff2c0a84df08186d2a8e29d30136dac..2806be6c1e6908f9dd23a160243d413d7a79dcd7 100644
 --- a/src/main/java/net/minecraft/network/Connection.java
@@ -150,6 +158,19 @@ index 4dc0b2d15ff2c0a84df08186d2a8e29d30136dac..2806be6c1e6908f9dd23a160243d413d
      });
      private static final ProtocolInfo<ServerHandshakePacketListener> INITIAL_PROTOCOL = HandshakeProtocols.SERVERBOUND;
      private final PacketFlow receiving;
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 88aa9cda084f2b68629ffd00532eb849a595763a..cbac51b55b91cf9be8af3b5e9a992fa8b33f82ec 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -2994,7 +2994,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+     }
+ 
+     public final java.util.concurrent.ExecutorService chatExecutor = java.util.concurrent.Executors.newCachedThreadPool(
+-            new com.google.common.util.concurrent.ThreadFactoryBuilder().setDaemon(true).setNameFormat("Async Chat Thread - #%d").setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(net.minecraft.server.MinecraftServer.LOGGER)).build()); // Paper
++            new com.google.common.util.concurrent.ThreadFactoryBuilder().setDaemon(true).setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("Async Chat Thread - #%d").setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(net.minecraft.server.MinecraftServer.LOGGER)).build()); // Paper
+ 
+     public final ChatDecorator improvedChatDecorator = new io.papermc.paper.adventure.ImprovedChatDecorator(this); // Paper - adventure
+     public ChatDecorator getChatDecorator() {
 diff --git a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java b/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
 index 04460b81d6351f63103199a980e463070c233300..01d3ab53bdf12146b372dea464a4298325b682ed 100644
 --- a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
@@ -182,7 +203,7 @@ index 954d468459fe167ede0e7fca5b9f99da565d59e1..5b60a7fc75d0e2beafb8787fbe0708e0
      static final MutableComponent STATUS_UPGRADING_POI = Component.translatable("optimizeWorld.stage.upgrading.poi");
      static final MutableComponent STATUS_FINISHED_POI = Component.translatable("optimizeWorld.stage.finished.poi");
 diff --git a/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java b/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
-index 8a4f95049c63afb28bef6719c77b7a7092e75aae..9cbdaebe605bee603046dc04c06fdd1a67da7e2f 100644
+index 8a4f95049c63afb28bef6719c77b7a7092e75aae..dcbe2cea667bf78b58c4312e65cd14cc96b1f359 100644
 --- a/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
 @@ -53,7 +53,7 @@ public class Main {
@@ -194,19 +215,14 @@ index 8a4f95049c63afb28bef6719c77b7a7092e75aae..9cbdaebe605bee603046dc04c06fdd1a
                  try {
                      Class<?> mainClass = Class.forName(mainClassName, true, classLoader);
                      MethodHandle mainHandle = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
-@@ -61,8 +61,13 @@ public class Main {
+@@ -61,8 +61,8 @@ public class Main {
                  } catch (Throwable t) {
                      Thrower.INSTANCE.sneakyThrow(t);
                  }
 -            }, "ServerMain");
 -
 +            };
-+            Thread runThread;
-+            if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
-+                runThread = Thread.ofVirtual().name("ServerMain").unstarted(run);
-+            } else {
-+                runThread = new Thread(run, "ServerMain");
-+            }
++            Thread runThread = one.tranic.vine.util.AnyThread.getThread(run, "ServerMain");
              runThread.setContextClassLoader(classLoader);
              runThread.start();
          } catch (Exception e) {
@@ -227,7 +243,7 @@ index 3c1992e212a6d6f1db4d5b807b38d71913619fc0..9533caf3c4afde5de9a3bc0723b65913
  
      CraftAsyncScheduler() {
 diff --git a/src/main/java/org/spigotmc/RestartCommand.java b/src/main/java/org/spigotmc/RestartCommand.java
-index da7d5efd76c9ef92e9ce22860fec791890a687be..66ff6ef5e9a5dd7fbeac4edae5a8e2c833c2fd8d 100644
+index da7d5efd76c9ef92e9ce22860fec791890a687be..23cb1c3c13df0bc1e21178d7b0f7fb24a3e197f5 100644
 --- a/src/main/java/org/spigotmc/RestartCommand.java
 +++ b/src/main/java/org/spigotmc/RestartCommand.java
 @@ -2,6 +2,8 @@ package org.spigotmc;
@@ -239,7 +255,7 @@ index da7d5efd76c9ef92e9ce22860fec791890a687be..66ff6ef5e9a5dd7fbeac4edae5a8e2c8
  import net.minecraft.server.MinecraftServer;
  import net.minecraft.server.level.ServerPlayer;
  import org.bukkit.command.Command;
-@@ -143,28 +145,30 @@ public class RestartCommand extends Command
+@@ -143,28 +145,24 @@ public class RestartCommand extends Command
          String[] split = restartScript.split( " " );
          if ( split.length > 0 && new File( split[0] ).isFile() )
          {
@@ -275,13 +291,7 @@ index da7d5efd76c9ef92e9ce22860fec791890a687be..66ff6ef5e9a5dd7fbeac4edae5a8e2c8
                  }
              };
  
-+            Thread shutdownHook;
-+            if (!one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
-+                shutdownHook = new Thread(run);
-+            } else {
-+                shutdownHook = Thread.ofVirtual().unstarted(run);
-+            }
-+
++            Thread shutdownHook = one.tranic.vine.util.AnyThread.getThread(run);
              shutdownHook.setDaemon( true );
              Runtime.getRuntime().addShutdownHook( shutdownHook );
              return true;

@@ -6,13 +6,15 @@ Subject: [PATCH] AnyThread Utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/AnyThread.kt b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..e41970bcdb414e9c6d546bb4de7209f18c2459f9
+index 0000000000000000000000000000000000000000..9b9288250e0ba711f152a5642552e3904cb64c61
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
-@@ -0,0 +1,15 @@
+@@ -0,0 +1,47 @@
 +package one.tranic.vine.util
 +
++import kotlinx.coroutines.*
 +import one.tranic.vine.config.ConfigUtil
++import java.lang.Runnable
 +import java.util.concurrent.ThreadFactory
 +
 +object AnyThread {
@@ -23,6 +25,36 @@ index 0000000000000000000000000000000000000000..e41970bcdb414e9c6d546bb4de7209f1
 +        } else {
 +            Thread.ofPlatform().factory()
 +        }
++    }
++
++    @JvmStatic
++    fun getThread(): Thread {
++        if (ConfigUtil.isPlatform == false) return Thread.ofVirtual().unstarted(null)
++        return Thread()
++    }
++
++    @JvmStatic
++    fun getThread(name: String): Thread {
++        if (ConfigUtil.isPlatform == false) return Thread.ofVirtual().name(name).unstarted(null)
++        return Thread(name)
++    }
++
++    @JvmStatic
++    fun getThread(runnable: Runnable): Thread {
++        if (ConfigUtil.isPlatform == false) return Thread.ofVirtual().unstarted(runnable)
++        return Thread(runnable)
++    }
++
++    @JvmStatic
++    fun getThread(runnable: Runnable, name: String): Thread {
++        if (ConfigUtil.isPlatform == false) return Thread.ofVirtual().name(name).unstarted(runnable)
++        return Thread(runnable, name)
++    }
++
++    @OptIn(DelicateCoroutinesApi::class)
++    @JvmStatic
++    fun getCoroutine(block: suspend CoroutineScope.() -> Unit) : Job {
++        return GlobalScope.launch(block = block)
 +    }
 +}
 \ No newline at end of file
