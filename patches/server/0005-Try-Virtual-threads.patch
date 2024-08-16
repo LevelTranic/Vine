@@ -92,6 +92,36 @@ index 1d6b3fe2ce240af4ede61588795456b046eee6c9..0e1dedb9baf70bd788a665e3cd7e53aa
              .build()
      );
  
+diff --git a/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java b/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
+index 8a4f95049c63afb28bef6719c77b7a7092e75aae..f4aa8f106f7fdad537c9087c140b0e8f161e5073 100644
+--- a/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
+@@ -53,7 +53,8 @@ public class Main {
+             URLClassLoader classLoader = new URLClassLoader(extractedUrls.toArray(new URL[0]));
+ 
+             System.out.println("Starting server");
+-            Thread runThread = new Thread(() -> {
++            System.out.println("Initialize ServerMain thread");
++            Runnable run = () -> {
+                 try {
+                     Class<?> mainClass = Class.forName(mainClassName, true, classLoader);
+                     MethodHandle mainHandle = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
+@@ -61,8 +62,13 @@ public class Main {
+                 } catch (Throwable t) {
+                     Thrower.INSTANCE.sneakyThrow(t);
+                 }
+-            }, "ServerMain");
+-
++            };
++            Thread runThread;
++            if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
++                runThread = Thread.ofVirtual().name("ServerMain").unstarted(run);
++            } else {
++                runThread = new Thread(run, "ServerMain");
++            }
+             runThread.setContextClassLoader(classLoader);
+             runThread.start();
+         } catch (Exception e) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java b/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java
 index 3c1992e212a6d6f1db4d5b807b38d71913619fc0..9533caf3c4afde5de9a3bc0723b65913d9004a46 100644
 --- a/src/main/java/org/bukkit/craftbukkit/scheduler/CraftAsyncScheduler.java
