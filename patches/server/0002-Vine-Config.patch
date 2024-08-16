@@ -4,20 +4,6 @@ Date: Sun, 23 Jun 2024 21:01:06 +0800
 Subject: [PATCH] Vine Config
 
 
-diff --git a/src/main/java/co/aikar/timings/TimingsExport.java b/src/main/java/co/aikar/timings/TimingsExport.java
-index b35a9f4c5f8960864c402ede8a51fb5ab9c4fcc0..0d63e256932bffc3aa8dde5b774fbe73b62138f9 100644
---- a/src/main/java/co/aikar/timings/TimingsExport.java
-+++ b/src/main/java/co/aikar/timings/TimingsExport.java
-@@ -241,7 +241,8 @@ public class TimingsExport extends Thread {
-             pair("spigot", mapAsJSON(Bukkit.spigot().getSpigotConfig(), null)),
-             pair("bukkit", mapAsJSON(Bukkit.spigot().getBukkitConfig(), null)),
-             pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)), // Pufferfish
--            pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)) // Pufferfish
-+            pair("pufferfish", mapAsJSON(gg.pufferfish.pufferfish.PufferfishConfig.getConfigCopy(), null)), // Pufferfish
-+            pair("vine", mapAsJSON(one.tranic.vine.config.ConfigUtil.getConfigCopy(), null)) // Vine
-         ));
- 
-         new TimingsExport(listeners, parent, history).start();
 diff --git a/src/main/java/net/minecraft/server/Main.java b/src/main/java/net/minecraft/server/Main.java
 index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..9e58bce64d46a1ac12bcc067a07883069a27e482 100644
 --- a/src/main/java/net/minecraft/server/Main.java
@@ -141,7 +127,7 @@ index 0000000000000000000000000000000000000000..df01651da27e611d5764618827192d31
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..0473ce938e26cbaae62550b0239165a40838c407
+index 0000000000000000000000000000000000000000..527a181d5b8377f8f4dd131007dc06f7a68642c8
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 @@ -0,0 +1,322 @@
@@ -149,8 +135,8 @@ index 0000000000000000000000000000000000000000..0473ce938e26cbaae62550b0239165a4
 +
 +import net.minecraft.server.MinecraftServer
 +import org.bukkit.Bukkit
-+import org.bukkit.configuration.ConfigurationSection
-+import org.bukkit.configuration.MemoryConfiguration
++//import org.bukkit.configuration.ConfigurationSection
++//import org.bukkit.configuration.MemoryConfiguration
 +import org.bukkit.configuration.file.YamlConfiguration
 +import java.io.File
 +
@@ -161,14 +147,14 @@ index 0000000000000000000000000000000000000000..0473ce938e26cbaae62550b0239165a4
 +    val logger: org.slf4j.Logger = MinecraftServer.LOGGER
 +    private lateinit var configuration: YamlConfiguration
 +    private var isSecureSeed: Boolean? = null
-+    public var isPlatform: Boolean? = null
++    var isPlatform: Boolean? = null
 +
 +    @JvmStatic
 +    fun setCommand() {
 +        Bukkit.getCommandMap().register("vinecfg", "vine", VineCfgCommand())
 +    }
 +
-+    @JvmStatic
++    /*@JvmStatic
 +    fun getConfigCopy(): ConfigurationSection {
 +        return convertToBukkit(configuration.parent)
 +    }
@@ -185,7 +171,7 @@ index 0000000000000000000000000000000000000000..0473ce938e26cbaae62550b0239165a4
 +            }
 +        }
 +        return newSection
-+    }
++    }*/
 +
 +    /**
 +     * Load the configuration file.

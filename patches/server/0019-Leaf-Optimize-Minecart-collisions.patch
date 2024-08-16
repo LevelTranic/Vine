@@ -86,7 +86,7 @@ index de2ea35a226c5f595a2ab53beda8238a806c2bad..bfc4a4b3dcccdef3a3a5036716adf4e0
                  }
              }
 diff --git a/src/main/java/net/minecraft/world/level/Level.java b/src/main/java/net/minecraft/world/level/Level.java
-index 0af343050a13371b86379a794caeb8dfeeb8550b..792404c66289a515ffa64169ce82496bb67835aa 100644
+index c8403e609a113c2ecec29bf4baec901147f22487..f04f29a8ea942a89b0955010382a695874a42cf8 100644
 --- a/src/main/java/net/minecraft/world/level/Level.java
 +++ b/src/main/java/net/minecraft/world/level/Level.java
 @@ -7,7 +7,7 @@ import java.util.Iterator;

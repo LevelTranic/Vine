@@ -7,7 +7,7 @@ Original code by NONPLAYT
 You can find the original code on https://github.com/DivineMC/DivineMC
 
 diff --git a/src/main/java/net/minecraft/world/level/block/Block.java b/src/main/java/net/minecraft/world/level/block/Block.java
-index 23706d591cc1c1c4b5c3225878e62caea29b989d..c913729ebbf3b9b23a4081c16de6285ecd45b4a5 100644
+index 1030216edc8e770fceaa1088065299a00397b1ca..e45337355d002dc4638ce3b8e7177dc65df10d7d 100644
 --- a/src/main/java/net/minecraft/world/level/block/Block.java
 +++ b/src/main/java/net/minecraft/world/level/block/Block.java
 @@ -636,11 +636,19 @@ public class Block extends BlockBehaviour implements ItemLike {

@@ -5,7 +5,7 @@ Subject: [PATCH] Skip empty events
 
 
 diff --git a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
-index 143638f994a842472e827cb9b4efc160a7235aa4..b0ae05285fc7ab40edff052eb2d9dc9716d68e9b 100644
+index 866e072a0b489f179a817190486c822349901509..9ed866a32ff019495ca475921b45ea3f3c24a2d1 100644
 --- a/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 +++ b/src/main/java/io/papermc/paper/plugin/manager/PaperEventManager.java
 @@ -40,6 +40,7 @@ class PaperEventManager {
