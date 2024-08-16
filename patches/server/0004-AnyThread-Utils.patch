@@ -6,25 +6,91 @@ Subject: [PATCH] AnyThread Utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/AnyThread.kt b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..9b9288250e0ba711f152a5642552e3904cb64c61
+index 0000000000000000000000000000000000000000..8f1f7da73a8adf3a20f21113fa3a6eefc26f068a
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,113 @@
 +package one.tranic.vine.util
 +
 +import kotlinx.coroutines.*
++import net.minecraft.server.MinecraftServer
 +import one.tranic.vine.config.ConfigUtil
-+import java.lang.Runnable
++import java.lang.reflect.InaccessibleObjectException
++import java.lang.reflect.Method
++import java.lang.reflect.ReflectPermission
 +import java.util.concurrent.ThreadFactory
 +
 +object AnyThread {
++    private lateinit var method: Method
++    private var hasLangModule = false
++    init {
++        try {
++            val clazz: Class<*> = Class.forName("java.lang.Thread")
++            method = clazz.getDeclaredMethod("getAllThreads")
++            ReflectPermission("suppressAccessChecks")
++            method.isAccessible = true
++            hasLangModule = true
++        }catch (_: InaccessibleObjectException) {
++            hasLangModule = false
++            MinecraftServer.LOGGER.warn("--add-opens=java.base/java.lang=ALL-UNNAMED is not enabled.")
++        } catch (e: Exception) {
++            MinecraftServer.LOGGER.error("AnyThread java.lang.Thread.getAllThreads set failed", e)
++        }
++    }
++
++    private fun getThreads(): ArrayList<Thread>? {
++        try {
++            val l = method.invoke(null) as Array<*>
++            if (l.isArrayOf<Thread>()) {
++                val r = ArrayList<Thread>()
++                var i = 0
++                for (thread in l) {
++                    if (thread is Thread) {
++                        r.add(thread)
++                        i++
++                    }
++                }
++                if (r.isNotEmpty()) return r
++            }
++        } catch (e: Exception) {
++            MinecraftServer.LOGGER.error("getThreads invoke failed", e)
++        }
++        return null
++    }
++
++    @JvmStatic
++    fun getThreadsCount(): ThreadInfo {
++        if (!hasLangModule) return ThreadInfoUtil.emptyThreadInfo
++        val t = getThreads()
++        if (t.isNullOrEmpty()) return ThreadInfoUtil.emptyThreadInfo
++        val totalSize = t.size
++        var aliveSize = 0
++        var virtualSize = 0
++        var virtualAliveSize = 0
++        var platformSize = 0
++        var platformAliveSize = 0
++        for (thread in t) {
++            if (thread.isVirtual) {
++                virtualSize++
++            } else {
++                platformSize++
++            }
++            if (thread.isAlive) {
++                if (thread.isVirtual) {
++                    virtualAliveSize++
++                } else {
++                    platformAliveSize++
++                }
++                aliveSize++
++            }
++        }
++        return ThreadInfo(totalSize, aliveSize, virtualSize, virtualAliveSize, platformSize, platformAliveSize)
++    }
++
 +    @JvmStatic
 +    fun getFactory(): ThreadFactory {
-+        return if (ConfigUtil.isPlatform == false) {
-+            Thread.ofVirtual().factory()
-+        } else {
-+            Thread.ofPlatform().factory()
-+        }
++        if (ConfigUtil.isPlatform == false) return Thread.ofVirtual().factory()
++        return Thread.ofPlatform().factory()
 +    }
 +
 +    @JvmStatic
@@ -53,8 +119,27 @@ index 0000000000000000000000000000000000000000..9b9288250e0ba711f152a5642552e390
 +
 +    @OptIn(DelicateCoroutinesApi::class)
 +    @JvmStatic
-+    fun getCoroutine(block: suspend CoroutineScope.() -> Unit) : Job {
++    fun getCoroutine(block: suspend CoroutineScope.() -> Unit): Job {
 +        return GlobalScope.launch(block = block)
 +    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt b/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..36e5486fbf39bcce26dc0b70d7d646c2f9e1a736
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt
+@@ -0,0 +1,12 @@
++package one.tranic.vine.util
++
++/**count is only allowed to be assigned null if the content is completely empty*/
++data class ThreadInfo(val size: Int?, val alive: Int, val virtual: Int, val virtualAlive: Int, val platform: Int, val platformAlive: Int)
++
++object ThreadInfoUtil {
++    val emptyThreadInfo = ThreadInfo(null, 0, 0, 0, 0, 0)
++}
++
++fun ThreadInfo.empty() : Boolean {
++    return this.size == null
 +}
 \ No newline at end of file
