@@ -92,21 +92,109 @@ index 1d6b3fe2ce240af4ede61588795456b046eee6c9..0e1dedb9baf70bd788a665e3cd7e53aa
              .build()
      );
  
+diff --git a/src/main/java/net/minecraft/Util.java b/src/main/java/net/minecraft/Util.java
+index 0bd367235f80c1f0d319a6aa5130d82ad82d895c..fbd6f8afb4cb47f630c67f83904d36ff0148f979 100644
+--- a/src/main/java/net/minecraft/Util.java
++++ b/src/main/java/net/minecraft/Util.java
+@@ -100,10 +100,15 @@ public class Util {
+ 
+         @Override
+         public Thread newThread(Runnable run) {
+-            Thread ret = new Thread(run);
++            Thread ret;
++            if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads){
++                ret = Thread.ofVirtual().unstarted(run);
++            } else {
++                ret = new Thread(run);
++            }
+             ret.setName("Profile Lookup Executor #" + this.count.getAndIncrement());
+             ret.setUncaughtExceptionHandler((Thread thread, Throwable throwable) -> {
+-                LOGGER.error("Uncaught exception in thread " + thread.getName(), throwable);
++                LOGGER.error("Uncaught exception in thread {}", thread.getName(), throwable);
+             });
+             return ret;
+         }
+@@ -255,7 +260,13 @@ public class Util {
+     private static ExecutorService makeIoExecutor(String namePrefix, boolean daemon) {
+         AtomicInteger atomicInteger = new AtomicInteger(1);
+         return Executors.newCachedThreadPool(runnable -> {
+-            Thread thread = new Thread(runnable);
++            Thread thread;
++            if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads){
++                thread = Thread.ofVirtual().unstarted(runnable);
++            } else {
++                thread = new Thread(runnable);
++            }
++
+             thread.setName(namePrefix + atomicInteger.getAndIncrement());
+             thread.setDaemon(daemon);
+             thread.setUncaughtExceptionHandler(Util::onThreadException);
+diff --git a/src/main/java/net/minecraft/network/Connection.java b/src/main/java/net/minecraft/network/Connection.java
+index 4dc0b2d15ff2c0a84df08186d2a8e29d30136dac..2806be6c1e6908f9dd23a160243d413d7a79dcd7 100644
+--- a/src/main/java/net/minecraft/network/Connection.java
++++ b/src/main/java/net/minecraft/network/Connection.java
+@@ -87,13 +87,13 @@ public class Connection extends SimpleChannelInboundHandler<Packet<?>> {
+         marker.add(Connection.PACKET_MARKER);
+     });
+     public static final Supplier<NioEventLoopGroup> NETWORK_WORKER_GROUP = Suppliers.memoize(() -> {
+-        return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Client IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
++        return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("Netty Client IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
+     });
+     public static final Supplier<EpollEventLoopGroup> NETWORK_EPOLL_WORKER_GROUP = Suppliers.memoize(() -> {
+-        return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Client IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
++        return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("Netty Epoll Client IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
+     });
+     public static final Supplier<DefaultEventLoopGroup> LOCAL_WORKER_GROUP = Suppliers.memoize(() -> {
+-        return new DefaultEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Local Client IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
++        return new DefaultEventLoopGroup(0, (new ThreadFactoryBuilder()).setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("Netty Local Client IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
+     });
+     private static final ProtocolInfo<ServerHandshakePacketListener> INITIAL_PROTOCOL = HandshakeProtocols.SERVERBOUND;
+     private final PacketFlow receiving;
+diff --git a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java b/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
+index 04460b81d6351f63103199a980e463070c233300..01d3ab53bdf12146b372dea464a4298325b682ed 100644
+--- a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
++++ b/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
+@@ -19,7 +19,12 @@ public class NamedThreadFactory implements ThreadFactory {
+ 
+     @Override
+     public Thread newThread(Runnable runnable) {
+-        Thread thread = new Thread(this.group, runnable, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
++        Thread thread;
++        if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
++            thread = Thread.ofVirtual().name(this.namePrefix + this.threadNumber.getAndIncrement()).unstarted(runnable);
++        } else {
++            thread = new Thread(this.group, runnable, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
++        }
+         thread.setUncaughtExceptionHandler((threadx, throwable) -> {
+             LOGGER.error("Caught exception in thread {} from {}", threadx, runnable);
+             LOGGER.error("", throwable);
+diff --git a/src/main/java/net/minecraft/util/worldupdate/WorldUpgrader.java b/src/main/java/net/minecraft/util/worldupdate/WorldUpgrader.java
+index 954d468459fe167ede0e7fca5b9f99da565d59e1..5b60a7fc75d0e2beafb8787fbe0708e07c7203f8 100644
+--- a/src/main/java/net/minecraft/util/worldupdate/WorldUpgrader.java
++++ b/src/main/java/net/minecraft/util/worldupdate/WorldUpgrader.java
+@@ -52,7 +52,7 @@ import org.slf4j.Logger;
+ public class WorldUpgrader {
+ 
+     static final Logger LOGGER = LogUtils.getLogger();
+-    private static final ThreadFactory THREAD_FACTORY = (new ThreadFactoryBuilder()).setDaemon(true).build();
++    private static final ThreadFactory THREAD_FACTORY = (new ThreadFactoryBuilder()).setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setDaemon(true).build();
+     private static final String NEW_DIRECTORY_PREFIX = "new_";
+     static final MutableComponent STATUS_UPGRADING_POI = Component.translatable("optimizeWorld.stage.upgrading.poi");
+     static final MutableComponent STATUS_FINISHED_POI = Component.translatable("optimizeWorld.stage.finished.poi");
 diff --git a/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java b/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
-index 8a4f95049c63afb28bef6719c77b7a7092e75aae..f4aa8f106f7fdad537c9087c140b0e8f161e5073 100644
+index 8a4f95049c63afb28bef6719c77b7a7092e75aae..9cbdaebe605bee603046dc04c06fdd1a67da7e2f 100644
 --- a/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
 +++ b/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
-@@ -53,7 +53,8 @@ public class Main {
+@@ -53,7 +53,7 @@ public class Main {
              URLClassLoader classLoader = new URLClassLoader(extractedUrls.toArray(new URL[0]));
  
              System.out.println("Starting server");
 -            Thread runThread = new Thread(() -> {
-+            System.out.println("Initialize ServerMain thread");
 +            Runnable run = () -> {
                  try {
                      Class<?> mainClass = Class.forName(mainClassName, true, classLoader);
                      MethodHandle mainHandle = MethodHandles.lookup().findStatic(mainClass, "main", MethodType.methodType(void.class, String[].class)).asFixedArity();
-@@ -61,8 +62,13 @@ public class Main {
+@@ -61,8 +61,13 @@ public class Main {
                  } catch (Throwable t) {
                      Thrower.INSTANCE.sneakyThrow(t);
                  }
