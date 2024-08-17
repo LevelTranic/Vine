@@ -6,10 +6,10 @@ Subject: [PATCH] ThreadInfoCommand
 
 diff --git a/src/main/kotlin/one/tranic/vine/commands/ThreadInfoCommand.kt b/src/main/kotlin/one/tranic/vine/commands/ThreadInfoCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..f19147edb4f6265958516d262749719e3e87eb54
+index 0000000000000000000000000000000000000000..ecc2ed943f88454406bca71780678e41b495b9eb
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/commands/ThreadInfoCommand.kt
-@@ -0,0 +1,94 @@
+@@ -0,0 +1,67 @@
 +package one.tranic.vine.commands
 +
 +import net.kyori.adventure.text.Component
@@ -47,7 +47,6 @@ index 0000000000000000000000000000000000000000..f19147edb4f6265958516d262749719e
 +                        .text("No active thread was detected or an internal error occurred!")
 +                        .color(color)
 +                )
-+                return@Runnable
 +            } else {
 +                sender.sendMessage(
 +                    Component.text("\n", NamedTextColor.WHITE)
@@ -63,32 +62,6 @@ index 0000000000000000000000000000000000000000..f19147edb4f6265958516d262749719e
 +                        .append(Component.text("\n", NamedTextColor.WHITE))
 +                        .append(Component.text("Inactive Threads Total: ", NamedTextColor.GOLD))
 +                        .append(Component.text(info.size - info.alive, NamedTextColor.LIGHT_PURPLE))
-+                        .append(Component.text("\n", NamedTextColor.WHITE))
-+                        .append(Component.text("========", NamedTextColor.GREEN))
-+                        .append(Component.text("Virtual Thread", color))
-+                        .append(Component.text("========", NamedTextColor.GREEN))
-+                        .append(Component.text("\n", NamedTextColor.WHITE))
-+                        .append(Component.text("Virtual Thread Total: ", NamedTextColor.GOLD))
-+                        .append(Component.text(info.virtual, NamedTextColor.LIGHT_PURPLE))
-+                        .append(Component.text("\n", NamedTextColor.WHITE))
-+                        .append(Component.text("Alive Virtual Thread Total: ", NamedTextColor.GOLD))
-+                        .append(Component.text(info.virtualAlive, NamedTextColor.LIGHT_PURPLE))
-+                        .append(Component.text("\n", NamedTextColor.WHITE))
-+                        .append(Component.text("Inactive Virtual Thread Total: ", NamedTextColor.GOLD))
-+                        .append(Component.text(info.virtual - info.virtualAlive, NamedTextColor.LIGHT_PURPLE))
-+                        .append(Component.text("\n", NamedTextColor.WHITE))
-+                        .append(Component.text("========", NamedTextColor.GREEN))
-+                        .append(Component.text("Platform Thread", color))
-+                        .append(Component.text("========", NamedTextColor.GREEN))
-+                        .append(Component.text("\n", NamedTextColor.WHITE))
-+                        .append(Component.text("Platform Thread Total: ", NamedTextColor.GOLD))
-+                        .append(Component.text(info.platform, NamedTextColor.LIGHT_PURPLE))
-+                        .append(Component.text("\n", NamedTextColor.WHITE))
-+                        .append(Component.text("Alive Platform Thread Total: ", NamedTextColor.GOLD))
-+                        .append(Component.text(info.platformAlive, NamedTextColor.LIGHT_PURPLE))
-+                        .append(Component.text("\n", NamedTextColor.WHITE))
-+                        .append(Component.text("Inactive Platform Thread Total: ", NamedTextColor.GOLD))
-+                        .append(Component.text(info.platform - info.platformAlive, NamedTextColor.LIGHT_PURPLE))
 +                        .append(Component.text("\n", NamedTextColor.WHITE))
 +                )
 +            }

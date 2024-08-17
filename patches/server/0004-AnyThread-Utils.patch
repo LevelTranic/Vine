@@ -6,10 +6,10 @@ Subject: [PATCH] AnyThread Utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/AnyThread.kt b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..8f1f7da73a8adf3a20f21113fa3a6eefc26f068a
+index 0000000000000000000000000000000000000000..aaa2d5b5ef240a63aeda2d52af9427640f7df3d8
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,99 @@
 +package one.tranic.vine.util
 +
 +import kotlinx.coroutines.*
@@ -65,26 +65,12 @@ index 0000000000000000000000000000000000000000..8f1f7da73a8adf3a20f21113fa3a6eef
 +        if (t.isNullOrEmpty()) return ThreadInfoUtil.emptyThreadInfo
 +        val totalSize = t.size
 +        var aliveSize = 0
-+        var virtualSize = 0
-+        var virtualAliveSize = 0
-+        var platformSize = 0
-+        var platformAliveSize = 0
 +        for (thread in t) {
-+            if (thread.isVirtual) {
-+                virtualSize++
-+            } else {
-+                platformSize++
-+            }
 +            if (thread.isAlive) {
-+                if (thread.isVirtual) {
-+                    virtualAliveSize++
-+                } else {
-+                    platformAliveSize++
-+                }
 +                aliveSize++
 +            }
 +        }
-+        return ThreadInfo(totalSize, aliveSize, virtualSize, virtualAliveSize, platformSize, platformAliveSize)
++        return ThreadInfo(totalSize, aliveSize)
 +    }
 +
 +    @JvmStatic
@@ -126,17 +112,17 @@ index 0000000000000000000000000000000000000000..8f1f7da73a8adf3a20f21113fa3a6eef
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt b/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..36e5486fbf39bcce26dc0b70d7d646c2f9e1a736
+index 0000000000000000000000000000000000000000..99cf792b4141120979c9b0821ef1040258e22bcd
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt
 @@ -0,0 +1,12 @@
 +package one.tranic.vine.util
 +
 +/**count is only allowed to be assigned null if the content is completely empty*/
-+data class ThreadInfo(val size: Int?, val alive: Int, val virtual: Int, val virtualAlive: Int, val platform: Int, val platformAlive: Int)
++data class ThreadInfo(val size: Int?, val alive: Int)
 +
 +object ThreadInfoUtil {
-+    val emptyThreadInfo = ThreadInfo(null, 0, 0, 0, 0, 0)
++    val emptyThreadInfo = ThreadInfo(null, 0)
 +}
 +
 +fun ThreadInfo.empty() : Boolean {
