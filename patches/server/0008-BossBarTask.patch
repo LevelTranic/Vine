@@ -1,0 +1,75 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sat, 17 Aug 2024 12:47:00 +0800
+Subject: [PATCH] BossBarTask
+
+
+diff --git a/src/main/java/org/purpurmc/purpur/task/BossBarTask.java b/src/main/java/org/purpurmc/purpur/task/BossBarTask.java
+index bc501ce058f001a4c87bf2d513a855f1f35ff138..ac6df2b82548a69f6c82875102a9bd0153c834b0 100644
+--- a/src/main/java/org/purpurmc/purpur/task/BossBarTask.java
++++ b/src/main/java/org/purpurmc/purpur/task/BossBarTask.java
+@@ -1,22 +1,24 @@
+ package org.purpurmc.purpur.task;
+ 
++import kotlinx.coroutines.Job;
+ import net.kyori.adventure.bossbar.BossBar;
+ import net.minecraft.server.level.ServerPlayer;
++import one.tranic.vine.util.AnyThread;
+ import org.bukkit.Bukkit;
+ import org.bukkit.craftbukkit.scheduler.MinecraftInternalPlugin;
+ import org.bukkit.entity.Player;
+-import org.bukkit.scheduler.BukkitRunnable;
+ 
+-import java.util.HashMap;
++import java.time.Duration;
+ import java.util.HashSet;
+ import java.util.Iterator;
+ import java.util.Map;
+ import java.util.UUID;
+ import java.util.concurrent.ConcurrentHashMap;
+ 
+-public abstract class BossBarTask extends BukkitRunnable {
++public abstract class BossBarTask implements Runnable {
+     private final Map<UUID, BossBar> bossbars = new ConcurrentHashMap<>(); // ShreddedPaper
+     private boolean started;
++    private Job bossTask;
+ 
+     abstract BossBar createBossBar();
+ 
+@@ -36,9 +38,10 @@ public abstract class BossBarTask extends BukkitRunnable {
+         }
+     }
+ 
+-    @Override
++    //@Override
+     public void cancel() {
+-        super.cancel();
++        if (!started) return;
++        bossTask.cancel(null);
+         new HashSet<>(this.bossbars.keySet()).forEach(uuid -> {
+             Player player = Bukkit.getPlayer(uuid);
+             if (player != null) {
+@@ -46,6 +49,7 @@ public abstract class BossBarTask extends BukkitRunnable {
+             }
+         });
+         this.bossbars.clear();
++        started = false;
+     }
+ 
+     public boolean removePlayer(Player player) {
+@@ -79,7 +83,14 @@ public abstract class BossBarTask extends BukkitRunnable {
+ 
+     public void start() {
+         stop();
+-        this.runTaskTimerAsynchronously(new MinecraftInternalPlugin(), 1, 1);
++        bossTask = AnyThread.getCoroutine(() -> {
++            for (;;) {
++                try {Thread.sleep(Duration.ofMillis(50L));} catch (InterruptedException ignored) {}
++                this.run();
++            }
++        });
++        //Bukkit.getGlobalRegionScheduler().runAtFixedRate(new MinecraftInternalPlugin(), t -> this.run(), 1, 1);
++        //this.runTaskTimerAsynchronously(new MinecraftInternalPlugin(), 1, 1);
+         started = true;
+     }
+ 

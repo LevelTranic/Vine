@@ -6,13 +6,14 @@ Subject: [PATCH] AnyThread Utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/AnyThread.kt b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..aaa2d5b5ef240a63aeda2d52af9427640f7df3d8
+index 0000000000000000000000000000000000000000..c5aba943eb30dc3c0104c1bc480ee4fd1b13e211
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
-@@ -0,0 +1,99 @@
+@@ -0,0 +1,106 @@
 +package one.tranic.vine.util
 +
 +import kotlinx.coroutines.*
++import kotlinx.coroutines.Runnable
 +import net.minecraft.server.MinecraftServer
 +import one.tranic.vine.config.ConfigUtil
 +import java.lang.reflect.InaccessibleObjectException
@@ -107,6 +108,12 @@ index 0000000000000000000000000000000000000000..aaa2d5b5ef240a63aeda2d52af942764
 +    @JvmStatic
 +    fun getCoroutine(block: suspend CoroutineScope.() -> Unit): Job {
 +        return GlobalScope.launch(block = block)
++    }
++
++    @OptIn(DelicateCoroutinesApi::class)
++    @JvmStatic
++    fun getCoroutine(runnable: Runnable): Job {
++        return GlobalScope.launch { runnable.run() }
 +    }
 +}
 \ No newline at end of file
