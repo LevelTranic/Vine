@@ -5,8 +5,8 @@ plugins {
     `maven-publish`
     id("io.github.goooler.shadow") version "8.1.7"
     id("io.papermc.paperweight.patcher") version "1.7.1"
-    kotlin("jvm") version "2.0.0"
-    kotlin("plugin.serialization") version "2.0.0"
+    kotlin("jvm") version "2.0.20-RC2"
+    kotlin("plugin.serialization") version "2.0.20-RC2"
 }
 
 val paperMavenPublicUrl = "https://repo.papermc.io/repository/maven-public/"

@@ -5,15 +5,15 @@ Subject: [PATCH] Fix build and Rebrand
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..220eacd0b4b0e6e51e377e64b53142c1f86abe99 100644
+index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..41c7d811e8226e8497680edc5b76dc79da9cf62a 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -4,6 +4,9 @@ import java.time.Instant
  plugins {
      java
      `maven-publish`
-+    kotlin("jvm") version "2.0.0"
-+    kotlin("plugin.serialization") version "2.0.0"
++    kotlin("jvm") version "2.0.20-RC2"
++    kotlin("plugin.serialization") version "2.0.20-RC2"
 +
  }
  
@@ -43,8 +43,8 @@ index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..220eacd0b4b0e6e51e377e64b53142c1
 +
 +    // Vine start
 +    implementation(kotlin("reflect"))
-+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC")
-+    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.4.0")
++    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
++    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.5.2")
 +    implementation("org.jetbrains.kotlinx:atomicfu:0.24.0")
 +    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 +// Vine end

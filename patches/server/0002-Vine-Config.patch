@@ -127,10 +127,10 @@ index 0000000000000000000000000000000000000000..df01651da27e611d5764618827192d31
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..037769958e0a5c0e782abe6d276ee99b60c52a35
+index 0000000000000000000000000000000000000000..514cd74b0a2dc1ec27ebe208b4bcea7d3085e6fc
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,324 @@
+@@ -0,0 +1,329 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -216,22 +216,10 @@ index 0000000000000000000000000000000000000000..037769958e0a5c0e782abe6d276ee99b
 +        )
 +
 +        addDefault(
-+            "fix.incorrect-bounce-logic",
++            "fix.nether-portal",
 +            false,
-+            listOf(
-+                "Fixes some entities not bouncing on slime blocks and getting stuck",
-+                "Fixes: https://bugs.mojang.com/browse/MC-216985"
-+            )
++            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
 +        )
-+        addDefault(
-+            "fix.explosion-breaks-item-frame-in-water",
-+            false,
-+            listOf(
-+                "Fixes Explosions being able to destroy item frames in water",
-+                "Fixes: https://bugs.mojang.com/browse/MC-3697"
-+            )
-+        )
-+
 +        addDefault(
 +            "fix.anvil-drop.enabled",
 +            true,
@@ -245,28 +233,47 @@ index 0000000000000000000000000000000000000000..037769958e0a5c0e782abe6d276ee99b
 +            "Whether to print detailed information to the console when this issue is triggered"
 +        )
 +        addDefault(
-+            "fix.nether-portal",
++            "fix.explosion-breaks-item-frame-in-water",
 +            false,
-+            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
++            listOf(
++                "Fixes Explosions being able to destroy item frames in water",
++                "Fixes: https://bugs.mojang.com/browse/MC-3697"
++            )
++        )
++        addDefault(
++            "fix.incorrect-bounce-logic",
++            false,
++            listOf(
++                "Fixes some entities not bouncing on slime blocks and getting stuck",
++                "Fixes: https://bugs.mojang.com/browse/MC-216985"
++            )
 +        )
 +
 +        addDefault(
-+            "feature.dont-save-entity.primed-tnt", false, listOf(
-+                "Disable save primed tnt on chunk unloads.",
-+                "Useful for redstone server, can prevent machine be exploded by TNT,",
-+                "when player disconnected caused by Internet issue."
++            "feature.try-virtual-threads",
++            false,
++            listOf(
++                "Try virtual threads. Once enabled, all explicit platform threads will ",
++                "be replaced with virtual threads as much as possible, which may have ",
++                "some adverse consequences. Please enable it with caution."
 +            )
 +        )
-+        addDefault("feature.dont-save-entity.falling-block", false)
-+        addDefault("feature.zero-tick-plants", false)
 +        addDefault("feature.vanilla-hopper", false)
-+        addDefault("feature.disable-spark", true)
 +        addDefault(
 +            "feature.flatten-triangular-distribution",
 +            false,
 +            listOf(
 +                "Change all triangle distribution in Minecraft randomizers into uniform distribution",
 +                "With that edge cases are more likely to happen"
++            )
++        )
++        addDefault("feature.zero-tick-plants", false)
++        addDefault(
++            "feature.disable-respawn-ceiling",
++            false,
++            listOf(
++                "If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.",
++                "This is suitable for those servers with ceilings."
 +            )
 +        )
 +        addDefault(
@@ -278,17 +285,25 @@ index 0000000000000000000000000000000000000000..037769958e0a5c0e782abe6d276ee99b
 +                "cannot continue to load maps."
 +            )
 +        )
++        addDefault("feature.disable-spark", true)
 +        addDefault(
-+            "feature.try-virtual-threads",
-+            false,
-+            listOf(
-+                "Try virtual threads. Once enabled, all explicit platform threads will ",
-+                "be replaced with virtual threads as much as possible, which may have ",
-+                "some adverse consequences. Please enable it with caution."
++            "feature.dont-save-entity.primed-tnt", false, listOf(
++                "Disable save primed tnt on chunk unloads.",
++                "Useful for redstone server, can prevent machine be exploded by TNT,",
++                "when player disconnected caused by Internet issue."
 +            )
 +        )
-+        addDefault("feature.disable-respawn-ceiling", false)
++        addDefault("feature.dont-save-entity.falling-block", false)
 +
++        addDefault("optimize.floating-point-positive", false)
++        addDefault(
++            "optimize.skip-self-raid-check",
++            false,
++            listOf(
++                "Whether to skip some raid checks.",
++                "Enabling this will significantly reduce the server's performance."
++            )
++        )
 +        addDefault(
 +            "optimize.minecart.enabled", true,
 +            listOf(
@@ -299,14 +314,6 @@ index 0000000000000000000000000000000000000000..037769958e0a5c0e782abe6d276ee99b
 +        )
 +        addDefault("optimize.minecart.skipTickCount", 30)
 +
-+        addDefault(
-+            "optimize.raider-die-skip-self-raid-check",
-+            false,
-+            listOf(
-+                "Whether to skip some raid checks.",
-+                "Enabling this will significantly reduce the server's performance."
-+            )
-+        )
 +        addDefault(
 +            "optimize.mob-re-pathfinding",
 +            true,
@@ -324,19 +331,17 @@ index 0000000000000000000000000000000000000000..037769958e0a5c0e782abe6d276ee99b
 +        )
 +
 +        addDefault("optimize.noise-generation", true)
-+        addDefault("optimize.floating-point-positive", false)
 +
 +        configuration.options().copyDefaults(true)
 +        configuration.save(configFile)
 +    }
 +
 +    private fun loadConfigValue() {
-+        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
-+        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
-+
-+        Fix.anvilDrop = getBoolean("fix.anvil-drop.enabled")
-+        Fix.anvilDropLogger = getBoolean("fix.anvil-drop.debug")
 +        Fix.netherPortal = getBoolean("fix.nether-portal")
++        Fix.AnvilDrop.enabled = getBoolean("fix.anvil-drop.enabled")
++        Fix.AnvilDrop.debug = getBoolean("fix.anvil-drop.debug")
++        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
++        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
 +
 +        getBoolean("feature.try-virtual-threads") {
 +            if (isPlatform == null) {
@@ -372,7 +377,7 @@ index 0000000000000000000000000000000000000000..037769958e0a5c0e782abe6d276ee99b
 +        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
 +        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
 +
-+        Optimize.skipSelfRaidCheck = getBoolean("optimize.raider-die-skip-self-raid-check")
++        Optimize.skipSelfRaidCheck = getBoolean("optimize.skip-self-raid-check")
 +        Optimize.mobRePathfinding = getBoolean("optimize.mob-re-pathfinding")
 +        Optimize.TurtleEggSearch.enabled =
 +            getBoolean("optimize.zombie-search-and-destroy-turtle-egg.enabled")

@@ -1,0 +1,205 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 13 Aug 2024 10:11:40 +0800
+Subject: [PATCH] Vine Config
+
+
+diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..377193ec037a4f6f036cb640b6248a5e7133a34e
+--- /dev/null
++++ b/src/main/java/one/tranic/vine/config/VineConfig.java
+@@ -0,0 +1,154 @@
++package one.tranic.vine.config;
++
++import one.tranic.vine.config.anno.Anno;
++import one.tranic.vine.config.anno.ClassIE;
++
++public class VineConfig {
++    /**
++     * This is some fix
++     */
++    @ClassIE("fix")
++    public static class Fix {
++        /**
++         * Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.
++         */
++        @Anno(value = "nether-portal", desc = {"Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."})
++        public static boolean netherPortal = false;
++        /**
++         * Fixed the bug that the display frame in water was destroyed by TNT.
++         */
++        @Anno(value = "explosion-breaks-item-frame-in-water", desc = {"Fixes Explosions being able to destroy item frames in water",
++                "Fixes: https://bugs.mojang.com/browse/MC-3697"})
++        public static boolean explosionBreaksItemFrameInWater = false;
++        /**
++         * Fixes some entities not bouncing on slime blocks and getting stuck
++         */
++        @Anno(value = "incorrect-bounce-logic", desc = {"Fixes some entities not bouncing on slime blocks and getting stuck",
++                "Fixes: https://bugs.mojang.com/browse/MC-216985"})
++        public static boolean incorrectBounceLogic = false;
++
++        /**
++         * Fixed a bug in Paper where anvils could become drops at y=0 or y=-1.
++         * This may not be useful as the implementation is crude, you can install the fix plugin to fix it additionally if you can.
++         */
++        @ClassIE("anvil-drop")
++        public static class AnvilDrop {
++            @Anno(value = "enabled", desc = {"This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ", "it may cause some unexpected effects but should be harmless."})
++            public static boolean enabled = true;
++            @Anno(value = "debug", desc = {"Whether to print detailed information to the console when this issue is triggered"})
++            public static boolean debug = false;
++        }
++    }
++
++    @ClassIE("feature")
++    public static class Feature {
++        /**
++         * Try virtual threads. Once enabled, all explicit platform threads
++         * will be replaced with virtual threads as much as possible, which
++         * may have some adverse consequences. Please enable it with caution.
++         */
++        @Anno(value = "try-virtual-threads", desc = {"Try virtual threads. Once enabled, all explicit platform threads will ",
++                "be replaced with virtual threads as much as possible, which may have ",
++                "some adverse consequences. Please enable it with caution."}, lock = true)
++        public static boolean tryVirtualThreads = false;
++
++        @Anno("vanilla-hopper")
++        public static boolean vanillaHopper = false;
++
++        @Anno(value = "flatten-triangular-distribution", desc = {
++                "Change all triangle distribution in Minecraft randomizers into uniform distribution",
++                "With that edge cases are more likely to happen"})
++        public static boolean flattenTriangularDistribution = false;
++
++        /**
++         * zero tick plants is back now!
++         */
++        @Anno("zero-tick-plants")
++        public static boolean zeroTickPlants = false;
++
++        @Anno(value = "disable-respawn-ceiling", desc = {
++                "If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.",
++                "This is suitable for those servers with ceilings."})
++        public static boolean disableRespawnCeiling = false;
++
++        /**
++         * Switch to a 1024-bit secure seed to protect it from being cracked.
++         * Destroy the ambitions of those cheaters.
++         * Of course I haven't confirmed whether it's really possible XD
++         */
++        @Anno(value = "secure-seed", desc = {"Changes the seed from 64bit to 1024bit, this will strictly secure your seed,",
++                "making it almost impossible to crack.",
++                "Warning: You must delete existing maps to switch the state of the secure seed,",
++                "and do not modify it during hot loading, otherwise the server will crash and",
++                "cannot continue to load maps."}, lock = true)
++        public static boolean secureSeed = false;
++
++        /**
++         * This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.
++         */
++        @Anno(value = "disable-spark", lock = true)
++        public static boolean disableSpark = true;
++
++        /**
++         * This can prevent some devices that utilize vanilla abilities from being
++         * damaged when the server crashes or shuts down suddenly, but it is not a
++         * panacea, so take precautions.
++         */
++        @ClassIE("dont-save-entity")
++        public static class DSE {
++            /**
++             * Do not save tnt entities
++             */
++            @Anno(value = "primed-tnt", desc = {"Disable save primed tnt on chunk unloads.",
++                    "Useful for redstone server, can prevent machine be exploded by TNT,",
++                    "when player disconnected caused by Internet issue."})
++            public static boolean primedTNT = false;
++
++            /**
++             * Do not save falling blocks
++             */
++            @Anno("falling-block")
++            public static boolean fallingBlock = false;
++        }
++    }
++
++    @ClassIE("optimize")
++    public static class Optimize {
++        @Anno("floating-point-positive")
++        public static boolean floatingPointPositive = false;
++
++        @Anno("skip-self-raid-check")
++        public static boolean skipSelfRaidCheck = false;
++
++        /**
++         * As the name suggests, it can slightly improve world generation performance, maybe.
++         */
++        @Anno("noise-generation")
++        public static boolean noiseGeneration = true;
++        /**
++         * Entity re-pathing optimization
++         * If the entity has already determined the path, it will not search the path as frequently.
++         */
++        @Anno(value = "mob-re-pathfinding")
++        public static boolean mobRePathfinding = true;
++
++        /**
++         * Optimize stacked minecarts
++         */
++        @ClassIE("minecart")
++        public static class Minecart {
++            @Anno("enabled")
++            public static boolean enabled = true;
++            @Anno("skip-tick-count")
++            public static int skipTickCount = 30;
++        }
++
++        @ClassIE("turtle-egg-search")
++        public static class TurtleEggSearch {
++            @Anno(value = "enabled")
++            public static boolean enabled = false;
++            @Anno(value = "percent-chance")
++            public static int percentChance = 40;
++        }
++    }
++}
+diff --git a/src/main/java/one/tranic/vine/config/anno/Anno.java b/src/main/java/one/tranic/vine/config/anno/Anno.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..3a657a2b5bca079ed9681631529946c939a7031b
+--- /dev/null
++++ b/src/main/java/one/tranic/vine/config/anno/Anno.java
+@@ -0,0 +1,14 @@
++package one.tranic.vine.config.anno;
++
++import java.lang.annotation.ElementType;
++import java.lang.annotation.Retention;
++import java.lang.annotation.RetentionPolicy;
++import java.lang.annotation.Target;
++
++@Target(ElementType.FIELD)
++@Retention(RetentionPolicy.RUNTIME)
++public @interface Anno {
++    String value();
++    String[] desc() default {};
++    boolean lock() default false;
++}
+\ No newline at end of file
+diff --git a/src/main/java/one/tranic/vine/config/anno/ClassIE.java b/src/main/java/one/tranic/vine/config/anno/ClassIE.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..96a740fbbf20b389caed5afc99997bcdb5073dd5
+--- /dev/null
++++ b/src/main/java/one/tranic/vine/config/anno/ClassIE.java
+@@ -0,0 +1,12 @@
++package one.tranic.vine.config.anno;
++
++import java.lang.annotation.ElementType;
++import java.lang.annotation.Retention;
++import java.lang.annotation.RetentionPolicy;
++import java.lang.annotation.Target;
++
++@Target(ElementType.TYPE)
++@Retention(RetentionPolicy.RUNTIME)
++public @interface ClassIE {
++    String value();
++}
