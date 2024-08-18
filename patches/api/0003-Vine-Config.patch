@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..12821dbb71851c060bf5469c3898d931364642e8
+index 0000000000000000000000000000000000000000..0024ce3221a246feae3d0f31c4f60825781e6950
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,84 @@
+@@ -0,0 +1,86 @@
 +package one.tranic.vine.config;
 +
 +public class VineConfig {
@@ -44,6 +44,8 @@ index 0000000000000000000000000000000000000000..12821dbb71851c060bf5469c3898d931
 +
 +        /**zero tick plants is back now!*/
 +        public static boolean zeroTickPlants = false;
++
++        public static boolean disableRespawnCeiling = false;
 +
 +        /**
 +         * Switch to a 1024-bit secure seed to protect it from being cracked.

@@ -127,10 +127,10 @@ index 0000000000000000000000000000000000000000..df01651da27e611d5764618827192d31
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..527a181d5b8377f8f4dd131007dc06f7a68642c8
+index 0000000000000000000000000000000000000000..037769958e0a5c0e782abe6d276ee99b60c52a35
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,322 @@
+@@ -0,0 +1,324 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
@@ -287,6 +287,7 @@ index 0000000000000000000000000000000000000000..527a181d5b8377f8f4dd131007dc06f7
 +                "some adverse consequences. Please enable it with caution."
 +            )
 +        )
++        addDefault("feature.disable-respawn-ceiling", false)
 +
 +        addDefault(
 +            "optimize.minecart.enabled", true,
@@ -356,6 +357,7 @@ index 0000000000000000000000000000000000000000..527a181d5b8377f8f4dd131007dc06f7
 +        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
 +        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
 +        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
++        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
 +
 +        getBoolean("feature.secure-seed") {
 +            if (isSecureSeed == null) {
