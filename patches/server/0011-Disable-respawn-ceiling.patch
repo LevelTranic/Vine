@@ -8,10 +8,10 @@ This feature is not yet complete, but no major bugs have been found.
 Note that you should set spawnRadius to at least 1, not 0, and the spawn point range should be at least 3*3 (or more)
 
 diff --git a/src/main/java/net/minecraft/server/level/PlayerRespawnLogic.java b/src/main/java/net/minecraft/server/level/PlayerRespawnLogic.java
-index e1ee330b6fdd43114a1330677b1597bf437c1ed5..7ace2d6a5b3696a3ff233593cb4e3f80d2f990da 100644
+index e1ee330b6fdd43114a1330677b1597bf437c1ed5..1d6394f645cd1d47a9128de2859f8c241ab3f3fc 100644
 --- a/src/main/java/net/minecraft/server/level/PlayerRespawnLogic.java
 +++ b/src/main/java/net/minecraft/server/level/PlayerRespawnLogic.java
-@@ -11,20 +11,29 @@ import net.minecraft.world.level.block.state.BlockState;
+@@ -11,20 +11,23 @@ import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.level.chunk.LevelChunk;
  import net.minecraft.world.level.levelgen.Heightmap;
  import io.multipaper.shreddedpaper.region.RegionPos;
@@ -24,20 +24,15 @@ index e1ee330b6fdd43114a1330677b1597bf437c1ed5..7ace2d6a5b3696a3ff233593cb4e3f80
          LevelChunk levelChunk = world.getChunk(SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
 -        int i = bl ? world.getChunkSource().getGenerator().getSpawnHeight(world) : levelChunk.getHeight(Heightmap.Types.MOTION_BLOCKING, x & 15, z & 15);
 -        if (i < world.getMinBuildHeight()) {
+-            return null;
 +        // Vine start - disableRespawnCeiling
 +        int i ;
 +        if (bl) {
 +            i = world.getChunkSource().getGenerator().getSpawnHeight(world);
-+        } else {
-+            if (one.tranic.vine.config.VineConfig.Feature.disableRespawnCeiling) {
-+                i = world.levelData.getSpawnPos().getY();
-+            } else {
-+                i = levelChunk.getHeight(Heightmap.Types.MOTION_BLOCKING, x & 15, z & 15);
-+            }
+         } else {
++            i = one.tranic.vine.config.VineConfig.Feature.disableRespawnCeiling ? world.levelData.getSpawnPos().getY():levelChunk.getHeight(Heightmap.Types.MOTION_BLOCKING, x & 15, z & 15);
 +        }
 +        if (i >= world.getMinBuildHeight()) {
-             return null;
-         } else {
              int j = levelChunk.getHeight(Heightmap.Types.WORLD_SURFACE, x & 15, z & 15);
 -            if (j <= i && j > levelChunk.getHeight(Heightmap.Types.OCEAN_FLOOR, x & 15, z & 15)) {
 -                return null;
@@ -46,7 +41,7 @@ index e1ee330b6fdd43114a1330677b1597bf437c1ed5..7ace2d6a5b3696a3ff233593cb4e3f80
                  BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
  
                  for (int k = i + 1; k >= world.getMinBuildHeight(); k--) {
-@@ -42,6 +51,8 @@ public class PlayerRespawnLogic {
+@@ -42,6 +45,8 @@ public class PlayerRespawnLogic {
                  return null;
              }
          }
@@ -55,3 +50,27 @@ index e1ee330b6fdd43114a1330677b1597bf437c1ed5..7ace2d6a5b3696a3ff233593cb4e3f80
      }
  
      @Nullable
+@@ -50,16 +55,16 @@ public class PlayerRespawnLogic {
+             return null;
+         } else {
+             return world.chunkScheduler.getRegionLocker().lockRegion(RegionPos.forChunk(chunkPos), () -> { // ShreddedPaper - lock region
+-            for (int i = chunkPos.getMinBlockX(); i <= chunkPos.getMaxBlockX(); i++) {
+-                for (int j = chunkPos.getMinBlockZ(); j <= chunkPos.getMaxBlockZ(); j++) {
+-                    BlockPos blockPos = getOverworldRespawnPos(world, i, j);
+-                    if (blockPos != null) {
+-                        return blockPos;
++                for (int i = chunkPos.getMinBlockX(); i <= chunkPos.getMaxBlockX(); i++) {
++                    for (int j = chunkPos.getMinBlockZ(); j <= chunkPos.getMaxBlockZ(); j++) {
++                        BlockPos blockPos = getOverworldRespawnPos(world, i, j);
++                        if (blockPos != null) {
++                            return blockPos;
++                        }
+                     }
+                 }
+-            }
+ 
+-            return null;
++                return null;
+             }); // ShreddedPaper
+         }
+     }
