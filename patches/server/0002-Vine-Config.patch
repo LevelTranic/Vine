@@ -81,7 +81,7 @@ index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..df01651da27e611d5764618827192d3148ea4b79
+index 0000000000000000000000000000000000000000..819da2962087ce70c6b9b4ec758937ef1b27e34d
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
 @@ -0,0 +1,39 @@
@@ -96,8 +96,8 @@ index 0000000000000000000000000000000000000000..df01651da27e611d5764618827192d31
 +class VineCfgCommand : Command("vinecfg") {
 +    init {
 +        this.permission = "vine.commands.cfg"
-+        this.setDescription("Manage config file")
-+        this.setUsage("/vinecfg")
++        this.description = "Manage config file"
++        this.usage = "/vinecfg"
 +    }
 +
 +    override fun execute(sender: CommandSender, commandLabel: String, args: Array<String>): Boolean {
@@ -125,53 +125,41 @@ index 0000000000000000000000000000000000000000..df01651da27e611d5764618827192d31
 +    }
 +}
 \ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt b/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..67b571d421779c699aebf7312a2c2de45ef031e0
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt
+@@ -0,0 +1,6 @@
++package one.tranic.vine.config
++
++interface ConfigImpl {
++    fun default()
++    fun load()
++}
+\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..514cd74b0a2dc1ec27ebe208b4bcea7d3085e6fc
+index 0000000000000000000000000000000000000000..a93b7d97e7fd40f10d432831d6087a6336bed210
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,329 @@
+@@ -0,0 +1,145 @@
 +package one.tranic.vine.config
 +
 +import net.minecraft.server.MinecraftServer
 +import org.bukkit.Bukkit
-+//import org.bukkit.configuration.ConfigurationSection
-+//import org.bukkit.configuration.MemoryConfiguration
 +import org.bukkit.configuration.file.YamlConfiguration
 +import java.io.File
 +
 +import one.tranic.vine.commands.*
-+import one.tranic.vine.config.VineConfig.*
 +
 +object ConfigUtil {
-+    val logger: org.slf4j.Logger = MinecraftServer.LOGGER
 +    private lateinit var configuration: YamlConfiguration
-+    private var isSecureSeed: Boolean? = null
-+    var isPlatform: Boolean? = null
 +
 +    @JvmStatic
 +    fun setCommand() {
 +        Bukkit.getCommandMap().register("vinecfg", "vine", VineCfgCommand())
 +    }
-+
-+    /*@JvmStatic
-+    fun getConfigCopy(): ConfigurationSection {
-+        return convertToBukkit(configuration.parent)
-+    }
-+
-+    private fun convertToBukkit(section: ConfigurationSection?): ConfigurationSection {
-+        val newSection: ConfigurationSection = MemoryConfiguration()
-+        if (section != null) {
-+            for (key in section.getKeys(false)) {
-+                if (section.isConfigurationSection(key)) {
-+                    newSection[key] = convertToBukkit(section.getConfigurationSection(key))
-+                } else {
-+                    newSection[key] = section[key]
-+                }
-+            }
-+        }
-+        return newSection
-+    }*/
 +
 +    /**
 +     * Load the configuration file.
@@ -215,40 +203,168 @@ index 0000000000000000000000000000000000000000..514cd74b0a2dc1ec27ebe208b4bcea7d
 +            )
 +        )
 +
-+        addDefault(
-+            "fix.nether-portal",
-+            false,
-+            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
-+        )
-+        addDefault(
-+            "fix.anvil-drop.enabled",
-+            true,
-+            listOf(
-+                "This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ",
-+                "it may cause some unexpected effects but should be harmless."
-+            )
-+        )
-+        addDefault(
-+            "fix.anvil-drop.debug", false,
-+            "Whether to print detailed information to the console when this issue is triggered"
-+        )
-+        addDefault(
-+            "fix.explosion-breaks-item-frame-in-water",
-+            false,
-+            listOf(
-+                "Fixes Explosions being able to destroy item frames in water",
-+                "Fixes: https://bugs.mojang.com/browse/MC-3697"
-+            )
-+        )
-+        addDefault(
-+            "fix.incorrect-bounce-logic",
-+            false,
-+            listOf(
-+                "Fixes some entities not bouncing on slime blocks and getting stuck",
-+                "Fixes: https://bugs.mojang.com/browse/MC-216985"
-+            )
-+        )
++        one.tranic.vine.config.module.Fix.default()
++        one.tranic.vine.config.module.Feature.default()
++        one.tranic.vine.config.module.Optimize.default()
 +
++        configuration.options().copyDefaults(true)
++        configuration.save(configFile)
++    }
++
++    private fun loadConfigValue() {
++        one.tranic.vine.config.module.Fix.load()
++        one.tranic.vine.config.module.Feature.load()
++        one.tranic.vine.config.module.Optimize.load()
++    }
++
++    // Vine start - Configuration file tools
++    fun addDefault(path: String, value: Any) {
++        configuration.addDefault(path, value)
++    }
++
++    fun addDefault(path: String, value: Any, comment: String) {
++        configuration.addDefault(path, value)
++        configuration.setComments(path, listOf(comment))
++    }
++
++    fun addComment(path: String, comment: String) {
++        configuration.setComments(path, listOf(comment))
++    }
++
++    fun addComment(path: String, comment: List<String>) {
++        configuration.setComments(path, comment)
++    }
++
++    fun addDefault(path: String, value: Any, comment: List<String>) {
++        configuration.addDefault(path, value)
++        configuration.setComments(path, comment)
++    }
++
++    fun getBoolean(path: String): Boolean {
++        return configuration.getBoolean(path)
++    }
++
++    fun getBoolean(path: String, function: (it: Boolean) -> Unit) {
++        function(getBoolean(path))
++    }
++
++    fun getDouble(path: String): Double {
++        return configuration.getDouble(path)
++    }
++
++    fun getDouble(path: String, function: (it: Double) -> Unit) {
++        function(getDouble(path))
++    }
++
++    fun getInt(path: String): Int {
++        return configuration.getInt(path)
++    }
++
++    fun getInt(path: String, function: (it: Int) -> Unit) {
++        function(getInt(path))
++    }
++
++    fun getString(path: String): String? {
++        return configuration.getString(path)
++    }
++
++    fun getString(path: String, function: (it: String?) -> Unit) {
++        function(getString(path))
++    }
++
++    fun getList(path: String): MutableList<*>? {
++        return configuration.getList(path)
++    }
++
++    fun getStringList(path: String): MutableList<String> {
++        return configuration.getStringList(path)
++    }
++
++    fun getStringList(path: String, function: (it: MutableList<String>) -> Unit) {
++        function(getStringList(path))
++    }
++
++    fun getMapList(path: String): MutableList<MutableMap<*, *>> {
++        return configuration.getMapList(path)
++    }
++    // Vine end - Configuration file tools
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/VineLogger.kt b/src/main/kotlin/one/tranic/vine/config/VineLogger.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..58ad9bdcba665b54bcde3ad05a01127ab62c6838
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/VineLogger.kt
+@@ -0,0 +1,49 @@
++package one.tranic.vine.config
++
++import net.minecraft.server.MinecraftServer
++
++object VineLogger {
++    private val logger: org.slf4j.Logger = MinecraftServer.LOGGER
++
++    fun info(msg: String) {
++        logger.info(msg)
++    }
++
++    fun info(msg: String, vararg args: Any) {
++        logger.info(msg, args)
++    }
++
++    fun info(msg: List<String>) {
++        for (str in msg) {
++            logger.info(str)
++        }
++    }
++
++    fun warn(msg: String) {
++        logger.warn(msg)
++    }
++
++    fun warn(msg: String, vararg args: Any) {
++        logger.warn(msg, args)
++    }
++
++    fun warn(msg: List<String>) {
++        for (str in msg) {
++            logger.warn(str)
++        }
++    }
++
++    fun error(msg: String) {
++        logger.error(msg)
++    }
++
++    fun error(msg: String, vararg args: Any) {
++        logger.error(msg, args)
++    }
++
++    fun error(msg: List<String>) {
++        for (str in msg) {
++            logger.error(str)
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/Feature.kt b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d30697b3a97a944191934f6adb88be69657e709
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
+@@ -0,0 +1,97 @@
++package one.tranic.vine.config.module
++
++import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.VineLogger
++
++object Feature : ConfigImpl {
++    var isPlatform: Boolean? = null
++    private var isSecureSeed: Boolean? = null
++
++    override fun default() {
 +        addDefault(
 +            "feature.try-virtual-threads",
 +            false,
@@ -294,7 +410,122 @@ index 0000000000000000000000000000000000000000..514cd74b0a2dc1ec27ebe208b4bcea7d
 +            )
 +        )
 +        addDefault("feature.dont-save-entity.falling-block", false)
++    }
 +
++    override fun load() {
++        getBoolean("feature.try-virtual-threads") {
++            if (isPlatform == null) {
++                if (it) {
++                    VineLogger.warn(
++                        listOf(
++                            "Virtual threads are enabled.",
++                            "Vine will try to replace all explicit platform threads with virtual threads, which may have some undesirable consequences. Do not use it in production if you are not sure it will be stable.",
++                            "The ShreddedPaper thread will continue to use the platform thread."
++                        )
++                    )
++                }
++                Feature.tryVirtualThreads = it
++                isPlatform = !it
++            } else if (it == isPlatform) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
++            }
++        }
++        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
++        Feature.disableSpark = getBoolean("feature.disable-spark")
++        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
++        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
++        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
++        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
++        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
++        getBoolean("feature.secure-seed") {
++            if (isSecureSeed == null) {
++                Feature.secureSeed = it
++                isSecureSeed = it
++                if (it) VineLogger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
++            } else if (isSecureSeed != it) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
++            }
++        }
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/Fix.kt b/src/main/kotlin/one/tranic/vine/config/module/Fix.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..afdf8f0c98d9b42f3cce19d3387c716af2e2f173
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/Fix.kt
+@@ -0,0 +1,53 @@
++package one.tranic.vine.config.module
++
++import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.VineConfig.Fix
++
++object Fix: ConfigImpl {
++    override fun default() {
++        addDefault(
++            "fix.nether-portal",
++            false,
++            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
++        )
++        addDefault(
++            "fix.anvil-drop.enabled",
++            true,
++            listOf(
++                "This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ",
++                "it may cause some unexpected effects but should be harmless."
++            )
++        )
++        addDefault(
++            "fix.anvil-drop.debug", false,
++            "Whether to print detailed information to the console when this issue is triggered"
++        )
++        addDefault(
++            "fix.explosion-breaks-item-frame-in-water",
++            false,
++            listOf(
++                "Fixes Explosions being able to destroy item frames in water",
++                "Fixes: https://bugs.mojang.com/browse/MC-3697"
++            )
++        )
++        addDefault(
++            "fix.incorrect-bounce-logic",
++            false,
++            listOf(
++                "Fixes some entities not bouncing on slime blocks and getting stuck",
++                "Fixes: https://bugs.mojang.com/browse/MC-216985"
++            )
++        )
++    }
++
++    override fun load() {
++        Fix.netherPortal = getBoolean("fix.nether-portal")
++        Fix.AnvilDrop.enabled = getBoolean("fix.anvil-drop.enabled")
++        Fix.AnvilDrop.debug = getBoolean("fix.anvil-drop.debug")
++        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
++        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt b/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..98160f1489e7f38ebf8fbc5c5336a297acab832c
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt
+@@ -0,0 +1,64 @@
++package one.tranic.vine.config.module
++
++import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.ConfigUtil.getInt
++import one.tranic.vine.config.VineConfig.Optimize
++
++object Optimize: ConfigImpl {
++    override fun default() {
 +        addDefault("optimize.floating-point-positive", false)
 +        addDefault(
 +            "optimize.skip-self-raid-check",
@@ -331,49 +562,9 @@ index 0000000000000000000000000000000000000000..514cd74b0a2dc1ec27ebe208b4bcea7d
 +        )
 +
 +        addDefault("optimize.noise-generation", true)
-+
-+        configuration.options().copyDefaults(true)
-+        configuration.save(configFile)
 +    }
 +
-+    private fun loadConfigValue() {
-+        Fix.netherPortal = getBoolean("fix.nether-portal")
-+        Fix.AnvilDrop.enabled = getBoolean("fix.anvil-drop.enabled")
-+        Fix.AnvilDrop.debug = getBoolean("fix.anvil-drop.debug")
-+        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
-+        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
-+
-+        getBoolean("feature.try-virtual-threads") {
-+            if (isPlatform == null) {
-+                if (it) {
-+                    logger.warn("Virtual threads are enabled.")
-+                    logger.warn("Vine will try to replace all explicit platform threads with virtual threads, which may have some undesirable consequences. Do not use it in production if you are not sure it will be stable.")
-+                    logger.warn("The ShreddedPaper thread will continue to use the platform thread.")
-+                }
-+                Feature.tryVirtualThreads = it
-+                isPlatform = !it
-+            } else if (it == isPlatform) {
-+                logger.error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
-+            }
-+        }
-+        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
-+        Feature.disableSpark = getBoolean("feature.disable-spark")
-+        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
-+        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
-+        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
-+        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
-+        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
-+
-+        getBoolean("feature.secure-seed") {
-+            if (isSecureSeed == null) {
-+                Feature.secureSeed = it
-+                isSecureSeed = it
-+                if (it) logger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
-+            } else if (isSecureSeed != it) {
-+                logger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
-+            }
-+        }
-+
++    override fun load() {
 +        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
 +        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
 +
@@ -388,76 +579,5 @@ index 0000000000000000000000000000000000000000..514cd74b0a2dc1ec27ebe208b4bcea7d
 +        Optimize.floatingPointPositive = getBoolean("optimize.floating-point-positive")
 +    }
 +
-+    // Vine start - Configuration file tools
-+    private fun addDefault(path: String, value: Any) {
-+        configuration.addDefault(path, value)
-+    }
-+
-+    private fun addDefault(path: String, value: Any, comment: String) {
-+        configuration.addDefault(path, value)
-+        configuration.setComments(path, listOf(comment))
-+    }
-+
-+    private fun addComment(path: String, comment: String) {
-+        configuration.setComments(path, listOf(comment))
-+    }
-+
-+    private fun addComment(path: String, comment: List<String>) {
-+        configuration.setComments(path, comment)
-+    }
-+
-+    private fun addDefault(path: String, value: Any, comment: List<String>) {
-+        configuration.addDefault(path, value)
-+        configuration.setComments(path, comment)
-+    }
-+
-+    private fun getBoolean(path: String): Boolean {
-+        return configuration.getBoolean(path)
-+    }
-+
-+    private fun getBoolean(path: String, function: (it: Boolean) -> Unit) {
-+        function(getBoolean(path))
-+    }
-+
-+    private fun getDouble(path: String): Double {
-+        return configuration.getDouble(path)
-+    }
-+
-+    private fun getDouble(path: String, function: (it: Double) -> Unit) {
-+        function(getDouble(path))
-+    }
-+
-+    private fun getInt(path: String): Int {
-+        return configuration.getInt(path)
-+    }
-+
-+    private fun getInt(path: String, function: (it: Int) -> Unit) {
-+        function(getInt(path))
-+    }
-+
-+    private fun getString(path: String): String? {
-+        return configuration.getString(path)
-+    }
-+
-+    private fun getString(path: String, function: (it: String?) -> Unit) {
-+        function(getString(path))
-+    }
-+
-+    private fun getList(path: String): MutableList<*>? {
-+        return configuration.getList(path)
-+    }
-+
-+    private fun getStringList(path: String): MutableList<String> {
-+        return configuration.getStringList(path)
-+    }
-+
-+    private fun getStringList(path: String, function: (it: MutableList<String>) -> Unit) {
-+        function(getStringList(path))
-+    }
-+
-+    private fun getMapList(path: String): MutableList<MutableMap<*, *>> {
-+        return configuration.getMapList(path)
-+    }
-+    // Vine end - Configuration file tools
 +}
 \ No newline at end of file
