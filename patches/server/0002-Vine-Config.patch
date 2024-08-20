@@ -348,15 +348,16 @@ index 0000000000000000000000000000000000000000..58ad9bdcba665b54bcde3ad05a01127a
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Feature.kt b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..1d30697b3a97a944191934f6adb88be69657e709
+index 0000000000000000000000000000000000000000..182c0d942956b287a648db1329887bd3ccaa92c4
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
-@@ -0,0 +1,97 @@
+@@ -0,0 +1,113 @@
 +package one.tranic.vine.config.module
 +
 +import one.tranic.vine.config.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.ConfigUtil.getInt
 +import one.tranic.vine.config.VineConfig.Feature
 +import one.tranic.vine.config.VineLogger
 +
@@ -402,6 +403,7 @@ index 0000000000000000000000000000000000000000..1d30697b3a97a944191934f6adb88be6
 +            )
 +        )
 +        addDefault("feature.disable-spark", true)
++
 +        addDefault(
 +            "feature.dont-save-entity.primed-tnt", false, listOf(
 +                "Disable save primed tnt on chunk unloads.",
@@ -410,6 +412,16 @@ index 0000000000000000000000000000000000000000..1d30697b3a97a944191934f6adb88be6
 +            )
 +        )
 +        addDefault("feature.dont-save-entity.falling-block", false)
++
++        addDefault(
++            "feature.cache-player-profile-result.enabled",
++            true,
++            listOf(
++                "Cache the player profile result on they first join.",
++                "It's useful if Mojang's verification server is down."
++            )
++        )
++        addDefault("feature.cache-player-profile-result.timeout", 1440, "The timeout of the cache. Unit: Minutes.")
 +    }
 +
 +    override fun load() {
@@ -430,12 +442,9 @@ index 0000000000000000000000000000000000000000..1d30697b3a97a944191934f6adb88be6
 +                VineLogger.error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
 +            }
 +        }
-+        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
-+        Feature.disableSpark = getBoolean("feature.disable-spark")
-+        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
-+        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
-+        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
 +        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
++        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
++        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
 +        getBoolean("feature.secure-seed") {
 +            if (isSecureSeed == null) {
@@ -446,6 +455,13 @@ index 0000000000000000000000000000000000000000..1d30697b3a97a944191934f6adb88be6
 +                VineLogger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
 +            }
 +        }
++        Feature.disableSpark = getBoolean("feature.disable-spark")
++
++        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
++        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
++
++        Feature.cachePlayerProfileResult.enabled = getBoolean("feature.cache-player-profile-result.enabled")
++        Feature.cachePlayerProfileResult.timeout = getInt("feature.cache-player-profile-result.timeout")
 +    }
 +
 +}

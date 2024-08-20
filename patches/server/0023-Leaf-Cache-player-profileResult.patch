@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 20 Aug 2024 18:55:45 +0800
+Subject: [PATCH] Leaf: Cache player profileResult
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 124dd83b65ed62c851981065745d8762e952beee..fe30fb283212e9e6a21887f46ca007377d18a62c 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -85,6 +85,7 @@ dependencies {
+     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+ // Vine end
+ 
++    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8") // Leaf - Cache player profileResult
+ }
+ 
+ paperweight {
+diff --git a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+index 3b4fadb37eafb2f7b0ce4d6b276d2fdaa8287521..dbfdd07818238629cbe2ea0072183457d0fb46df 100644
+--- a/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerLoginPacketListenerImpl.java
+@@ -85,6 +85,11 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+     private ServerPlayer player; // CraftBukkit
+     public boolean iKnowThisMayNotBeTheBestIdeaButPleaseDisableUsernameValidation = false; // Paper - username validation overriding
+     private int velocityLoginMessageId = -1; // Paper - Add Velocity IP Forwarding Support
++    // Leaf start - Cache player profileResult
++    private final com.github.benmanes.caffeine.cache.Cache<String, ProfileResult> playerProfileResultCahce = com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
++            .expireAfterWrite(one.tranic.vine.config.VineConfig.Feature.cachePlayerProfileResult.timeout, java.util.concurrent.TimeUnit.MINUTES)
++            .build();
++    // Leaf end
+ 
+     public ServerLoginPacketListenerImpl(MinecraftServer server, Connection connection, boolean transferred) {
+         this.state = ServerLoginPacketListenerImpl.State.HELLO;
+@@ -298,7 +303,18 @@ public class ServerLoginPacketListenerImpl implements ServerLoginPacketListener,
+                 String s1 = (String) Objects.requireNonNull(ServerLoginPacketListenerImpl.this.requestedUsername, "Player name not initialized");
+ 
+                 try {
+-                    ProfileResult profileresult = ServerLoginPacketListenerImpl.this.server.getSessionService().hasJoinedServer(s1, s, this.getAddress());
++                    // Leaf start - Cache player profileResult
++                    ProfileResult profileresult;
++                    if (one.tranic.vine.config.VineConfig.Feature.cachePlayerProfileResult.enabled) {
++                        profileresult = playerProfileResultCahce.getIfPresent(s1);
++                        if (profileresult == null) {
++                            profileresult = ServerLoginPacketListenerImpl.this.server.getSessionService().hasJoinedServer(s1, s, this.getAddress());
++                            playerProfileResultCahce.put(s1, profileresult);
++                        }
++                    } else {
++                        profileresult = ServerLoginPacketListenerImpl.this.server.getSessionService().hasJoinedServer(s1, s, this.getAddress());
++                    }
++                    // Leaf end
+ 
+                     if (profileresult != null) {
+                         GameProfile gameprofile = profileresult.profile();
