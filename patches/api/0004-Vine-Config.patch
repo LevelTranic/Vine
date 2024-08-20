@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..aac4638c6df6ffc9ef4a37a5299925195b20a6ff
+index 0000000000000000000000000000000000000000..061d41d9a529aeed0beda1c0d47861c53caa4905
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,108 @@
+@@ -0,0 +1,110 @@
 +package one.tranic.vine.config;
 +
 +public class VineConfig {
@@ -87,6 +87,8 @@ index 0000000000000000000000000000000000000000..aac4638c6df6ffc9ef4a37a529992519
 +             */
 +            public static boolean fallingBlock = false;
 +        }
++
++        public static boolean cachePlayerProfileResult = true;
 +    }
 +
 +    public static class Optimize {

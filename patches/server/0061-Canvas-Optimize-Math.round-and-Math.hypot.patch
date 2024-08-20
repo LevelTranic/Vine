@@ -105,6 +105,20 @@ index c3e54da4ab6440811aab2f9dd1e218802ac13285..2372727c193f5ed44a9975f0d40dd795
                  used, getTime(m.x)));
          }
      }
+diff --git a/src/main/java/gg/pufferfish/pufferfish/flare/collectors/TPSCollector.java b/src/main/java/gg/pufferfish/pufferfish/flare/collectors/TPSCollector.java
+index 40447d00aefb5ffedb8a2ee87155a04088f0649f..31cc0a29e89e79f616b3ee329a5528961edaa2de 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/flare/collectors/TPSCollector.java
++++ b/src/main/java/gg/pufferfish/pufferfish/flare/collectors/TPSCollector.java
+@@ -25,7 +25,7 @@ public class TPSCollector extends LiveCollector {
+         long[] times = MinecraftServer.getServer().tickTimes5s.getTimes();
+         double mspt = ((double) Arrays.stream(times).sum() / (double) times.length) * 1.0E-6D;
+ 
+-        this.report(TPS, Math.min(20D, Math.round(Bukkit.getServer().getTPS()[0] * 100d) / 100d));
+-        this.report(MSPT, (double) Math.round(mspt * 100d) / 100d);
++        this.report(TPS, Math.min(20D, carpetfixes.helpers.FastMath.round(Bukkit.getServer().getTPS()[0] * 100d) / 100d));
++        this.report(MSPT, (double) carpetfixes.helpers.FastMath.round(mspt * 100d) / 100d);
+     }
+ }
 diff --git a/src/main/java/io/papermc/paper/command/subcommands/FixLightCommand.java b/src/main/java/io/papermc/paper/command/subcommands/FixLightCommand.java
 index 56524cbe4303901007e1e7fb3703a19efbf79ae7..4c1e61e1ded787bbe61e7574b79df3ead2ca0093 100644
 --- a/src/main/java/io/papermc/paper/command/subcommands/FixLightCommand.java
@@ -258,6 +272,19 @@ index 0fac5e30419d65ceba348a1f7bf253766b548d9c..7d25160c3eaf7c60d1f186aedc66e67b
          return Math.sqrt(lengthSquared(a, b));
      }
  
+diff --git a/src/main/java/net/minecraft/util/SegmentedAnglePrecision.java b/src/main/java/net/minecraft/util/SegmentedAnglePrecision.java
+index 52151082b031f250b13bfaa35417e1d934a54f60..5d31a8f143ba13624e81013e15e07b16e0aa1840 100644
+--- a/src/main/java/net/minecraft/util/SegmentedAnglePrecision.java
++++ b/src/main/java/net/minecraft/util/SegmentedAnglePrecision.java
+@@ -37,7 +37,7 @@ public class SegmentedAnglePrecision {
+     }
+ 
+     public int fromDegreesWithTurns(float degrees) {
+-        return Math.round(degrees * this.degreeToAngle);
++        return carpetfixes.helpers.FastMath.round(degrees * this.degreeToAngle);
+     }
+ 
+     public int fromDegrees(float degrees) {
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 index 4dbabb514e57f3e1b94902ed9b4969ceac1b0517..eb30577154677fb42c0b4c116064e455abd4e16f 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
@@ -349,6 +376,36 @@ index 4dbabb514e57f3e1b94902ed9b4969ceac1b0517..eb30577154677fb42c0b4c116064e455
          // Paper end
  
          //this.level().getProfiler().pop(); // Purpur
+diff --git a/src/main/java/net/minecraft/world/entity/monster/breeze/LongJump.java b/src/main/java/net/minecraft/world/entity/monster/breeze/LongJump.java
+index 3b58c34a380d336cbbd5870c362f27fb169459b6..1f929ae297741ca7b31627f3b96c46f3e649ba9e 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/breeze/LongJump.java
++++ b/src/main/java/net/minecraft/world/entity/monster/breeze/LongJump.java
+@@ -32,7 +32,7 @@ public class LongJump extends Behavior<Breeze> {
+     private static final int REQUIRED_AIR_BLOCKS_ABOVE = 4;
+     private static final int JUMP_COOLDOWN_TICKS = 10;
+     private static final int JUMP_COOLDOWN_WHEN_HURT_TICKS = 2;
+-    private static final int INHALING_DURATION_TICKS = Math.round(10.0F);
++    private static final int INHALING_DURATION_TICKS = carpetfixes.helpers.FastMath.round(10.0F);
+     private static final float MAX_JUMP_VELOCITY = 1.4F;
+     private static final ObjectArrayList<Integer> ALLOWED_ANGLES = new ObjectArrayList<>(Lists.newArrayList(40, 55, 60, 75, 80));
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/monster/breeze/Shoot.java b/src/main/java/net/minecraft/world/entity/monster/breeze/Shoot.java
+index 2ace4321a962780f2cb7d1f18a1ce1c97f839cc6..6f2d752504ec799235c2c6225e45a99ecde10b27 100644
+--- a/src/main/java/net/minecraft/world/entity/monster/breeze/Shoot.java
++++ b/src/main/java/net/minecraft/world/entity/monster/breeze/Shoot.java
+@@ -21,9 +21,9 @@ public class Shoot extends Behavior<Breeze> {
+     private static final int UNCERTAINTY_BASE = 5;
+     private static final int UNCERTAINTY_MULTIPLIER = 4;
+     private static final float PROJECTILE_MOVEMENT_SCALE = 0.7F;
+-    private static final int SHOOT_INITIAL_DELAY_TICKS = Math.round(15.0F);
+-    private static final int SHOOT_RECOVER_DELAY_TICKS = Math.round(4.0F);
+-    private static final int SHOOT_COOLDOWN_TICKS = Math.round(10.0F);
++    private static final int SHOOT_INITIAL_DELAY_TICKS = carpetfixes.helpers.FastMath.round(15.0F);
++    private static final int SHOOT_RECOVER_DELAY_TICKS = carpetfixes.helpers.FastMath.round(4.0F);
++    private static final int SHOOT_COOLDOWN_TICKS = carpetfixes.helpers.FastMath.round(10.0F);
+ 
+     @VisibleForTesting
+     public Shoot() {
 diff --git a/src/main/java/net/minecraft/world/entity/player/Player.java b/src/main/java/net/minecraft/world/entity/player/Player.java
 index a2cb97253c0df83b5fe73eafdfe31fc1996981e6..5219167d81e3fe8cc218f9221419f90f8c17cbb5 100644
 --- a/src/main/java/net/minecraft/world/entity/player/Player.java
