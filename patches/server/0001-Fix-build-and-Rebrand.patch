@@ -5,7 +5,7 @@ Subject: [PATCH] Fix build and Rebrand
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..41c7d811e8226e8497680edc5b76dc79da9cf62a 100644
+index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..124dd83b65ed62c851981065745d8762e952beee 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -4,6 +4,9 @@ import java.time.Instant
@@ -81,6 +81,19 @@ index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..41c7d811e8226e8497680edc5b76dc79
              "Build-Number" to (build ?: ""),
              "Build-Time" to Instant.now().toString(),
              "Git-Branch" to gitBranch, // Paper
+@@ -243,3 +257,11 @@ tasks.registerRunTask("runReobfPaperclip") {
+     classpath(rootProject.tasks.named<io.papermc.paperweight.tasks.CreatePaperclipJar>("createReobfPaperclipJar").flatMap { it.outputZip })
+     mainClass.set(null as String?)
+ }
++
++kotlin {
++    compilerOptions {
++        languageVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
++        apiVersion.set(org.jetbrains.kotlin.gradle.dsl.KotlinVersion.KOTLIN_2_2)
++        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
++    }
++}
+\ No newline at end of file
 diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
 index 430f462955f599907b5300809d312c79e2e24b33..22c9c5ef26229c57fb27776b5a49cc77dcdbe545 100644
 --- a/src/main/java/com/destroystokyo/paper/Metrics.java
