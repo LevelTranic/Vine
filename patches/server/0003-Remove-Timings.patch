@@ -859,10 +859,19 @@ index 097500a59336db1bbfffcd1aa4cff7a8586e46ec..b18de28105357e7612759eeceef79c91
  
      @Override
 diff --git a/src/main/java/net/minecraft/network/protocol/PacketUtils.java b/src/main/java/net/minecraft/network/protocol/PacketUtils.java
-index f5154194df9e44f8bcf431029f4bbed68db49658..46ee0b12148532cfcbaf5eff882274f2c07d8bc1 100644
+index 3e18c6d3f463ecbbc0a65991b6afc6ffbdf2d1dc..63782b2f8fc44e9e13dd4cddf968abd1b2605225 100644
 --- a/src/main/java/net/minecraft/network/protocol/PacketUtils.java
 +++ b/src/main/java/net/minecraft/network/protocol/PacketUtils.java
-@@ -53,7 +53,7 @@ public class PacketUtils {
+@@ -56,7 +56,7 @@ public class PacketUtils {
+                 if (!hasRun.compareAndSet(false, true)) return; // Only run once
+                 if (listener instanceof ServerCommonPacketListenerImpl serverCommonPacketListener && serverCommonPacketListener.processedDisconnect) return; // CraftBukkit - Don't handle sync packets for kicked players
+                 if (listener.shouldHandleMessage(packet)) {
+-                    co.aikar.timings.Timing timing = co.aikar.timings.MinecraftTimings.getPacketTiming(packet); // Paper - timings
++                    //co.aikar.timings.Timing timing = co.aikar.timings.MinecraftTimings.getPacketTiming(packet); // Paper - timings // Vine - Remove Timings
+                     try { // Paper - timings // Purpur
+                         packet.handle(listener);
+                     } catch (Exception exception) {
+@@ -101,7 +101,7 @@ public class PacketUtils {
              ShreddedPaper.runSync(gamePacketListener.player, () -> {
                  if (listener instanceof ServerCommonPacketListenerImpl serverCommonPacketListener && serverCommonPacketListener.processedDisconnect) return; // CraftBukkit - Don't handle sync packets for kicked players
                  if (listener.shouldHandleMessage(packet)) {
@@ -871,7 +880,7 @@ index f5154194df9e44f8bcf431029f4bbed68db49658..46ee0b12148532cfcbaf5eff882274f2
                      try { // Paper - timings // Purpur
                          packet.handle(listener);
                      } catch (Exception exception) {
-@@ -80,7 +80,7 @@ public class PacketUtils {
+@@ -128,7 +128,7 @@ public class PacketUtils {
                  try { // Paper - detailed watchdog information
                  if (listener instanceof ServerCommonPacketListenerImpl serverCommonPacketListener && serverCommonPacketListener.processedDisconnect) return; // CraftBukkit - Don't handle sync packets for kicked players
                  if (listener.shouldHandleMessage(packet)) {

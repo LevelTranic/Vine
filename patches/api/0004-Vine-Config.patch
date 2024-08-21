@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..75aa9e98905dd0e18697929094afb4a79e60f3a2
+index 0000000000000000000000000000000000000000..bb1e000da94076d668b19d5cf6e898605ea57751
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,124 @@
 +package one.tranic.vine.config;
 +
 +public class VineConfig {
@@ -91,6 +91,17 @@ index 0000000000000000000000000000000000000000..75aa9e98905dd0e18697929094afb4a7
 +        public static class cachePlayerProfileResult {
 +            public static boolean enabled = true;
 +            public static int timeout = 1440;
++        }
++
++        public static class Region {
++            /**Support: ANVIL (Vanilla), LINEAR, SECTORFILE*/
++            public static String format = "ANVIL";
++            /**Only SECTORFILE | Support: GZIP, ZLIB, LZ4, BROTLI (Only Tranic Server), ZSTD*/
++            public static String compressionFormat = "ZSTD";
++            /**Only LINEAR | 1-22*/
++            public static int compressionLevel = 1;
++            /**Only LINEAR | second*/
++            public static int flushFrequency = 5;
 +        }
 +    }
 +
