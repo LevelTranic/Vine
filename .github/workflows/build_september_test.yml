@@ -1,10 +1,10 @@
-name: Vine Server - ver/1.20.6
+name: Vine Server - September Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "September" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "September" ]
 
 permissions: write-all
 
@@ -38,8 +38,6 @@ jobs:
         run: gradle createMojmapBundlerJar && gradle createMojmapPaperclipJar
       - name: SetENV
         run: pwsh scripts/SetEnv.ps1
-      - name: Upload to Mars API
-        run: pwsh scripts/create_build.ps1 ${{ env.mcversion }} ${{ secrets.MARS_TOKEN }}
       - name: Upload Artifact
         uses: "actions/upload-artifact@v4"
         with:
@@ -50,11 +48,12 @@ jobs:
         uses: ncipollo/release-action@v1.14.0
         with:
           tag: ${{ env.tag }}
-          name: ${{ env.project_id_b }} ${{ env.mcversion }} - ${{ env.commit_id }}
+          name: ${{ env.project_id_b }} ${{ env.mcversion }} - ${{ env.commit_id }} (September Test)
           body: |
-            📦Version: `${{ env.mcversion }}` | Commit ${{ env.commit_id }} [![download](https://img.shields.io/github/downloads/LevelTranic/${{ env.project_id }}/${{ env.tag }}/total?color=red&style=flat-square)](https://github.com/LevelTranic/${{ env.project_id }}/download/${{ env.tag }}/${{ env.jar }})
+            📦Version: `${{ env.mcversion }} (September Test)` | Commit ${{ env.commit_id }} [![download](https://img.shields.io/github/downloads/LevelTranic/${{ env.project_id }}/${{ env.tag }}/total?color=red&style=flat-square)](https://github.com/LevelTranic/${{ env.project_id }}/download/${{ env.tag }}/${{ env.jar }})
             This release is automatically compiled by GitHub Actions 
-            **You can easily find the latest version in our [build list](https://tranic.one/downloads/all).**
+            **In the September test version, please do not use it for production before the merger is merged to the main line!!!**
+            **This version will not synchronize to API.**
             ### Commit Message
             ${{ env.commit_msg }}
           artifacts: |
