@@ -348,22 +348,26 @@ index 0000000000000000000000000000000000000000..58ad9bdcba665b54bcde3ad05a01127a
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Feature.kt b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..182c0d942956b287a648db1329887bd3ccaa92c4
+index 0000000000000000000000000000000000000000..34ac7d48107093f02e05b472e666c85fa7dd5bc1
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,196 @@
 +package one.tranic.vine.config.module
 +
 +import one.tranic.vine.config.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.ConfigUtil.getInt
++import one.tranic.vine.config.ConfigUtil.getString
 +import one.tranic.vine.config.VineConfig.Feature
 +import one.tranic.vine.config.VineLogger
 +
 +object Feature : ConfigImpl {
 +    var isPlatform: Boolean? = null
 +    private var isSecureSeed: Boolean? = null
++    private var isRegionFormat: String? = null
++    private var regionCompressionFormat: String? = null
++    private var isRegionCompressionLevel: Int? = null
 +
 +    override fun default() {
 +        addDefault(
@@ -389,7 +393,8 @@ index 0000000000000000000000000000000000000000..182c0d942956b287a648db1329887bd3
 +            "feature.disable-respawn-ceiling",
 +            false,
 +            listOf(
-+                "If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.",
++                "If the player is blocked on the top of the player's head, he will not try to rebirth ",
++                "the player on the ceiling.",
 +                "This is suitable for those servers with ceilings."
 +            )
 +        )
@@ -422,6 +427,38 @@ index 0000000000000000000000000000000000000000..182c0d942956b287a648db1329887bd3
 +            )
 +        )
 +        addDefault("feature.cache-player-profile-result.timeout", 1440, "The timeout of the cache. Unit: Minutes.")
++
++        addDefault(
++            "feature.region.format",
++            "ANVIL",
++            listOf(
++                "Region Format: ANVIL (Default), LINEAR, SECTORFILE",
++                "LINEAR: https://github.com/xymb-endcrystalme/LinearRegionFileFormatTools",
++                "SECTORFILE: https://github.com/PaperMC/SectorTool/blob/master/SPECIFICATION.MD",
++                "If you are not worried about disk capacity, please do not use Linear, it is still",
++                "experimental and may cause data corruption."
++            )
++        )
++        addDefault(
++            "feature.region.compression-format", "ZSTD", listOf(
++                "Only applicable to SECTORFILE, support list:",
++                "\"GZIP, ZLIB, LZ4, BROTLI, ZSTD\"",
++                "Brotli is only available on TranicServer for Vine.",
++                "There is currently no tool to convert it back to ANVIL. Enable with caution!"
++            )
++        )
++        addDefault(
++            "feature.region.compression-level",
++            1,
++            listOf(
++                "Only applicable to Linear, this is the compression level provided by ZSTD.",
++                "The available range is 1-22. When the compression level exceeds 14, ",
++                "the CPU pressure, chunk refresh time and memory usage will increase significantly, ",
++                "and high compression levels have the risk of losing chunk data, ",
++                "so we will limit it to the range of 1-15 to avoid some simple problems."
++            )
++        )
++        addDefault("feature.region.flush-frequency", 5, "Only applicable to Linear, chunk refresh interval, default is 5 (seconds)")
 +    }
 +
 +    override fun load() {
@@ -431,7 +468,9 @@ index 0000000000000000000000000000000000000000..182c0d942956b287a648db1329887bd3
 +                    VineLogger.warn(
 +                        listOf(
 +                            "Virtual threads are enabled.",
-+                            "Vine will try to replace all explicit platform threads with virtual threads, which may have some undesirable consequences. Do not use it in production if you are not sure it will be stable.",
++                            "Vine will try to replace all explicit platform threads with virtual threads,",
++                            "which may have some undesirable consequences. Do not use it in production if",
++                            "you are not sure it will be stable.",
 +                            "The ShreddedPaper thread will continue to use the platform thread."
 +                        )
 +                    )
@@ -462,6 +501,50 @@ index 0000000000000000000000000000000000000000..182c0d942956b287a648db1329887bd3
 +
 +        Feature.cachePlayerProfileResult.enabled = getBoolean("feature.cache-player-profile-result.enabled")
 +        Feature.cachePlayerProfileResult.timeout = getInt("feature.cache-player-profile-result.timeout")
++
++        getString("feature.region.format") {
++            if (isRegionFormat == null) {
++                when(it) {
++                    "ANVIL", "LINEAR", "SECTORFILE" -> isRegionFormat = it
++                    else -> {
++                        VineLogger.error("What is $it in \"feature.region.format\"? It has been changed to the default \"ANVIL\".")
++                        isRegionFormat = "ANVIL"
++                    }
++                }
++                Feature.Region.format = isRegionFormat
++            } else if (isRegionFormat != it) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.region.format\" during runtime!!!")
++            }
++        }
++        getString("feature.region.compression-format") {
++            if (regionCompressionFormat == null) {
++                when(it) {
++                    "GZIP", "ZLIB", "LZ4", "BROTLI", "ZSTD" -> regionCompressionFormat = it
++                    else -> {
++                        VineLogger.error("What is $it in \"feature.region.compression-format\"? It has been changed to the default \"ZSTD\".")
++                        regionCompressionFormat = "ZSTD"
++                    }
++                }
++                Feature.Region.compressionFormat = regionCompressionFormat
++            } else if (regionCompressionFormat != it) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.region.compression-format\" during runtime!!!")
++            }
++        }
++        getInt("feature.region.compression-level") {
++            if (isRegionCompressionLevel == null) {
++                isRegionCompressionLevel = if (it < 1) {
++                    1
++                } else if (it > 15) {
++                    15
++                } else {
++                    it
++                }
++                Feature.Region.compressionLevel = isRegionCompressionLevel!!
++            } else if (isRegionCompressionLevel != it) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.region.compression-level\" during runtime!!!")
++            }
++        }
++        Feature.Region.flushFrequency = getInt("feature.region.flush-frequency")
 +    }
 +
 +}
