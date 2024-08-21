@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Wed, 21 Aug 2024 21:26:00 +0800
+Subject: [PATCH] Add some required dependencies
+
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 124dd83b65ed62c851981065745d8762e952beee..68511111980f4727310cacd8b0d23a5a81efd8dc 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -85,6 +85,23 @@ dependencies {
+     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+ // Vine end
+ 
++    // Vine start
++    implementation("com.github.luben:zstd-jni:1.5.6-4")
++    implementation("org.lz4:lz4-java:1.8.0")
++
++    val brotli4jVersion = "1.16.0"
++    implementation ( group = "com.aayushatharva.brotli4j", name = "brotli4j", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-windows-x86_64", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-windows-aarch64", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-x86_64", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-aarch64", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-armv7", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-ppc64le", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-riscv64", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-s390x", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-osx-x86_64", version = brotli4jVersion )
++    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-osx-aarch64", version = brotli4jVersion )
++    // Vine end
+ }
+ 
+ paperweight {

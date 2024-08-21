@@ -6,7 +6,7 @@ Subject: [PATCH] Leaf: Don't save falling block entity
 You can find the original code on https://github.com/Winds-Studio/Leaf
 
 diff --git a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
-index 6efc2b644f6ef7fa4632376719352071f2a8f6d0..e42f6c37482930d11fdba12fbe3ece246fab7068 100644
+index 7b3f0766f51b15c43e6d1abf337be15f82db97e0..5f0dca5d88e10498b18c17ba30563b24636a103c 100644
 --- a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
 @@ -87,6 +87,13 @@ public class FallingBlockEntity extends Entity {

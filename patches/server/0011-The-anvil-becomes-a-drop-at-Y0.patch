@@ -11,7 +11,7 @@ try fix: https://github.com/PaperMC/Folia/issues/217
 This fix may work, but its implementation is not elegant, so it will not be submitted upstream
 
 diff --git a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
-index d504d10fbe45dfe3f2f3d08d2473df6cd18f6dcf..4bc421ff4b932af35012cd203a6bf9de91b47836 100644
+index d504d10fbe45dfe3f2f3d08d2473df6cd18f6dcf..7b3f0766f51b15c43e6d1abf337be15f82db97e0 100644
 --- a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
 @@ -1,7 +1,6 @@
