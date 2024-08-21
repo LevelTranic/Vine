@@ -23,8 +23,8 @@ jobs:
           gradle-version: 8.7
       - name: Setup Powershell
         run: |
-          wget https://github.com/PowerShell/PowerShell/releases/download/v7.4.4/powershell_7.4.4-1.deb_amd64.deb
-          sudo dpkg -i powershell_7.4.4-1.deb_amd64.deb
+          wget https://github.com/PowerShell/PowerShell/releases/download/v7.4.5/powershell_7.4.5-1.deb_amd64.deb
+          sudo dpkg -i powershell_7.4.5-1.deb_amd64.deb
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
