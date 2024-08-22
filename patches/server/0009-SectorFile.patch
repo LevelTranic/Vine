@@ -1,0 +1,440 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Fri, 23 Aug 2024 07:33:50 +0800
+Subject: [PATCH] SectorFile
+
+
+diff --git a/src/main/java/ca/spottedleaf/io/buffer/BufferChoices.java b/src/main/java/ca/spottedleaf/io/buffer/BufferChoices.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..fdfe1b029cddff0e321aeff2e439f738f0164fa8
+--- /dev/null
++++ b/src/main/java/ca/spottedleaf/io/buffer/BufferChoices.java
+@@ -0,0 +1,34 @@
++package ca.spottedleaf.io.buffer;
++
++import java.io.Closeable;
++
++public record BufferChoices(
++        /* 16kb sized buffers */
++        BufferTracker t16k,
++        /* 1mb sized buffers */
++        BufferTracker t1m,
++
++        ZstdTracker zstdCtxs
++) implements Closeable {
++
++    public static BufferChoices createNew(final int maxPer) {
++        return new BufferChoices(
++                new SimpleBufferManager(maxPer, 16 * 1024).tracker(),
++                new SimpleBufferManager(maxPer, 1 * 1024 * 1024).tracker(),
++                new ZstdCtxManager(maxPer).tracker()
++        );
++    }
++
++    public BufferChoices scope() {
++        return new BufferChoices(
++                this.t16k.scope(), this.t1m.scope(), this.zstdCtxs.scope()
++        );
++    }
++
++    @Override
++    public void close() {
++        this.t16k.close();
++        this.t1m.close();
++        this.zstdCtxs.close();
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/ca/spottedleaf/io/buffer/BufferTracker.java b/src/main/java/ca/spottedleaf/io/buffer/BufferTracker.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..28b67bedbfa010c343219bcfe97c51902a910761
+--- /dev/null
++++ b/src/main/java/ca/spottedleaf/io/buffer/BufferTracker.java
+@@ -0,0 +1,58 @@
++package ca.spottedleaf.io.buffer;
++
++import java.io.Closeable;
++import java.nio.ByteBuffer;
++import java.util.ArrayList;
++import java.util.List;
++
++public final class BufferTracker implements Closeable {
++
++    private static final ByteBuffer[] EMPTY_BYTE_BUFFERS = new ByteBuffer[0];
++    private static final byte[][] EMPTY_BYTE_ARRAYS = new byte[0][];
++
++    public final SimpleBufferManager bufferManager;
++    private final List<ByteBuffer> directBuffers = new ArrayList<>();
++    private final List<byte[]> javaBuffers = new ArrayList<>();
++
++    private boolean released;
++
++    public BufferTracker(final SimpleBufferManager bufferManager) {
++        this.bufferManager = bufferManager;
++    }
++
++    public BufferTracker scope() {
++        return new BufferTracker(this.bufferManager);
++    }
++
++    public ByteBuffer acquireDirectBuffer() {
++        final ByteBuffer ret = this.bufferManager.acquireDirectBuffer();
++        this.directBuffers.add(ret);
++        return ret;
++    }
++
++    public byte[] acquireJavaBuffer() {
++        final byte[] ret = this.bufferManager.acquireJavaBuffer();
++        this.javaBuffers.add(ret);
++        return ret;
++    }
++
++    @Override
++    public void close() {
++        if (this.released) {
++            throw new IllegalStateException("Double-releasing buffers (incorrect class usage?)");
++        }
++        this.released = true;
++
++        final ByteBuffer[] directBuffers = this.directBuffers.toArray(EMPTY_BYTE_BUFFERS);
++        this.directBuffers.clear();
++        for (final ByteBuffer buffer : directBuffers) {
++            this.bufferManager.returnDirectBuffer(buffer);
++        }
++
++        final byte[][] javaBuffers = this.javaBuffers.toArray(EMPTY_BYTE_ARRAYS);
++        this.javaBuffers.clear();
++        for (final byte[] buffer : javaBuffers) {
++            this.bufferManager.returnJavaBuffer(buffer);
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/ca/spottedleaf/io/buffer/SimpleBufferManager.java b/src/main/java/ca/spottedleaf/io/buffer/SimpleBufferManager.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a9a08919f6c5d1c83c13b361d361611b2b35b7dc
+--- /dev/null
++++ b/src/main/java/ca/spottedleaf/io/buffer/SimpleBufferManager.java
+@@ -0,0 +1,124 @@
++package ca.spottedleaf.io.buffer;
++
++import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
++import java.nio.ByteBuffer;
++import java.nio.ByteOrder;
++import java.util.ArrayDeque;
++
++public final class SimpleBufferManager {
++
++    private final int max;
++    private final int size;
++
++    private final ReferenceOpenHashSet<ByteBuffer> allocatedNativeBuffers;
++    private final ReferenceOpenHashSet<byte[]> allocatedJavaBuffers;
++
++    private final ArrayDeque<ByteBuffer> nativeBuffers;
++    // ByteBuffer.equals is not reference-based...
++    private final ReferenceOpenHashSet<ByteBuffer> storedNativeBuffers;
++    private final ArrayDeque<byte[]> javaBuffers;
++
++    public SimpleBufferManager(final int maxPer, final int size) {
++        this.max = maxPer;
++        this.size = size;
++
++        if (maxPer < 0) {
++            throw new IllegalArgumentException("'Max per' is negative");
++        }
++
++        if (size < 0) {
++            throw new IllegalArgumentException("Size is negative");
++        }
++
++        final int alloc = Math.min(10, maxPer);
++
++        this.allocatedNativeBuffers = new ReferenceOpenHashSet<>(alloc);
++        this.allocatedJavaBuffers = new ReferenceOpenHashSet<>(alloc);
++
++        this.nativeBuffers = new ArrayDeque<>(alloc);
++        this.storedNativeBuffers = new ReferenceOpenHashSet<>(alloc);
++        this.javaBuffers = new ArrayDeque<>(alloc);
++    }
++
++    public BufferTracker tracker() {
++        return new BufferTracker(this);
++    }
++
++    public ByteBuffer acquireDirectBuffer() {
++        ByteBuffer ret;
++        synchronized (this) {
++            ret = this.nativeBuffers.poll();
++            if (ret != null) {
++                this.storedNativeBuffers.remove(ret);
++            }
++        }
++        if (ret == null) {
++            ret = ByteBuffer.allocateDirect(this.size);
++            synchronized (this) {
++                this.allocatedNativeBuffers.add(ret);
++            }
++        }
++
++        ret.order(ByteOrder.BIG_ENDIAN);
++        ret.limit(ret.capacity());
++        ret.position(0);
++
++        return ret;
++    }
++
++    public synchronized void returnDirectBuffer(final ByteBuffer buffer) {
++        if (!this.allocatedNativeBuffers.contains(buffer)) {
++            throw new IllegalArgumentException("Buffer is not allocated from here");
++        }
++        if (this.storedNativeBuffers.contains(buffer)) {
++            throw new IllegalArgumentException("Buffer is already returned");
++        }
++        if (this.nativeBuffers.size() < this.max) {
++            this.nativeBuffers.addFirst(buffer);
++            this.storedNativeBuffers.add(buffer);
++        } else {
++            this.allocatedNativeBuffers.remove(buffer);
++        }
++    }
++
++    public byte[] acquireJavaBuffer() {
++        byte[] ret;
++        synchronized (this) {
++            ret = this.javaBuffers.poll();
++        }
++        if (ret == null) {
++            ret = new byte[this.size];
++            synchronized (this) {
++                this.allocatedJavaBuffers.add(ret);
++            }
++        }
++        return ret;
++    }
++
++    public synchronized void returnJavaBuffer(final byte[] buffer) {
++        if (!this.allocatedJavaBuffers.contains(buffer)) {
++            throw new IllegalArgumentException("Buffer is not allocated from here");
++        }
++        if (this.javaBuffers.contains(buffer)) {
++            throw new IllegalArgumentException("Buffer is already returned");
++        }
++        if (this.javaBuffers.size() < this.max) {
++            this.javaBuffers.addFirst(buffer);
++        } else {
++            this.allocatedJavaBuffers.remove(buffer);
++        }
++    }
++
++    public synchronized void clearReturnedBuffers() {
++        this.allocatedNativeBuffers.removeAll(this.nativeBuffers);
++        this.storedNativeBuffers.removeAll(this.nativeBuffers);
++        this.nativeBuffers.clear();
++
++        this.allocatedJavaBuffers.removeAll(this.javaBuffers);
++        this.javaBuffers.clear();
++    }
++
++    public int getSize() {
++        return this.size;
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/ca/spottedleaf/io/buffer/ZstdCtxManager.java b/src/main/java/ca/spottedleaf/io/buffer/ZstdCtxManager.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..afe22f23e6324f9986f121c153f58cc55ae8df71
+--- /dev/null
++++ b/src/main/java/ca/spottedleaf/io/buffer/ZstdCtxManager.java
+@@ -0,0 +1,113 @@
++package ca.spottedleaf.io.buffer;
++
++import com.github.luben.zstd.ZstdCompressCtx;
++import com.github.luben.zstd.ZstdDecompressCtx;
++import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
++import java.util.ArrayDeque;
++
++public final class ZstdCtxManager {
++
++    private final int max;
++
++    private final ReferenceOpenHashSet<ZstdCompressCtx> allocatedCompress;
++    private final ReferenceOpenHashSet<ZstdDecompressCtx> allocatedDecompress;
++
++    private final ArrayDeque<ZstdCompressCtx> compressors;
++    private final ArrayDeque<ZstdDecompressCtx> decompressors;
++
++    public ZstdCtxManager(final int maxPer) {
++        this.max = maxPer;
++
++        if (maxPer < 0) {
++            throw new IllegalArgumentException("'Max per' is negative");
++        }
++
++        final int alloc = Math.min(10, maxPer);
++
++        this.allocatedCompress = new ReferenceOpenHashSet<>(alloc);
++        this.allocatedDecompress = new ReferenceOpenHashSet<>(alloc);
++
++        this.compressors = new ArrayDeque<>(alloc);
++        this.decompressors = new ArrayDeque<>(alloc);
++    }
++
++    public ZstdTracker tracker() {
++        return new ZstdTracker(this);
++    }
++
++    public ZstdCompressCtx acquireCompress() {
++        ZstdCompressCtx ret;
++        synchronized (this) {
++            ret = this.compressors.poll();
++        }
++        if (ret == null) {
++            ret = new ZstdCompressCtx();
++            synchronized (this) {
++                this.allocatedCompress.add(ret);
++            }
++        }
++
++        ret.reset();
++
++        return ret;
++    }
++
++    public synchronized void returnCompress(final ZstdCompressCtx compressor) {
++        if (!this.allocatedCompress.contains(compressor)) {
++            throw new IllegalArgumentException("Compressor is not allocated from here");
++        }
++        if (this.compressors.contains(compressor)) {
++            throw new IllegalArgumentException("Compressor is already returned");
++        }
++        if (this.compressors.size() < this.max) {
++            this.compressors.addFirst(compressor);
++        } else {
++            this.allocatedCompress.remove(compressor);
++        }
++    }
++
++    public ZstdDecompressCtx acquireDecompress() {
++        ZstdDecompressCtx ret;
++        synchronized (this) {
++            ret = this.decompressors.poll();
++        }
++        if (ret == null) {
++            ret = new ZstdDecompressCtx();
++            synchronized (this) {
++                this.allocatedDecompress.add(ret);
++            }
++        }
++
++        ret.reset();
++
++        return ret;
++    }
++
++    public synchronized void returnDecompress(final ZstdDecompressCtx decompressor) {
++        if (!this.allocatedDecompress.contains(decompressor)) {
++            throw new IllegalArgumentException("Decompressor is not allocated from here");
++        }
++        if (this.decompressors.contains(decompressor)) {
++            throw new IllegalArgumentException("Decompressor is already returned");
++        }
++        if (this.decompressors.size() < this.max) {
++            this.decompressors.addFirst(decompressor);
++        } else {
++            this.allocatedDecompress.remove(decompressor);
++        }
++    }
++
++    public synchronized void clearReturnedBuffers() {
++        this.allocatedCompress.removeAll(this.compressors);
++        ZstdCompressCtx compress;
++        while ((compress = this.compressors.poll()) != null) {
++            compress.close();
++        }
++
++        this.allocatedDecompress.removeAll(this.decompressors);
++        ZstdDecompressCtx decompress;
++        while ((decompress = this.decompressors.poll()) != null) {
++            decompress.close();
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/ca/spottedleaf/io/buffer/ZstdTracker.java b/src/main/java/ca/spottedleaf/io/buffer/ZstdTracker.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..709d4a80b332ee2cfe3bd1f4d23f1d573df503e7
+--- /dev/null
++++ b/src/main/java/ca/spottedleaf/io/buffer/ZstdTracker.java
+@@ -0,0 +1,60 @@
++package ca.spottedleaf.io.buffer;
++
++import com.github.luben.zstd.ZstdCompressCtx;
++import com.github.luben.zstd.ZstdDecompressCtx;
++import java.io.Closeable;
++import java.util.ArrayList;
++import java.util.List;
++
++public final class ZstdTracker implements Closeable {
++
++    private static final ZstdCompressCtx[] EMPTY_COMPRESSORS = new ZstdCompressCtx[0];
++    private static final ZstdDecompressCtx[] EMPTY_DECOMPRSSORS = new ZstdDecompressCtx[0];
++
++    public final ZstdCtxManager zstdCtxManager;
++    private final List<ZstdCompressCtx> compressors = new ArrayList<>();
++    private final List<ZstdDecompressCtx> decompressors = new ArrayList<>();
++
++    private boolean released;
++
++    public ZstdTracker(final ZstdCtxManager zstdCtxManager) {
++        this.zstdCtxManager = zstdCtxManager;
++    }
++
++    public ZstdTracker scope() {
++        return new ZstdTracker(this.zstdCtxManager);
++    }
++
++    public ZstdCompressCtx acquireCompressor() {
++        final ZstdCompressCtx ret = this.zstdCtxManager.acquireCompress();
++        this.compressors.add(ret);
++        return ret;
++    }
++
++    public ZstdDecompressCtx acquireDecompressor() {
++        final ZstdDecompressCtx ret = this.zstdCtxManager.acquireDecompress();
++        this.decompressors.add(ret);
++        return ret;
++    }
++
++    @Override
++    public void close() {
++        if (this.released) {
++            throw new IllegalStateException("Double-releasing buffers (incorrect class usage?)");
++        }
++        this.released = true;
++
++        final ZstdCompressCtx[] compressors = this.compressors.toArray(EMPTY_COMPRESSORS);
++        this.compressors.clear();
++        for (final ZstdCompressCtx compressor : compressors) {
++            this.zstdCtxManager.returnCompress(compressor);
++        }
++
++        final ZstdDecompressCtx[] decompressors = this.decompressors.toArray(EMPTY_DECOMPRSSORS);
++        this.decompressors.clear();
++        for (final ZstdDecompressCtx decompressor : decompressors) {
++            this.zstdCtxManager.returnDecompress(decompressor);
++        }
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/java/ca/spottedleaf/io/region/ConversionRegionFile.java b/src/main/java/ca/spottedleaf/io/region/ConversionRegionFile.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..aaa6d685242347000c6bfc8c18d25c7b9a509740
+--- /dev/null
++++ b/src/main/java/ca/spottedleaf/io/region/ConversionRegionFile.java
+@@ -0,0 +1,4 @@
++package ca.spottedleaf.io.region;
++
++public class ConversionRegionFile {
++}
