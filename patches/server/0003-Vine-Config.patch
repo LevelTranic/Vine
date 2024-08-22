@@ -140,18 +140,19 @@ index 0000000000000000000000000000000000000000..67b571d421779c699aebf7312a2c2de4
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..a93b7d97e7fd40f10d432831d6087a6336bed210
+index 0000000000000000000000000000000000000000..e45e91e6e5294bbd88041ea7e585cf90eb94f892
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,145 @@
+@@ -0,0 +1,151 @@
 +package one.tranic.vine.config
 +
-+import net.minecraft.server.MinecraftServer
++import com.aayushatharva.brotli4j.Brotli4jLoader
 +import org.bukkit.Bukkit
 +import org.bukkit.configuration.file.YamlConfiguration
 +import java.io.File
 +
 +import one.tranic.vine.commands.*
++import one.tranic.vine.config.module.Feature
 +
 +object ConfigUtil {
 +    private lateinit var configuration: YamlConfiguration
@@ -192,6 +193,11 @@ index 0000000000000000000000000000000000000000..a93b7d97e7fd40f10d432831d6087a63
 +    fun load() {
 +        reload()
 +        reload()
++        // If SECTORFILE is enabled and BROTLI is selected as the compression format,
++        // initialize the dependent libraries.
++        if (Feature.isRegionFormat == "SECTORFILE" && Feature.regionCompressionFormat == "BROTLI") {
++            Brotli4jLoader.ensureAvailability()
++        }
 +    }
 +
 +    private fun addDefault(configFile: File) {
@@ -348,7 +354,7 @@ index 0000000000000000000000000000000000000000..58ad9bdcba665b54bcde3ad05a01127a
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Feature.kt b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..34ac7d48107093f02e05b472e666c85fa7dd5bc1
+index 0000000000000000000000000000000000000000..a109f00733081fe8a015fcf178e46b208de11aec
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
 @@ -0,0 +1,196 @@
@@ -365,8 +371,8 @@ index 0000000000000000000000000000000000000000..34ac7d48107093f02e05b472e666c85f
 +object Feature : ConfigImpl {
 +    var isPlatform: Boolean? = null
 +    private var isSecureSeed: Boolean? = null
-+    private var isRegionFormat: String? = null
-+    private var regionCompressionFormat: String? = null
++    var isRegionFormat: String? = null
++    var regionCompressionFormat: String? = null
 +    private var isRegionCompressionLevel: Int? = null
 +
 +    override fun default() {
