@@ -5,7 +5,7 @@ Subject: [PATCH] Leaves: Entity Utils
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 56a9760c28212ed448465b01682c2e6856191d5c..24c4140e44b021728e39310f4e8bb93ada4adc0f 100644
+index 5218088023f6065274040fbb6cd66e9b31a9e212..76089d5db9a8413b44d72650311bf9d518fc46a8 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -437,6 +437,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
@@ -16,7 +16,7 @@ index 56a9760c28212ed448465b01682c2e6856191d5c..24c4140e44b021728e39310f4e8bb93a
  
      public void setOrigin(@javax.annotation.Nonnull Location location) {
          this.origin = location.toVector();
-@@ -2607,6 +2608,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2611,6 +2612,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
              // Purpur end
  
              nbttagcompound.put("Vine.Storage", vineStorage); // Vine - vine data bundler
@@ -24,7 +24,7 @@ index 56a9760c28212ed448465b01682c2e6856191d5c..24c4140e44b021728e39310f4e8bb93a
              return nbttagcompound;
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.forThrowable(throwable, "Saving entity NBT");
-@@ -2764,6 +2766,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2768,6 +2770,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                  vineStorage = nbt.getCompound("Vine.Storage");
              }
              // Vine end - vine data bundler
@@ -36,7 +36,7 @@ index 56a9760c28212ed448465b01682c2e6856191d5c..24c4140e44b021728e39310f4e8bb93a
  
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.forThrowable(throwable, "Loading entity NBT");
-@@ -5205,4 +5212,10 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -5209,4 +5216,10 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      public CompoundTag requestVineStorage() {
          return vineStorage;
      }
