@@ -5,7 +5,7 @@ Subject: [PATCH] Nbt Utils
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index aed3b6df57534abf2a8d72fb22529ff3e44e89e1..5218088023f6065274040fbb6cd66e9b31a9e212 100644
+index 5e9883b28e7ff35adb9ae6139ca350383d71353f..732a4d511d263297c4a30f8c30b92600e5612a55 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -436,6 +436,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
@@ -37,7 +37,7 @@ index aed3b6df57534abf2a8d72fb22529ff3e44e89e1..5218088023f6065274040fbb6cd66e9b
  
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.forThrowable(throwable, "Loading entity NBT");
-@@ -5197,4 +5205,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -5203,4 +5211,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          return false;
      }
      // Purpur end
