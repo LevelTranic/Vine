@@ -10,10 +10,10 @@ Original post on Mojira: https://bugs.mojang.com/browse/MC-2025
 Fix taken from Reddit: https://redd.it/8pgd4q
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 16e5d0e9bfa49e40423f1846aad17c42a7242ee7..34fbfdd87e7a7ddcaa22813a55142a559235af51 100644
+index e1b63e185f054b35b1ba522407541b21247e2e1f..ca9d63cd2212191ff41b1161f683876c90f701d9 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -2613,6 +2613,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2619,6 +2619,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
  
              nbttagcompound.put("Vine.Storage", vineStorage); // Vine - vine data bundler
              nbttagcompound.put("Leaves.Data", leavesData); // Leaves - leaves ex data

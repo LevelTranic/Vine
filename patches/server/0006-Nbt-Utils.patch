@@ -5,7 +5,7 @@ Subject: [PATCH] Nbt Utils
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 5e9883b28e7ff35adb9ae6139ca350383d71353f..732a4d511d263297c4a30f8c30b92600e5612a55 100644
+index b015fe3b2a7ef9a13c6f91edb7fded542e2e8604..af86daf687d4727f651b7590776f8d13b87de2e6 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -436,6 +436,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
@@ -16,7 +16,7 @@ index 5e9883b28e7ff35adb9ae6139ca350383d71353f..732a4d511d263297c4a30f8c30b92600
  
      public void setOrigin(@javax.annotation.Nonnull Location location) {
          this.origin = location.toVector();
-@@ -2608,6 +2609,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2614,6 +2615,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                  nbttagcompound.putBoolean("Purpur.FireImmune", immuneToFire);
              }
              // Purpur end
@@ -25,7 +25,7 @@ index 5e9883b28e7ff35adb9ae6139ca350383d71353f..732a4d511d263297c4a30f8c30b92600
              return nbttagcompound;
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.forThrowable(throwable, "Saving entity NBT");
-@@ -2760,6 +2763,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2766,6 +2769,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
                  immuneToFire = nbt.getBoolean("Purpur.FireImmune");
              }
              // Purpur end
@@ -37,7 +37,7 @@ index 5e9883b28e7ff35adb9ae6139ca350383d71353f..732a4d511d263297c4a30f8c30b92600
  
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.forThrowable(throwable, "Loading entity NBT");
-@@ -5203,4 +5211,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -5209,4 +5217,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
          return false;
      }
      // Purpur end
