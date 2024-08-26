@@ -6,30 +6,23 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..bb1e000da94076d668b19d5cf6e898605ea57751
+index 0000000000000000000000000000000000000000..b743c171d46ec07cd5c2da71b272fe073ec4da81
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,124 @@
+@@ -0,0 +1,95 @@
 +package one.tranic.vine.config;
 +
-+public class VineConfig {
-+    /**
-+     * This is some fix
-+     */
-+    public static class Fix {
-+        /**
-+         * Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.
-+         */
-+        public static boolean netherPortal = false;
-+        /**
-+         * Fixed the bug that the display frame in water was destroyed by TNT.
-+         */
-+        public static boolean explosionBreaksItemFrameInWater = false;
-+        /**
-+         * Fixes some entities not bouncing on slime blocks and getting stuck
-+         */
-+        public static boolean incorrectBounceLogic = false;
++import one.tranic.vine.region.Compression;
++import one.tranic.vine.region.Format;
 +
++public class VineConfig {
++    public static class Fix {
++        /**Fixed the bug that the display frame in water was destroyed by TNT.*/
++        public static boolean explosionBreaksItemFrameInWater = false;
++        /**Fixes some entities not bouncing on slime blocks and getting stuck*/
++        public static boolean incorrectBounceLogic = false;
++        /**Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.*/
++        public static boolean netherPortal = false;
 +        /**
 +         * Fixed a bug in Paper where anvils could become drops at y=0 or y=-1.
 +         * This may not be useful as the implementation is crude, you can install the fix plugin to fix it additionally if you can.
@@ -41,88 +34,66 @@ index 0000000000000000000000000000000000000000..bb1e000da94076d668b19d5cf6e89860
 +    }
 +
 +    public static class Feature {
-+        /**
-+         * Try virtual threads. Once enabled, all explicit platform threads
-+         * will be replaced with virtual threads as much as possible, which
-+         * may have some adverse consequences. Please enable it with caution.
-+         */
-+        public static boolean tryVirtualThreads = false;
-+
-+        public static boolean vanillaHopper = false;
-+
-+        public static boolean flattenTriangularDistribution = false;
-+
-+        /**
-+         * zero tick plants is back now!
-+         */
-+        public static boolean zeroTickPlants = false;
-+
++        /**This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.*/
++        public static boolean disableSpark = true;
++        /**If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.*/
 +        public static boolean disableRespawnCeiling = false;
-+
++        public static boolean flattenTriangularDistribution = false;
 +        /**
 +         * Switch to a 1024-bit secure seed to protect it from being cracked.
 +         * Destroy the ambitions of those cheaters.
 +         * Of course I haven't confirmed whether it's really possible XD
 +         */
 +        public static boolean secureSeed = false;
-+
 +        /**
-+         * This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.
++         * Try virtual threads. Once enabled, all explicit platform threads
++         * will be replaced with virtual threads as much as possible, which
++         * may have some adverse consequences. Please enable it with caution.
 +         */
-+        public static boolean disableSpark = true;
++        public static boolean tryVirtualThreads = false;
++        public static boolean vanillaHopper = false;
++        /**zero tick plants is back now*/
++        public static boolean zeroTickPlants = false;
 +
++        public static class cachePlayerProfileResult {
++            public static boolean enabled = true;
++            public static int timeout = 1440;
++        }
 +        /**
 +         * This can prevent some devices that utilize vanilla abilities from being
 +         * damaged when the server crashes or shuts down suddenly, but it is not a
 +         * panacea, so take precautions.
 +         */
 +        public static class DSE {
-+            /**
-+             * Do not save tnt entities
-+             */
++            /**Do not save tnt entities*/
 +            public static boolean primedTNT = false;
-+
-+            /**
-+             * Do not save falling blocks
-+             */
++            /** Do not save falling blocks*/
 +            public static boolean fallingBlock = false;
-+        }
-+
-+        public static class cachePlayerProfileResult {
-+            public static boolean enabled = true;
-+            public static int timeout = 1440;
 +        }
 +
 +        public static class Region {
 +            /**Support: ANVIL (Vanilla), LINEAR, SECTORFILE*/
-+            public static String format = "ANVIL";
++            public static Format format = Format.ANVIL;
 +            /**Only SECTORFILE | Support: GZIP, ZLIB, LZ4, BROTLI (Only Tranic Server), ZSTD*/
-+            public static String compressionFormat = "ZSTD";
-+            /**Only LINEAR | 1-22*/
++            public static Compression compressionFormat = Compression.ZSTD;
++            /**Only LINEAR | 1-15*/
 +            public static int compressionLevel = 1;
-+            /**Only LINEAR | second*/
++            /**Only LINEAR | flush second*/
 +            public static int flushFrequency = 5;
 +        }
 +    }
 +
 +    public static class Optimize {
 +        public static boolean floatingPointPositive = false;
-+
-+        public static boolean skipSelfRaidCheck = false;
-+
-+        /**
-+         * As the name suggests, it can slightly improve world generation performance, maybe.
-+         */
-+        public static boolean noiseGeneration = true;
 +        /**
 +         * Entity re-pathing optimization
 +         * If the entity has already determined the path, it will not search the path as frequently.
 +         */
 +        public static boolean mobRePathfinding = true;
-+
-+        /**
-+         * Optimize stacked minecarts
-+         */
++        /**As the name suggests, it can slightly improve world generation performance, maybe.*/
++        public static boolean noiseGeneration = true;
++        public static boolean skipSelfRaidCheck = false;
++        /**Optimize stacked minecarts*/
 +        public static class Minecart {
 +            public static boolean enabled = true;
 +            public static int skipTickCount = 30;
@@ -132,5 +103,96 @@ index 0000000000000000000000000000000000000000..bb1e000da94076d668b19d5cf6e89860
 +            public static boolean enabled = false;
 +            public static int percentChance = 40;
 +        }
++    }
++}
+diff --git a/src/main/java/one/tranic/vine/region/Compression.java b/src/main/java/one/tranic/vine/region/Compression.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..598d967fc91b3301015523a4698312200c17d45f
+--- /dev/null
++++ b/src/main/java/one/tranic/vine/region/Compression.java
+@@ -0,0 +1,44 @@
++package one.tranic.vine.region;
++
++public enum Compression {
++    GZIP,
++    ZLIB,
++    LZ4,
++    NONE,
++    ZSTD,
++    BROTLI;
++
++    public static Compression now;
++
++    @Override
++    public String toString() {
++        return switch (this) {
++            case GZIP -> "GZIP";
++            case ZLIB -> "ZLIB";
++            case LZ4 -> "LZ4";
++            case ZSTD -> "ZSTD";
++            case BROTLI -> "BROTLI";
++            default -> "NONE";
++        };
++    }
++
++    public static Compression getCompression(final String name) {
++        return switch (name) {
++            case "GZIP" -> GZIP;
++            case "ZLIB" -> ZLIB;
++            case "LZ4" -> LZ4;
++            case "ZSTD" -> ZSTD;
++            case "BROTLI" -> BROTLI;
++            default -> NONE;
++        };
++    }
++
++    public static Compression getNow() {
++        return now;
++    }
++
++    public static void setNow(final Compression now) {
++        one.tranic.vine.config.VineConfig.Feature.Region.compressionFormat = now;
++        Compression.now = now;
++    }
++}
+diff --git a/src/main/java/one/tranic/vine/region/Format.java b/src/main/java/one/tranic/vine/region/Format.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..0e302de56b2a294a975d5b257012c16d78fd57ea
+--- /dev/null
++++ b/src/main/java/one/tranic/vine/region/Format.java
+@@ -0,0 +1,35 @@
++package one.tranic.vine.region;
++
++public enum Format {
++    ANVIL,
++    LINEAR,
++    SECTORFILE;
++
++    public static Format now;
++
++    @Override
++    public String toString() {
++        return switch (this) {
++            case ANVIL -> "ANVIL";
++            case LINEAR -> "LINEAR";
++            case SECTORFILE -> "SECTORFILE";
++        };
++    }
++
++    public static Format getFormat(String format) {
++        return switch (format) {
++            case "LINEAR" -> LINEAR;
++            case "SECTORFILE" -> SECTORFILE;
++            default -> ANVIL;
++        };
++    }
++
++    public static Format getNow() {
++        return now;
++    }
++
++    public static void setNow(Format now) {
++        one.tranic.vine.config.VineConfig.Feature.Region.format = now;
++        Format.now = now;
 +    }
 +}

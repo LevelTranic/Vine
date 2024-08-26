@@ -79,10 +79,10 @@ index 0000000000000000000000000000000000000000..ecc2ed943f88454406bca71780678e41
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-index e45e91e6e5294bbd88041ea7e585cf90eb94f892..eeba87f9b4cdc03b02e78567130af5964d63ea8f 100644
+index 61bb276a0f099888911aa630bb9e9e5b06ed53dc..d170d8be4e84247bba06e3ac296045c2ffab574c 100644
 --- a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -14,6 +14,7 @@ object ConfigUtil {
+@@ -15,6 +15,7 @@ object ConfigUtil {
      @JvmStatic
      fun setCommand() {
          Bukkit.getCommandMap().register("vinecfg", "vine", VineCfgCommand())

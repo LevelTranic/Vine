@@ -140,10 +140,10 @@ index 0000000000000000000000000000000000000000..67b571d421779c699aebf7312a2c2de4
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..e45e91e6e5294bbd88041ea7e585cf90eb94f892
+index 0000000000000000000000000000000000000000..61bb276a0f099888911aa630bb9e9e5b06ed53dc
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,151 @@
+@@ -0,0 +1,152 @@
 +package one.tranic.vine.config
 +
 +import com.aayushatharva.brotli4j.Brotli4jLoader
@@ -152,7 +152,8 @@ index 0000000000000000000000000000000000000000..e45e91e6e5294bbd88041ea7e585cf90
 +import java.io.File
 +
 +import one.tranic.vine.commands.*
-+import one.tranic.vine.config.module.Feature
++import one.tranic.vine.region.Compression
++import one.tranic.vine.region.Format
 +
 +object ConfigUtil {
 +    private lateinit var configuration: YamlConfiguration
@@ -195,7 +196,7 @@ index 0000000000000000000000000000000000000000..e45e91e6e5294bbd88041ea7e585cf90
 +        reload()
 +        // If SECTORFILE is enabled and BROTLI is selected as the compression format,
 +        // initialize the dependent libraries.
-+        if (Feature.isRegionFormat == "SECTORFILE" && Feature.regionCompressionFormat == "BROTLI") {
++        if (Format.getNow().equals(Format.SECTORFILE) && Compression.getNow().equals(Compression.BROTLI)) {
 +            Brotli4jLoader.ensureAvailability()
 +        }
 +    }
@@ -354,205 +355,36 @@ index 0000000000000000000000000000000000000000..58ad9bdcba665b54bcde3ad05a01127a
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Feature.kt b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..a109f00733081fe8a015fcf178e46b208de11aec
+index 0000000000000000000000000000000000000000..1d324af7e5b7b2298bc85bf8f40934435e7b384a
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
-@@ -0,0 +1,196 @@
+@@ -0,0 +1,27 @@
 +package one.tranic.vine.config.module
 +
 +import one.tranic.vine.config.ConfigImpl
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
-+import one.tranic.vine.config.ConfigUtil.getInt
-+import one.tranic.vine.config.ConfigUtil.getString
-+import one.tranic.vine.config.VineConfig.Feature
 +import one.tranic.vine.config.VineLogger
++import one.tranic.vine.util.Ref
 +
 +object Feature : ConfigImpl {
-+    var isPlatform: Boolean? = null
-+    private var isSecureSeed: Boolean? = null
-+    var isRegionFormat: String? = null
-+    var regionCompressionFormat: String? = null
-+    private var isRegionCompressionLevel: Int? = null
++    val clazz: ArrayList<ConfigImpl> = ArrayList()
++
++    init {
++        val b = Ref.findConfigImpl("one.tranic.vine.config.module.feature")
++        clazz.addAll(b)
++        VineLogger.info("is ${b.size}")
++    }
 +
 +    override fun default() {
-+        addDefault(
-+            "feature.try-virtual-threads",
-+            false,
-+            listOf(
-+                "Try virtual threads. Once enabled, all explicit platform threads will ",
-+                "be replaced with virtual threads as much as possible, which may have ",
-+                "some adverse consequences. Please enable it with caution."
-+            )
-+        )
-+        addDefault("feature.vanilla-hopper", false)
-+        addDefault(
-+            "feature.flatten-triangular-distribution",
-+            false,
-+            listOf(
-+                "Change all triangle distribution in Minecraft randomizers into uniform distribution",
-+                "With that edge cases are more likely to happen"
-+            )
-+        )
-+        addDefault("feature.zero-tick-plants", false)
-+        addDefault(
-+            "feature.disable-respawn-ceiling",
-+            false,
-+            listOf(
-+                "If the player is blocked on the top of the player's head, he will not try to rebirth ",
-+                "the player on the ceiling.",
-+                "This is suitable for those servers with ceilings."
-+            )
-+        )
-+        addDefault(
-+            "feature.secure-seed", false, listOf(
-+                "Changes the seed from 64bit to 1024bit, this will strictly secure your seed,",
-+                "making it almost impossible to crack.",
-+                "Warning: You must delete existing maps to switch the state of the secure seed,",
-+                "and do not modify it during hot loading, otherwise the server will crash and",
-+                "cannot continue to load maps."
-+            )
-+        )
-+        addDefault("feature.disable-spark", true)
-+
-+        addDefault(
-+            "feature.dont-save-entity.primed-tnt", false, listOf(
-+                "Disable save primed tnt on chunk unloads.",
-+                "Useful for redstone server, can prevent machine be exploded by TNT,",
-+                "when player disconnected caused by Internet issue."
-+            )
-+        )
-+        addDefault("feature.dont-save-entity.falling-block", false)
-+
-+        addDefault(
-+            "feature.cache-player-profile-result.enabled",
-+            true,
-+            listOf(
-+                "Cache the player profile result on they first join.",
-+                "It's useful if Mojang's verification server is down."
-+            )
-+        )
-+        addDefault("feature.cache-player-profile-result.timeout", 1440, "The timeout of the cache. Unit: Minutes.")
-+
-+        addDefault(
-+            "feature.region.format",
-+            "ANVIL",
-+            listOf(
-+                "Region Format: ANVIL (Default), LINEAR, SECTORFILE",
-+                "LINEAR: https://github.com/xymb-endcrystalme/LinearRegionFileFormatTools",
-+                "SECTORFILE: https://github.com/PaperMC/SectorTool/blob/master/SPECIFICATION.MD",
-+                "If you are not worried about disk capacity, please do not use Linear, it is still",
-+                "experimental and may cause data corruption."
-+            )
-+        )
-+        addDefault(
-+            "feature.region.compression-format", "ZSTD", listOf(
-+                "Only applicable to SECTORFILE, support list:",
-+                "\"GZIP, ZLIB, LZ4, BROTLI, ZSTD\"",
-+                "Brotli is only available on TranicServer for Vine.",
-+                "There is currently no tool to convert it back to ANVIL. Enable with caution!"
-+            )
-+        )
-+        addDefault(
-+            "feature.region.compression-level",
-+            1,
-+            listOf(
-+                "Only applicable to Linear, this is the compression level provided by ZSTD.",
-+                "The available range is 1-22. When the compression level exceeds 14, ",
-+                "the CPU pressure, chunk refresh time and memory usage will increase significantly, ",
-+                "and high compression levels have the risk of losing chunk data, ",
-+                "so we will limit it to the range of 1-15 to avoid some simple problems."
-+            )
-+        )
-+        addDefault("feature.region.flush-frequency", 5, "Only applicable to Linear, chunk refresh interval, default is 5 (seconds)")
++        for (c in clazz) {
++            c.default()
++        }
 +    }
 +
 +    override fun load() {
-+        getBoolean("feature.try-virtual-threads") {
-+            if (isPlatform == null) {
-+                if (it) {
-+                    VineLogger.warn(
-+                        listOf(
-+                            "Virtual threads are enabled.",
-+                            "Vine will try to replace all explicit platform threads with virtual threads,",
-+                            "which may have some undesirable consequences. Do not use it in production if",
-+                            "you are not sure it will be stable.",
-+                            "The ShreddedPaper thread will continue to use the platform thread."
-+                        )
-+                    )
-+                }
-+                Feature.tryVirtualThreads = it
-+                isPlatform = !it
-+            } else if (it == isPlatform) {
-+                VineLogger.error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
-+            }
++        for (c in clazz) {
++            c.load()
 +        }
-+        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
-+        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
-+        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
-+        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
-+        getBoolean("feature.secure-seed") {
-+            if (isSecureSeed == null) {
-+                Feature.secureSeed = it
-+                isSecureSeed = it
-+                if (it) VineLogger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
-+            } else if (isSecureSeed != it) {
-+                VineLogger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
-+            }
-+        }
-+        Feature.disableSpark = getBoolean("feature.disable-spark")
-+
-+        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
-+        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
-+
-+        Feature.cachePlayerProfileResult.enabled = getBoolean("feature.cache-player-profile-result.enabled")
-+        Feature.cachePlayerProfileResult.timeout = getInt("feature.cache-player-profile-result.timeout")
-+
-+        getString("feature.region.format") {
-+            if (isRegionFormat == null) {
-+                when(it) {
-+                    "ANVIL", "LINEAR", "SECTORFILE" -> isRegionFormat = it
-+                    else -> {
-+                        VineLogger.error("What is $it in \"feature.region.format\"? It has been changed to the default \"ANVIL\".")
-+                        isRegionFormat = "ANVIL"
-+                    }
-+                }
-+                Feature.Region.format = isRegionFormat
-+            } else if (isRegionFormat != it) {
-+                VineLogger.error("Forbidden to modify the parameter \"feature.region.format\" during runtime!!!")
-+            }
-+        }
-+        getString("feature.region.compression-format") {
-+            if (regionCompressionFormat == null) {
-+                when(it) {
-+                    "GZIP", "ZLIB", "LZ4", "BROTLI", "ZSTD" -> regionCompressionFormat = it
-+                    else -> {
-+                        VineLogger.error("What is $it in \"feature.region.compression-format\"? It has been changed to the default \"ZSTD\".")
-+                        regionCompressionFormat = "ZSTD"
-+                    }
-+                }
-+                Feature.Region.compressionFormat = regionCompressionFormat
-+            } else if (regionCompressionFormat != it) {
-+                VineLogger.error("Forbidden to modify the parameter \"feature.region.compression-format\" during runtime!!!")
-+            }
-+        }
-+        getInt("feature.region.compression-level") {
-+            if (isRegionCompressionLevel == null) {
-+                isRegionCompressionLevel = if (it < 1) {
-+                    1
-+                } else if (it > 15) {
-+                    15
-+                } else {
-+                    it
-+                }
-+                Feature.Region.compressionLevel = isRegionCompressionLevel!!
-+            } else if (isRegionCompressionLevel != it) {
-+                VineLogger.error("Forbidden to modify the parameter \"feature.region.compression-level\" during runtime!!!")
-+            }
-+        }
-+        Feature.Region.flushFrequency = getInt("feature.region.flush-frequency")
 +    }
-+
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Fix.kt b/src/main/kotlin/one/tranic/vine/config/module/Fix.kt
@@ -613,6 +445,25 @@ index 0000000000000000000000000000000000000000..afdf8f0c98d9b42f3cce19d3387c716a
 +        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
 +    }
 +
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/Locker.kt b/src/main/kotlin/one/tranic/vine/config/module/Locker.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d336332ccdd0fb8d78da01004981fea5716fa29e
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/Locker.kt
+@@ -0,0 +1,12 @@
++package one.tranic.vine.config.module
++
++import one.tranic.vine.region.Compression
++import one.tranic.vine.region.Format
++
++object Locker {
++    var compressionFormat: Compression? = null
++    var regionFormat: Format? = null
++    var regionCompressionLevel: Int? = null
++    var secureSeed: Boolean? = null
++    var virtualThread: Boolean? = null
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt b/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt
@@ -684,5 +535,285 @@ index 0000000000000000000000000000000000000000..98160f1489e7f38ebf8fbc5c5336a297
 +        Optimize.floatingPointPositive = getBoolean("optimize.floating-point-positive")
 +    }
 +
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..37f75b1efc059c8df3f90b4b2c589ea816a2a5e4
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
+@@ -0,0 +1,24 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.VineConfig.Feature
++
++object DontSaveEntity: ConfigImpl {
++    override fun default() {
++        addDefault(
++            "feature.dont-save-entity.primed-tnt", false, listOf(
++                "Disable save primed tnt on chunk unloads.",
++                "Useful for redstone server, can prevent machine be exploded by TNT,",
++                "when player disconnected caused by Internet issue."
++            )
++        )
++        addDefault("feature.dont-save-entity.falling-block", false)
++    }
++
++    override fun load() {
++        Feature.DSE.primedTNT = getBoolean("feature.dont-save-entity.primed-tnt")
++        Feature.DSE.fallingBlock = getBoolean("feature.dont-save-entity.falling-block")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d788040a93cb9c178729018e9ce912ec31cdb547
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
+@@ -0,0 +1,26 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.ConfigUtil.getInt
++import one.tranic.vine.config.VineConfig.Feature
++
++object PlayerProfile: ConfigImpl {
++    override fun default() {
++        addDefault(
++            "feature.cache-player-profile-result.enabled",
++            true,
++            listOf(
++                "Cache the player profile result on they first join.",
++                "It's useful if Mojang's verification server is down."
++            )
++        )
++        addDefault("feature.cache-player-profile-result.timeout", 1440, "The timeout of the cache. Unit: Minutes.")
++    }
++
++    override fun load() {
++        Feature.cachePlayerProfileResult.enabled = getBoolean("feature.cache-player-profile-result.enabled")
++        Feature.cachePlayerProfileResult.timeout = getInt("feature.cache-player-profile-result.timeout")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..386114b552f18c210be77bdc45ea202cc04aeaa3
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
+@@ -0,0 +1,83 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getInt
++import one.tranic.vine.config.ConfigUtil.getString
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.VineLogger
++import one.tranic.vine.config.module.Locker
++import one.tranic.vine.region.Compression
++import one.tranic.vine.region.Format
++
++object Region: ConfigImpl {
++    override fun default() {
++        addDefault(
++            "feature.region.format",
++            "ANVIL",
++            listOf(
++                "Region Format: ANVIL (Default), LINEAR, SECTORFILE",
++                "LINEAR: https://github.com/xymb-endcrystalme/LinearRegionFileFormatTools",
++                "SECTORFILE: https://github.com/PaperMC/SectorTool/blob/master/SPECIFICATION.MD",
++                "If you are not worried about disk capacity, please do not use Linear, it is still",
++                "experimental and may cause data corruption."
++            )
++        )
++        addDefault(
++            "feature.region.compression-format", "ZSTD", listOf(
++                "Only applicable to SECTORFILE, support list:",
++                "\"GZIP, ZLIB, LZ4, BROTLI, ZSTD\"",
++                "Brotli is only available on TranicServer for Vine.",
++                "There is currently no tool to convert it back to ANVIL. Enable with caution!"
++            )
++        )
++        addDefault(
++            "feature.region.compression-level",
++            1,
++            listOf(
++                "Only applicable to Linear, this is the compression level provided by ZSTD.",
++                "The available range is 1-22. When the compression level exceeds 14, ",
++                "the CPU pressure, chunk refresh time and memory usage will increase significantly, ",
++                "and high compression levels have the risk of losing chunk data, ",
++                "so we will limit it to the range of 1-15 to avoid some simple problems."
++            )
++        )
++        addDefault("feature.region.flush-frequency", 5, "Only applicable to Linear, chunk refresh interval, default is 5 (seconds)")
++    }
++
++    override fun load() {
++        getString("feature.region.format") {
++            if (Locker.regionFormat == null) {
++                val b = Format.getFormat(it)
++                Locker.regionFormat = b
++                Format.setNow(Feature.Region.format)
++            } else if (Locker.regionFormat != Format.getFormat(it)) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.region.format\" during runtime!!!")
++            }
++        }
++        getString("feature.region.compression-format") {
++            if (Locker.compressionFormat == null) {
++                val b = Compression.getCompression(it)
++                Locker.compressionFormat = b
++                Compression.setNow(b)
++            } else if (Locker.compressionFormat != Compression.getCompression(it)) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.region.compression-format\" during runtime!!!")
++            }
++        }
++        getInt("feature.region.compression-level") {
++            if (Locker.regionCompressionLevel == null) {
++                Locker.regionCompressionLevel = if (it < 1) {
++                    1
++                } else if (it > 15) {
++                    15
++                } else {
++                    it
++                }
++                Feature.Region.compressionLevel = Locker.regionCompressionLevel!!
++            } else if (Locker.regionCompressionLevel != it) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.region.compression-level\" during runtime!!!")
++            }
++        }
++        Feature.Region.flushFrequency = getInt("feature.region.flush-frequency")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..f0b11e612f7c0d9ccb31d3970a3534be7df37906
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
+@@ -0,0 +1,87 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.VineLogger
++import one.tranic.vine.config.module.Locker
++
++object Value: ConfigImpl {
++    override fun default() {
++        addDefault("feature.disable-spark", true)
++        addDefault(
++            "feature.disable-respawn-ceiling",
++            false,
++            listOf(
++                "If the player is blocked on the top of the player's head, he will not try to rebirth ",
++                "the player on the ceiling.",
++                "This is suitable for those servers with ceilings."
++            )
++        )
++        addDefault(
++            "feature.flatten-triangular-distribution",
++            false,
++            listOf(
++                "Change all triangle distribution in Minecraft randomizers into uniform distribution",
++                "With that edge cases are more likely to happen"
++            )
++        )
++        addDefault(
++            "feature.secure-seed", false, listOf(
++                "Changes the seed from 64bit to 1024bit, this will strictly secure your seed,",
++                "making it almost impossible to crack.",
++                "Warning: You must delete existing maps to switch the state of the secure seed,",
++                "and do not modify it during hot loading, otherwise the server will crash and",
++                "cannot continue to load maps."
++            )
++        )
++        addDefault(
++            "feature.try-virtual-threads",
++            false,
++            listOf(
++                "Try virtual threads. Once enabled, all explicit platform threads will ",
++                "be replaced with virtual threads as much as possible, which may have ",
++                "some adverse consequences. Please enable it with caution."
++            )
++        )
++        addDefault("feature.vanilla-hopper", false)
++        addDefault("feature.zero-tick-plants", false)
++    }
++
++    override fun load() {
++        getBoolean("feature.try-virtual-threads") {
++            if (Locker.virtualThread == null) {
++                if (it) {
++                    VineLogger.warn(
++                        listOf(
++                            "Virtual threads are enabled.",
++                            "Vine will try to replace all explicit platform threads with virtual threads,",
++                            "which may have some undesirable consequences. Do not use it in production if",
++                            "you are not sure it will be stable.",
++                            "The ShreddedPaper thread will continue to use the platform thread."
++                        )
++                    )
++                }
++                Feature.tryVirtualThreads = it
++                Locker.virtualThread = it
++            } else if (it == Locker.virtualThread) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
++            }
++        }
++        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
++        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
++        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
++        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
++        getBoolean("feature.secure-seed") {
++            if (Locker.secureSeed == null) {
++                Feature.secureSeed = it
++                Locker.secureSeed = it
++                if (it) VineLogger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
++            } else if (Locker.secureSeed != it) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
++            }
++        }
++        Feature.disableSpark = getBoolean("feature.disable-spark")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/util/Ref.kt b/src/main/kotlin/one/tranic/vine/util/Ref.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c4393503d2ea9a38c42d66c2e55ea3a807886242
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/Ref.kt
+@@ -0,0 +1,25 @@
++package one.tranic.vine.util
++
++import com.google.common.reflect.ClassPath
++import one.tranic.vine.config.ConfigImpl
++import java.io.IOException
++import java.util.stream.Collectors
++import kotlin.reflect.full.isSubclassOf
++
++
++object Ref {
++    @Throws(IOException::class)
++    fun findConfigImpl(packageName: String): Set<ConfigImpl> {
++        val implSet = mutableSetOf<ConfigImpl>()
++        val classs = ClassPath.from(Thread.currentThread().contextClassLoader)
++        val classes = classs.getTopLevelClasses(packageName)
++        for (classInfo in classes) {
++            val clazz = Class.forName(classInfo.name).kotlin
++            if (clazz.objectInstance != null && clazz.isSubclassOf(ConfigImpl::class)) {
++                val objInstance = clazz.objectInstance as ConfigImpl
++                implSet.add(objInstance)
++            }
++        }
++        return implSet
++    }
 +}
 \ No newline at end of file

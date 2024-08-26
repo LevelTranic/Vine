@@ -5,16 +5,18 @@ Subject: [PATCH] Add some required dependencies
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 124dd83b65ed62c851981065745d8762e952beee..68511111980f4727310cacd8b0d23a5a81efd8dc 100644
+index 124dd83b65ed62c851981065745d8762e952beee..02e7b95515ef53fc586bcd49f23d628ecb5664db 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -85,6 +85,23 @@ dependencies {
+@@ -85,6 +85,25 @@ dependencies {
      implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
  // Vine end
  
 +    // Vine start
 +    implementation("com.github.luben:zstd-jni:1.5.6-4")
 +    implementation("org.lz4:lz4-java:1.8.0")
++
++    implementation("org.reflections:reflections:0.10.2")
 +
 +    val brotli4jVersion = "1.16.0"
 +    implementation ( group = "com.aayushatharva.brotli4j", name = "brotli4j", version = brotli4jVersion )

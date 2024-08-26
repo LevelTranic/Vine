@@ -2988,7 +2988,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java b/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..a9b89f24418346d0666b4e6d5acb53423a35e3c0
+index 0000000000000000000000000000000000000000..af55a9ba5f07fddf91f709cc2f8772144f2d5531
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java
 @@ -0,0 +1,392 @@
@@ -3039,12 +3039,12 @@ index 0000000000000000000000000000000000000000..a9b89f24418346d0666b4e6d5acb5342
 +    }
 +
 +    private static ca.spottedleaf.io.region.SectorFileCompressionType getCompressionType() {
-+        return switch (one.tranic.vine.config.VineConfig.Feature.Region.compressionFormat) {
-+            case "GZIP" -> ca.spottedleaf.io.region.SectorFileCompressionType.GZIP;
-+            case "ZLIB" -> ca.spottedleaf.io.region.SectorFileCompressionType.DEFLATE;
-+            case "LZ4" -> ca.spottedleaf.io.region.SectorFileCompressionType.LZ4;
-+            case "ZSTD" -> ca.spottedleaf.io.region.SectorFileCompressionType.ZSTD;
-+            case "BROTLI" -> ca.spottedleaf.io.region.SectorFileCompressionType.BROTLI;
++        return switch (one.tranic.vine.region.Compression.getNow()) {
++            case GZIP -> ca.spottedleaf.io.region.SectorFileCompressionType.GZIP;
++            case ZLIB -> ca.spottedleaf.io.region.SectorFileCompressionType.DEFLATE;
++            case LZ4 -> ca.spottedleaf.io.region.SectorFileCompressionType.LZ4;
++            case ZSTD -> ca.spottedleaf.io.region.SectorFileCompressionType.ZSTD;
++            case BROTLI -> ca.spottedleaf.io.region.SectorFileCompressionType.BROTLI;
 +            default -> SectorFileCompressionType.NONE;
 +        };
 +    }

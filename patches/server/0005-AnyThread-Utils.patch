@@ -6,7 +6,7 @@ Subject: [PATCH] AnyThread Utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/AnyThread.kt b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..a3e82062ea75ae1d0de986415a705b91d747a8f6
+index 0000000000000000000000000000000000000000..33f9b39e6382f2ee9e573fd5fb7c1348852e9eca
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
 @@ -0,0 +1,106 @@
@@ -15,7 +15,7 @@ index 0000000000000000000000000000000000000000..a3e82062ea75ae1d0de986415a705b91
 +import kotlinx.coroutines.*
 +import kotlinx.coroutines.Runnable
 +import net.minecraft.server.MinecraftServer
-+import one.tranic.vine.config.module.Feature
++import one.tranic.vine.config.module.Locker
 +import java.lang.reflect.InaccessibleObjectException
 +import java.lang.reflect.Method
 +import java.lang.reflect.ReflectPermission
@@ -76,31 +76,31 @@ index 0000000000000000000000000000000000000000..a3e82062ea75ae1d0de986415a705b91
 +
 +    @JvmStatic
 +    fun getFactory(): ThreadFactory {
-+        if (Feature.isPlatform == false) return Thread.ofVirtual().factory()
++        if (Locker.virtualThread == true) return Thread.ofVirtual().factory()
 +        return Thread.ofPlatform().factory()
 +    }
 +
 +    @JvmStatic
 +    fun getThread(): Thread {
-+        if (Feature.isPlatform == false) return Thread.ofVirtual().unstarted(null)
++        if (Locker.virtualThread == true) return Thread.ofVirtual().unstarted(null)
 +        return Thread()
 +    }
 +
 +    @JvmStatic
 +    fun getThread(name: String): Thread {
-+        if (Feature.isPlatform == false) return Thread.ofVirtual().name(name).unstarted(null)
++        if (Locker.virtualThread == true) return Thread.ofVirtual().name(name).unstarted(null)
 +        return Thread(name)
 +    }
 +
 +    @JvmStatic
 +    fun getThread(runnable: Runnable): Thread {
-+        if (Feature.isPlatform == false) return Thread.ofVirtual().unstarted(runnable)
++        if (Locker.virtualThread == true) return Thread.ofVirtual().unstarted(runnable)
 +        return Thread(runnable)
 +    }
 +
 +    @JvmStatic
 +    fun getThread(runnable: Runnable, name: String): Thread {
-+        if (Feature.isPlatform == false) return Thread.ofVirtual().name(name).unstarted(runnable)
++        if (Locker.virtualThread == true) return Thread.ofVirtual().name(name).unstarted(runnable)
 +        return Thread(runnable, name)
 +    }
 +
