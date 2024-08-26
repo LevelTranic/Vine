@@ -127,17 +127,12 @@ index 0000000000000000000000000000000000000000..819da2962087ce70c6b9b4ec758937ef
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt b/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..67b571d421779c699aebf7312a2c2de45ef031e0
+index 0000000000000000000000000000000000000000..108c279f4c96eabc2dedd738b0d78fba8b9061ed
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt
-@@ -0,0 +1,6 @@
+@@ -0,0 +1,2 @@
 +package one.tranic.vine.config
 +
-+interface ConfigImpl {
-+    fun default()
-+    fun load()
-+}
-\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
 index 0000000000000000000000000000000000000000..61bb276a0f099888911aa630bb9e9e5b06ed53dc
@@ -353,25 +348,35 @@ index 0000000000000000000000000000000000000000..58ad9bdcba665b54bcde3ad05a01127a
 +    }
 +}
 \ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/impl/ConfigImpl.kt b/src/main/kotlin/one/tranic/vine/config/impl/ConfigImpl.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..173945a287f4d66ffc0373d0e0db9ba553bcce6e
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/impl/ConfigImpl.kt
+@@ -0,0 +1,6 @@
++package one.tranic.vine.config.impl
++
++interface ConfigImpl {
++    fun default()
++    fun load()
++}
+\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Feature.kt b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..1d324af7e5b7b2298bc85bf8f40934435e7b384a
+index 0000000000000000000000000000000000000000..88d62ceb17d83e9b4a2333c814f1b3b808547665
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
-@@ -0,0 +1,27 @@
+@@ -0,0 +1,24 @@
 +package one.tranic.vine.config.module
 +
-+import one.tranic.vine.config.ConfigImpl
-+import one.tranic.vine.config.VineLogger
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.util.Ref
 +
 +object Feature : ConfigImpl {
 +    val clazz: ArrayList<ConfigImpl> = ArrayList()
 +
 +    init {
-+        val b = Ref.findConfigImpl("one.tranic.vine.config.module.feature")
-+        clazz.addAll(b)
-+        VineLogger.info("is ${b.size}")
++        clazz.addAll(Ref.findConfigImpl("one.tranic.vine.config.module.feature"))
 +    }
 +
 +    override fun default() {
@@ -389,13 +394,13 @@ index 0000000000000000000000000000000000000000..1d324af7e5b7b2298bc85bf8f4093443
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Fix.kt b/src/main/kotlin/one/tranic/vine/config/module/Fix.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..afdf8f0c98d9b42f3cce19d3387c716af2e2f173
+index 0000000000000000000000000000000000000000..ee27f466962c564aba37e38702280bd3d150b184
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Fix.kt
 @@ -0,0 +1,53 @@
 +package one.tranic.vine.config.module
 +
-+import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Fix
@@ -468,13 +473,13 @@ index 0000000000000000000000000000000000000000..d336332ccdd0fb8d78da01004981fea5
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt b/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..98160f1489e7f38ebf8fbc5c5336a297acab832c
+index 0000000000000000000000000000000000000000..e7b94fe447cb31d76785b9ae2e1e3e35542b6093
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt
 @@ -0,0 +1,64 @@
 +package one.tranic.vine.config.module
 +
-+import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.ConfigUtil.getInt
@@ -539,13 +544,13 @@ index 0000000000000000000000000000000000000000..98160f1489e7f38ebf8fbc5c5336a297
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..37f75b1efc059c8df3f90b4b2c589ea816a2a5e4
+index 0000000000000000000000000000000000000000..1a851ec47ed5558e667e2f5df54a86f2c0786ce8
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
 @@ -0,0 +1,24 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Feature
@@ -570,13 +575,13 @@ index 0000000000000000000000000000000000000000..37f75b1efc059c8df3f90b4b2c589ea8
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..d788040a93cb9c178729018e9ce912ec31cdb547
+index 0000000000000000000000000000000000000000..1912152e305c4aa92e23335990b847b6000a5e61
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
 @@ -0,0 +1,26 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.ConfigUtil.getInt
@@ -603,13 +608,13 @@ index 0000000000000000000000000000000000000000..d788040a93cb9c178729018e9ce912ec
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..386114b552f18c210be77bdc45ea202cc04aeaa3
+index 0000000000000000000000000000000000000000..ca62d7ef3505bc280157fa1f1e47effc6732e1e0
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 @@ -0,0 +1,83 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getInt
 +import one.tranic.vine.config.ConfigUtil.getString
@@ -693,13 +698,13 @@ index 0000000000000000000000000000000000000000..386114b552f18c210be77bdc45ea202c
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..f0b11e612f7c0d9ccb31d3970a3534be7df37906
+index 0000000000000000000000000000000000000000..a3bd7a115f5c8f9faf13d2d84fc8aed8974b4044
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 @@ -0,0 +1,87 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Feature
@@ -764,7 +769,7 @@ index 0000000000000000000000000000000000000000..f0b11e612f7c0d9ccb31d3970a3534be
 +                }
 +                Feature.tryVirtualThreads = it
 +                Locker.virtualThread = it
-+            } else if (it == Locker.virtualThread) {
++            } else if (it != Locker.virtualThread) {
 +                VineLogger.error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
 +            }
 +        }
@@ -787,16 +792,15 @@ index 0000000000000000000000000000000000000000..f0b11e612f7c0d9ccb31d3970a3534be
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/util/Ref.kt b/src/main/kotlin/one/tranic/vine/util/Ref.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..c4393503d2ea9a38c42d66c2e55ea3a807886242
+index 0000000000000000000000000000000000000000..ab8a24157ad9828dc9555a3af9bb303afc310380
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/Ref.kt
-@@ -0,0 +1,25 @@
+@@ -0,0 +1,24 @@
 +package one.tranic.vine.util
 +
 +import com.google.common.reflect.ClassPath
-+import one.tranic.vine.config.ConfigImpl
++import one.tranic.vine.config.impl.ConfigImpl
 +import java.io.IOException
-+import java.util.stream.Collectors
 +import kotlin.reflect.full.isSubclassOf
 +
 +
