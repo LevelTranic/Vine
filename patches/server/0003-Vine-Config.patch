@@ -125,20 +125,12 @@ index 0000000000000000000000000000000000000000..819da2962087ce70c6b9b4ec758937ef
 +    }
 +}
 \ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt b/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt
-new file mode 100644
-index 0000000000000000000000000000000000000000..108c279f4c96eabc2dedd738b0d78fba8b9061ed
---- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/config/ConfigImpl.kt
-@@ -0,0 +1,2 @@
-+package one.tranic.vine.config
-+
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..61bb276a0f099888911aa630bb9e9e5b06ed53dc
+index 0000000000000000000000000000000000000000..38064202131f042d3d38757afdab76960b4fb232
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,152 @@
+@@ -0,0 +1,148 @@
 +package one.tranic.vine.config
 +
 +import com.aayushatharva.brotli4j.Brotli4jLoader
@@ -205,18 +197,14 @@ index 0000000000000000000000000000000000000000..61bb276a0f099888911aa630bb9e9e5b
 +            )
 +        )
 +
-+        one.tranic.vine.config.module.Fix.default()
-+        one.tranic.vine.config.module.Feature.default()
-+        one.tranic.vine.config.module.Optimize.default()
++        one.tranic.vine.config.module.Module.default()
 +
 +        configuration.options().copyDefaults(true)
 +        configuration.save(configFile)
 +    }
 +
 +    private fun loadConfigValue() {
-+        one.tranic.vine.config.module.Fix.load()
-+        one.tranic.vine.config.module.Feature.load()
-+        one.tranic.vine.config.module.Optimize.load()
++        one.tranic.vine.config.module.Module.load()
 +    }
 +
 +    // Vine start - Configuration file tools
@@ -361,97 +349,6 @@ index 0000000000000000000000000000000000000000..173945a287f4d66ffc0373d0e0db9ba5
 +    fun load()
 +}
 \ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/config/module/Feature.kt b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
-new file mode 100644
-index 0000000000000000000000000000000000000000..88d62ceb17d83e9b4a2333c814f1b3b808547665
---- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/config/module/Feature.kt
-@@ -0,0 +1,24 @@
-+package one.tranic.vine.config.module
-+
-+import one.tranic.vine.config.impl.ConfigImpl
-+import one.tranic.vine.util.Ref
-+
-+object Feature : ConfigImpl {
-+    val clazz: ArrayList<ConfigImpl> = ArrayList()
-+
-+    init {
-+        clazz.addAll(Ref.findConfigImpl("one.tranic.vine.config.module.feature"))
-+    }
-+
-+    override fun default() {
-+        for (c in clazz) {
-+            c.default()
-+        }
-+    }
-+
-+    override fun load() {
-+        for (c in clazz) {
-+            c.load()
-+        }
-+    }
-+}
-\ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/config/module/Fix.kt b/src/main/kotlin/one/tranic/vine/config/module/Fix.kt
-new file mode 100644
-index 0000000000000000000000000000000000000000..ee27f466962c564aba37e38702280bd3d150b184
---- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/config/module/Fix.kt
-@@ -0,0 +1,53 @@
-+package one.tranic.vine.config.module
-+
-+import one.tranic.vine.config.impl.ConfigImpl
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
-+import one.tranic.vine.config.VineConfig.Fix
-+
-+object Fix: ConfigImpl {
-+    override fun default() {
-+        addDefault(
-+            "fix.nether-portal",
-+            false,
-+            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
-+        )
-+        addDefault(
-+            "fix.anvil-drop.enabled",
-+            true,
-+            listOf(
-+                "This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ",
-+                "it may cause some unexpected effects but should be harmless."
-+            )
-+        )
-+        addDefault(
-+            "fix.anvil-drop.debug", false,
-+            "Whether to print detailed information to the console when this issue is triggered"
-+        )
-+        addDefault(
-+            "fix.explosion-breaks-item-frame-in-water",
-+            false,
-+            listOf(
-+                "Fixes Explosions being able to destroy item frames in water",
-+                "Fixes: https://bugs.mojang.com/browse/MC-3697"
-+            )
-+        )
-+        addDefault(
-+            "fix.incorrect-bounce-logic",
-+            false,
-+            listOf(
-+                "Fixes some entities not bouncing on slime blocks and getting stuck",
-+                "Fixes: https://bugs.mojang.com/browse/MC-216985"
-+            )
-+        )
-+    }
-+
-+    override fun load() {
-+        Fix.netherPortal = getBoolean("fix.nether-portal")
-+        Fix.AnvilDrop.enabled = getBoolean("fix.anvil-drop.enabled")
-+        Fix.AnvilDrop.debug = getBoolean("fix.anvil-drop.debug")
-+        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
-+        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
-+    }
-+
-+}
-\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Locker.kt b/src/main/kotlin/one/tranic/vine/config/module/Locker.kt
 new file mode 100644
 index 0000000000000000000000000000000000000000..d336332ccdd0fb8d78da01004981fea5716fa29e
@@ -471,91 +368,57 @@ index 0000000000000000000000000000000000000000..d336332ccdd0fb8d78da01004981fea5
 +    var virtualThread: Boolean? = null
 +}
 \ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt b/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/Module.kt b/src/main/kotlin/one/tranic/vine/config/module/Module.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..e7b94fe447cb31d76785b9ae2e1e3e35542b6093
+index 0000000000000000000000000000000000000000..e97a7eb2cc6825a1cc7e6a91e305a86a82747fcf
 --- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/config/module/Optimize.kt
-@@ -0,0 +1,64 @@
++++ b/src/main/kotlin/one/tranic/vine/config/module/Module.kt
+@@ -0,0 +1,30 @@
 +package one.tranic.vine.config.module
 +
 +import one.tranic.vine.config.impl.ConfigImpl
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
-+import one.tranic.vine.config.ConfigUtil.getInt
-+import one.tranic.vine.config.VineConfig.Optimize
++import one.tranic.vine.util.Ref
 +
-+object Optimize: ConfigImpl {
++object Module : ConfigImpl {
++    val clazz: ArrayList<ConfigImpl> = ArrayList()
++
++    private fun ArrayList<ConfigImpl>.addImpl(packageName: String) {
++        this.addAll(Ref.findConfigImpl(packageName))
++    }
++
++    init {
++        clazz.addImpl("one.tranic.vine.config.module.feature")
++        clazz.addImpl("one.tranic.vine.config.module.fix")
++        clazz.addImpl("one.tranic.vine.config.module.optimize")
++    }
++
 +    override fun default() {
-+        addDefault("optimize.floating-point-positive", false)
-+        addDefault(
-+            "optimize.skip-self-raid-check",
-+            false,
-+            listOf(
-+                "Whether to skip some raid checks.",
-+                "Enabling this will significantly reduce the server's performance."
-+            )
-+        )
-+        addDefault(
-+            "optimize.minecart.enabled", true,
-+            listOf(
-+                "Enable this feature to handle large amount of stacked Minecart better.",
-+                "By skipping tick collisions to reduce expense getting entities list",
-+                "and bukkit event calls, useful for the anarchy server."
-+            )
-+        )
-+        addDefault("optimize.minecart.skipTickCount", 30)
-+
-+        addDefault(
-+            "optimize.mob-re-pathfinding",
-+            true,
-+            "If true, disables the frequent pathfinds done while already following a path"
-+        )
-+        addDefault(
-+            "optimize.zombie-search-and-destroy-turtle-egg.enabled",
-+            false,
-+            "If true, optimizes the expensive searching done to find a turtle egg to crush, for zombies/husks, by default fully disabling it"
-+        )
-+        addDefault(
-+            "optimize.zombie-search-and-destroy-turtle-egg.percent-chance",
-+            40,
-+            "Percent chance to run for task: zombie seeking turtle eggs to destroy"
-+        )
-+
-+        addDefault("optimize.noise-generation", true)
++        for (c in clazz) {
++            c.default()
++        }
 +    }
 +
 +    override fun load() {
-+        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
-+        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
-+
-+        Optimize.skipSelfRaidCheck = getBoolean("optimize.skip-self-raid-check")
-+        Optimize.mobRePathfinding = getBoolean("optimize.mob-re-pathfinding")
-+        Optimize.TurtleEggSearch.enabled =
-+            getBoolean("optimize.zombie-search-and-destroy-turtle-egg.enabled")
-+        Optimize.TurtleEggSearch.percentChance =
-+            getInt("optimize.zombie-search-and-destroy-turtle-egg.percent-chance")
-+
-+        Optimize.noiseGeneration = getBoolean("optimize.noise-generation")
-+        Optimize.floatingPointPositive = getBoolean("optimize.floating-point-positive")
++        for (c in clazz) {
++            c.load()
++        }
 +    }
-+
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..1a851ec47ed5558e667e2f5df54a86f2c0786ce8
+index 0000000000000000000000000000000000000000..1e4bb9d815da61d29b2faf0fe66e0e5abb302da3
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
 @@ -0,0 +1,24 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.impl.ConfigImpl
 +
-+object DontSaveEntity: ConfigImpl {
++object DontSaveEntity : ConfigImpl {
 +    override fun default() {
 +        addDefault(
 +            "feature.dont-save-entity.primed-tnt", false, listOf(
@@ -608,23 +471,23 @@ index 0000000000000000000000000000000000000000..1912152e305c4aa92e23335990b847b6
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..ca62d7ef3505bc280157fa1f1e47effc6732e1e0
+index 0000000000000000000000000000000000000000..dec485aad1a718e53cdf74b5971be06bf16397e0
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
-@@ -0,0 +1,83 @@
+@@ -0,0 +1,87 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getInt
 +import one.tranic.vine.config.ConfigUtil.getString
 +import one.tranic.vine.config.VineConfig.Feature
 +import one.tranic.vine.config.VineLogger
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.module.Locker
 +import one.tranic.vine.region.Compression
 +import one.tranic.vine.region.Format
 +
-+object Region: ConfigImpl {
++object Region : ConfigImpl {
 +    override fun default() {
 +        addDefault(
 +            "feature.region.format",
@@ -656,7 +519,11 @@ index 0000000000000000000000000000000000000000..ca62d7ef3505bc280157fa1f1e47effc
 +                "so we will limit it to the range of 1-15 to avoid some simple problems."
 +            )
 +        )
-+        addDefault("feature.region.flush-frequency", 5, "Only applicable to Linear, chunk refresh interval, default is 5 (seconds)")
++        addDefault(
++            "feature.region.flush-frequency",
++            5,
++            "Only applicable to Linear, chunk refresh interval, default is 5 (seconds)"
++        )
 +    }
 +
 +    override fun load() {
@@ -698,20 +565,20 @@ index 0000000000000000000000000000000000000000..ca62d7ef3505bc280157fa1f1e47effc
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..a3bd7a115f5c8f9faf13d2d84fc8aed8974b4044
+index 0000000000000000000000000000000000000000..a881b97d383c640a81332910298ab2845fdece27
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 @@ -0,0 +1,87 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Feature
 +import one.tranic.vine.config.VineLogger
++import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.module.Locker
 +
-+object Value: ConfigImpl {
++object Value : ConfigImpl {
 +    override fun default() {
 +        addDefault("feature.disable-spark", true)
 +        addDefault(
@@ -754,6 +621,18 @@ index 0000000000000000000000000000000000000000..a3bd7a115f5c8f9faf13d2d84fc8aed8
 +    }
 +
 +    override fun load() {
++        Feature.disableSpark = getBoolean("feature.disable-spark")
++        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
++        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
++        getBoolean("feature.secure-seed") {
++            if (Locker.secureSeed == null) {
++                Feature.secureSeed = it
++                Locker.secureSeed = it
++                if (it) VineLogger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
++            } else if (Locker.secureSeed != it) {
++                VineLogger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
++            }
++        }
 +        getBoolean("feature.try-virtual-threads") {
 +            if (Locker.virtualThread == null) {
 +                if (it) {
@@ -774,20 +653,202 @@ index 0000000000000000000000000000000000000000..a3bd7a115f5c8f9faf13d2d84fc8aed8
 +            }
 +        }
 +        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
-+        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
-+        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
-+        getBoolean("feature.secure-seed") {
-+            if (Locker.secureSeed == null) {
-+                Feature.secureSeed = it
-+                Locker.secureSeed = it
-+                if (it) VineLogger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
-+            } else if (Locker.secureSeed != it) {
-+                VineLogger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
-+            }
-+        }
-+        Feature.disableSpark = getBoolean("feature.disable-spark")
 +    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt b/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d584e3ca8e1bc70cee2bcb2a209f32d345c69b9a
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt
+@@ -0,0 +1,30 @@
++package one.tranic.vine.config.module.fix
++
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.VineConfig.Fix
++import one.tranic.vine.config.impl.ConfigImpl
++
++object AnvilDrop : ConfigImpl {
++    override fun default() {
++        addDefault(
++            "fix.anvil-drop.enabled",
++            true,
++            listOf(
++                "This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ",
++                "it may cause some unexpected effects but should be harmless."
++            )
++        )
++        addDefault(
++            "fix.anvil-drop.debug", false,
++            "Whether to print detailed information to the console when this issue is triggered"
++        )
++    }
++
++    override fun load() {
++        Fix.AnvilDrop.enabled = getBoolean("fix.anvil-drop.enabled")
++        Fix.AnvilDrop.debug = getBoolean("fix.anvil-drop.debug")
++
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..2914e9f87e50385cc64ab7c344ff29107a8793c8
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt
+@@ -0,0 +1,39 @@
++package one.tranic.vine.config.module.fix
++
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.VineConfig.Fix
++import one.tranic.vine.config.impl.ConfigImpl
++
++object Value : ConfigImpl {
++    override fun default() {
++        addDefault(
++            "fix.explosion-breaks-item-frame-in-water",
++            false,
++            listOf(
++                "Fixes Explosions being able to destroy item frames in water",
++                "Fixes: https://bugs.mojang.com/browse/MC-3697"
++            )
++        )
++        addDefault(
++            "fix.incorrect-bounce-logic",
++            false,
++            listOf(
++                "Fixes some entities not bouncing on slime blocks and getting stuck",
++                "Fixes: https://bugs.mojang.com/browse/MC-216985"
++            )
++        )
++        addDefault(
++            "fix.nether-portal",
++            false,
++            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
++        )
++    }
++
++    override fun load() {
++        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
++        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
++        Fix.netherPortal = getBoolean("fix.nether-portal")
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..39c71a02a91c91a0d14c0021a781237f28fda74d
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt
+@@ -0,0 +1,26 @@
++package one.tranic.vine.config.module.optimize
++
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.ConfigUtil.getInt
++import one.tranic.vine.config.VineConfig.Optimize
++import one.tranic.vine.config.impl.ConfigImpl
++
++object Minecart : ConfigImpl {
++    override fun default() {
++        addDefault(
++            "optimize.minecart.enabled", true,
++            listOf(
++                "Enable this feature to handle large amount of stacked Minecart better.",
++                "By skipping tick collisions to reduce expense getting entities list",
++                "and bukkit event calls, useful for the anarchy server."
++            )
++        )
++        addDefault("optimize.minecart.skipTickCount", 30)
++    }
++
++    override fun load() {
++        Optimize.Minecart.enabled = getBoolean("optimize.minecart.enabled")
++        Optimize.Minecart.skipTickCount = getInt("optimize.minecart.skipTickCount")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..913870c77ccb6f399d46c76e0408798cee690548
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt
+@@ -0,0 +1,30 @@
++package one.tranic.vine.config.module.optimize
++
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.ConfigUtil.getInt
++import one.tranic.vine.config.VineConfig.Optimize
++import one.tranic.vine.config.impl.ConfigImpl
++
++object TurtleEggSearch : ConfigImpl {
++    override fun default() {
++        addDefault(
++            "optimize.zombie-search-and-destroy-turtle-egg.enabled",
++            false,
++            "If true, optimizes the expensive searching done to find a turtle egg to crush, for zombies/husks, by default fully disabling it"
++        )
++        addDefault(
++            "optimize.zombie-search-and-destroy-turtle-egg.percent-chance",
++            40,
++            "Percent chance to run for task: zombie seeking turtle eggs to destroy"
++        )
++    }
++
++    override fun load() {
++        Optimize.TurtleEggSearch.enabled =
++            getBoolean("optimize.zombie-search-and-destroy-turtle-egg.enabled")
++        Optimize.TurtleEggSearch.percentChance =
++            getInt("optimize.zombie-search-and-destroy-turtle-egg.percent-chance")
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..81170144cf1a8064b3f13b5e6452f644394d64c0
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
+@@ -0,0 +1,34 @@
++package one.tranic.vine.config.module.optimize
++
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.VineConfig.Optimize
++import one.tranic.vine.config.impl.ConfigImpl
++
++object Value : ConfigImpl {
++    override fun default() {
++        addDefault("optimize.floating-point-positive", false)
++        addDefault(
++            "optimize.mob-re-pathfinding",
++            true,
++            "If true, disables the frequent pathfinds done while already following a path"
++        )
++        addDefault("optimize.noise-generation", true)
++        addDefault(
++            "optimize.skip-self-raid-check",
++            false,
++            listOf(
++                "Whether to skip some raid checks.",
++                "Enabling this will significantly reduce the server's performance."
++            )
++        )
++    }
++
++    override fun load() {
++        Optimize.floatingPointPositive = getBoolean("optimize.floating-point-positive")
++        Optimize.mobRePathfinding = getBoolean("optimize.mob-re-pathfinding")
++        Optimize.noiseGeneration = getBoolean("optimize.noise-generation")
++        Optimize.skipSelfRaidCheck = getBoolean("optimize.skip-self-raid-check")
++    }
++
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/util/Ref.kt b/src/main/kotlin/one/tranic/vine/util/Ref.kt
