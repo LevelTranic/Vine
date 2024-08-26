@@ -11,7 +11,5 @@
 
 [READ IN OUR PAGE!!!](https://docs.tranic.one/vine)
 
-
-- Vine Wiki: [[*]](https://github.com/LevelTranic/Vine/wiki)
-- What is multithreading in Folia: [[1]](https://docs.papermc.io/folia/reference/overview)&nbsp;&nbsp;[[2]](https://docs.papermc.io/folia/reference/region-logic)
-- What is multithreading in ShreddedPaper: [[1]](https://github.com/MultiPaper/ShreddedPaper/blob/main/HOW_IT_WORKS.md)&nbsp;&nbsp;[[2]](https://github.com/MultiPaper/ShreddedPaper/blob/main/DEVELOPING_A_MULTITHREAD_PLUGIN.md)
+## Contact Us
+Discord: https://discord.gg/dBbSbv2Vuz
