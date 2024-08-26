@@ -1066,10 +1066,10 @@ index 0000000000000000000000000000000000000000..bd1e9c84efc671b8b572d93a2ee9c22b
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFile.java b/src/main/java/ca/spottedleaf/io/region/SectorFile.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..0aae8f02ab756c5e3105ecbcb68eb21ca88e72f2
+index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d94807563249
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFile.java
-@@ -0,0 +1,1920 @@
+@@ -0,0 +1,1915 @@
 +package ca.spottedleaf.io.region;
 +
 +import ca.spottedleaf.io.buffer.BufferChoices;
@@ -2033,12 +2033,7 @@ index 0000000000000000000000000000000000000000..0aae8f02ab756c5e3105ecbcb68eb21c
 +                this.typeHeaders.put(i, typeHeader);
 +            }
 +
-+            if (needsRecalculation) {
-+                this.recalculateFile(unscopedBufferChoices, 0);
-+                return;
-+            }
-+
-+            return;
++            if (needsRecalculation) this.recalculateFile(unscopedBufferChoices, 0);
 +        }
 +    }
 +
@@ -2993,10 +2988,10 @@ index 0000000000000000000000000000000000000000..0aae8f02ab756c5e3105ecbcb68eb21c
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java b/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..34d0e4d602bd227c42eb115bed33f5957452481c
+index 0000000000000000000000000000000000000000..a9b89f24418346d0666b4e6d5acb53423a35e3c0
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java
-@@ -0,0 +1,391 @@
+@@ -0,0 +1,392 @@
 +package ca.spottedleaf.io.region;
 +
 +import ca.spottedleaf.io.buffer.BufferChoices;
@@ -3049,6 +3044,7 @@ index 0000000000000000000000000000000000000000..34d0e4d602bd227c42eb115bed33f595
 +            case "ZLIB" -> ca.spottedleaf.io.region.SectorFileCompressionType.DEFLATE;
 +            case "LZ4" -> ca.spottedleaf.io.region.SectorFileCompressionType.LZ4;
 +            case "ZSTD" -> ca.spottedleaf.io.region.SectorFileCompressionType.ZSTD;
++            case "BROTLI" -> ca.spottedleaf.io.region.SectorFileCompressionType.BROTLI;
 +            default -> SectorFileCompressionType.NONE;
 +        };
 +    }
@@ -3391,10 +3387,10 @@ index 0000000000000000000000000000000000000000..34d0e4d602bd227c42eb115bed33f595
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java b/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..85e115c25afc09c064282203f810bd9421a0cccb
+index 0000000000000000000000000000000000000000..b70d5e78ff9c7657fd5066180bb553c09b0d360e
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java
-@@ -0,0 +1,122 @@
+@@ -0,0 +1,135 @@
 +package ca.spottedleaf.io.region;
 +
 +import ca.spottedleaf.io.region.io.bytebuffer.ByteBufferInputStream;
@@ -3404,6 +3400,8 @@ index 0000000000000000000000000000000000000000..85e115c25afc09c064282203f810bd94
 +import ca.spottedleaf.io.region.io.zstd.ZSTDInputStream;
 +import ca.spottedleaf.io.region.io.zstd.ZSTDOutputStream;
 +import ca.spottedleaf.io.buffer.BufferChoices;
++import com.aayushatharva.brotli4j.decoder.BrotliInputStream;
++import com.aayushatharva.brotli4j.encoder.BrotliOutputStream;
 +import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 +import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 +import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -3479,6 +3477,17 @@ index 0000000000000000000000000000000000000000..85e115c25afc09c064282203f810bd94
 +                    scopedBufferChoices.t16k().acquireDirectBuffer(), scopedBufferChoices.t16k().acquireDirectBuffer(),
 +                    scopedBufferChoices.zstdCtxs().acquireCompressor(), null, output
 +            );
++        }
++    };
++    public static final SectorFileCompressionType BROTLI = new SectorFileCompressionType(6) {
++        @Override
++        public InputStream createInput(final BufferChoices scopedBufferChoices, final ByteBufferInputStream input) throws IOException {
++            return new SimpleBufferedInputStream(new BrotliInputStream(input), scopedBufferChoices.t16k().acquireJavaBuffer());
++        }
++
++        @Override
++        public OutputStream createOutput(final BufferChoices scopedBufferChoices, final ByteBufferOutputStream output) throws IOException {
++            return new SimpleBufferedOutputStream(new BrotliOutputStream(output), scopedBufferChoices.t16k().acquireJavaBuffer());
 +        }
 +    };
 +    private static final Int2ObjectMap<SectorFileCompressionType> BY_ID = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<>());
