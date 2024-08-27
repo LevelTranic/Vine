@@ -4637,3 +4637,560 @@ index 0000000000000000000000000000000000000000..d9ff261d33da6aee7f89289c13fb7ac0
 +    }
 +}
 \ No newline at end of file
+diff --git a/src/main/java/io/papermc/paper/chunk/system/io/RegionFileIOThread.java b/src/main/java/io/papermc/paper/chunk/system/io/RegionFileIOThread.java
+index 2096e57c025858519e7c46788993b9aac1ec60e8..dbcd38bbdca58e74d52ae6c032fc1a3ad3420186 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/io/RegionFileIOThread.java
++++ b/src/main/java/io/papermc/paper/chunk/system/io/RegionFileIOThread.java
+@@ -6,6 +6,9 @@ import ca.spottedleaf.concurrentutil.executor.standard.PrioritisedExecutor;
+ import ca.spottedleaf.concurrentutil.executor.standard.PrioritisedQueueExecutorThread;
+ import ca.spottedleaf.concurrentutil.executor.standard.PrioritisedThreadedTaskQueue;
+ import ca.spottedleaf.concurrentutil.util.ConcurrentUtil;
++import ca.spottedleaf.io.region.MinecraftRegionFileType;
++import ca.spottedleaf.io.region.SectorFile;
++import ca.spottedleaf.io.region.SectorFileCache;
+ import com.mojang.logging.LogUtils;
+ import io.papermc.paper.util.CoordinateUtils;
+ import io.papermc.paper.util.TickThread;
+@@ -15,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.world.level.ChunkPos;
+ import net.minecraft.world.level.chunk.storage.RegionFile;
+ import net.minecraft.world.level.chunk.storage.RegionFileStorage;
++import one.tranic.vine.region.Format;
+ import org.slf4j.Logger;
+ import java.io.IOException;
+ import java.lang.invoke.VarHandle;
+@@ -50,9 +54,15 @@ public final class RegionFileIOThread extends PrioritisedQueueExecutorThread {
+      * getControllerFor is updated.
+      */
+     public static enum RegionFileType {
+-        CHUNK_DATA,
+-        POI_DATA,
+-        ENTITY_DATA;
++        CHUNK_DATA(MinecraftRegionFileType.CHUNK),
++        POI_DATA(MinecraftRegionFileType.POI),
++        ENTITY_DATA(MinecraftRegionFileType.ENTITY);
++
++        public final MinecraftRegionFileType regionFileType;
++
++        RegionFileType(final MinecraftRegionFileType regionType) {
++            this.regionFileType = regionType;
++        }
+     }
+ 
+     protected static final RegionFileType[] CACHED_REGIONFILE_TYPES = RegionFileType.values();
+@@ -1058,9 +1068,15 @@ public final class RegionFileIOThread extends PrioritisedQueueExecutorThread {
+         protected final ConcurrentHashMap<ChunkCoordinate, ChunkDataTask> tasks = new ConcurrentHashMap<>(8192, 0.10f);
+ 
+         public final RegionFileType type;
++        public final ServerLevel world;
+ 
+-        public ChunkDataController(final RegionFileType type) {
++        public ChunkDataController(final RegionFileType type, final ServerLevel world) {
+             this.type = type;
++            this.world = world;
++        }
++
++        public SectorFileCache getSectorCache() {
++            return this.world.sectorFileCache;
+         }
+ 
+         public abstract RegionFileStorage getCache();
+@@ -1074,10 +1090,14 @@ public final class RegionFileIOThread extends PrioritisedQueueExecutorThread {
+         }
+ 
+         public boolean doesRegionFileNotExist(final int chunkX, final int chunkZ) {
++            if (Format.getNow().equals(Format.SECTORFILE)) {
++                return this.getSectorCache().doesSectorFileNotExistNoIO(chunkX, chunkZ);
++            }
+             return this.getCache().doesRegionFileNotExistNoIO(new ChunkPos(chunkX, chunkZ));
+         }
+ 
+         public <T> T computeForRegionFile(final int chunkX, final int chunkZ, final boolean existingOnly, final Function<RegionFile, T> function) {
++            if (Format.getNow().equals(Format.SECTORFILE)) return null;
+             final RegionFileStorage cache = this.getCache();
+             final RegionFile regionFile;
+             synchronized (cache) {
+@@ -1097,7 +1117,23 @@ public final class RegionFileIOThread extends PrioritisedQueueExecutorThread {
+             }
+         }
+ 
++        public <T> T computeForSectorFile(final int chunkX, final int chunkZ, final boolean existingOnly, final BiFunction<RegionFileType, SectorFile, T> function) {
++            if (!Format.getNow().equals(Format.SECTORFILE)) return null;
++            final SectorFileCache cache = this.getSectorCache();
++            final SectorFile regionFile;
++            synchronized (cache) {
++                try {
++                    regionFile = cache.getSectorFile(SectorFileCache.getUnscopedBufferChoices(), chunkX, chunkZ, existingOnly);
++                } catch (final IOException ex) {
++                    throw new RuntimeException(ex);
++                }
++            }
++
++            return function.apply(this.type, regionFile);
++        }
++
+         public <T> T computeForRegionFileIfLoaded(final int chunkX, final int chunkZ, final Function<RegionFile, T> function) {
++            if (Format.getNow().equals(Format.SECTORFILE)) return null;
+             final RegionFileStorage cache = this.getCache();
+             final RegionFile regionFile;
+ 
+@@ -1116,6 +1152,17 @@ public final class RegionFileIOThread extends PrioritisedQueueExecutorThread {
+                 }
+             }
+         }
++
++        public <T> T computeForRegionFileIfLoaded(final int chunkX, final int chunkZ, final BiFunction<RegionFileType, SectorFile, T> function) {
++            final SectorFileCache cache = this.getSectorCache();
++            final SectorFile regionFile;
++
++            synchronized (cache) {
++                regionFile = cache.getRegionFileIfLoaded(chunkX, chunkZ);
++
++                return function.apply(this.type, regionFile);
++            }
++        }
+     }
+ 
+     static final class ChunkDataTask implements Runnable {
+diff --git a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+index 6b83f09f9862e298cad009b3e3a384478f616030..2b16e19153cebebd9f3883f09e071fe5ddb89a5e 100644
+--- a/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
++++ b/src/main/java/io/papermc/paper/chunk/system/scheduling/ChunkHolderManager.java
+@@ -36,6 +36,7 @@ import net.minecraft.server.level.TicketType;
+ import net.minecraft.util.SortedArraySet;
+ import net.minecraft.util.Unit;
+ import net.minecraft.world.level.ChunkPos;
++import one.tranic.vine.region.Format;
+ import org.bukkit.plugin.Plugin;
+ import org.slf4j.Logger;
+ import io.multipaper.shreddedpaper.ShreddedPaper;
+@@ -194,12 +195,13 @@ public final class ChunkHolderManager {
+             RegionFileIOThread.flush();
+         }
+ 
+-        // kill regionfile cache
++        // kill regionfile/sectorfile cache
+         try {
+-            this.world.chunkDataControllerNew.getCache().close();
++            if (Format.getNow().equals(Format.SECTORFILE)) this.world.sectorFileCache.close(); else this.world.chunkDataControllerNew.getCache().close();
+         } catch (final IOException ex) {
+             LOGGER.error("Failed to close chunk regionfile cache for world '" + this.world.getWorld().getName() + "'", ex);
+         }
++        if (Format.getNow().equals(Format.SECTORFILE)) return;
+         try {
+             this.world.entityDataControllerNew.getCache().close();
+         } catch (final IOException ex) {
+@@ -333,7 +335,7 @@ public final class ChunkHolderManager {
+             RegionFileIOThread.flush();
+             if (this.world.paperConfig().chunks.flushRegionsOnSave) {
+                 try {
+-                    this.world.chunkSource.chunkMap.regionFileCache.flush();
++                    if (Format.getNow().equals(Format.SECTORFILE)) this.world.sectorFileCache.flush(); else this.world.chunkSource.chunkMap.regionFileCache.flush();
+                 } catch (IOException ex) {
+                     LOGGER.error("Exception when flushing regions in world {}", this.world.getWorld().getName(), ex);
+                 }
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
+index 9fe91892ce469bc207ad9ca4f3ca3f9f1ebef794..f93c2004726eac37f45112c2afde3d50c987cdb2 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
+@@ -105,6 +105,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
+ import net.minecraft.world.level.storage.DimensionDataStorage;
+ import net.minecraft.world.level.storage.LevelStorageSource;
+ import net.minecraft.world.phys.Vec3;
++import one.tranic.vine.region.Format;
+ import org.apache.commons.lang3.mutable.MutableBoolean;
+ import org.slf4j.Logger;
+ 
+@@ -251,7 +252,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+     public final com.destroystokyo.paper.util.misc.PlayerAreaMap playerMobSpawnMap = new com.destroystokyo.paper.util.misc.PlayerAreaMap(this.pooledLinkedPlayerHashSets);
+ 
+     public ChunkMap(ServerLevel world, LevelStorageSource.LevelStorageAccess session, DataFixer dataFixer, StructureTemplateManager structureTemplateManager, Executor executor, BlockableEventLoop<Runnable> mainThreadExecutor, LightChunkGetter chunkProvider, ChunkGenerator chunkGenerator, ChunkProgressListener worldGenerationProgressListener, ChunkStatusUpdateListener chunkStatusChangeListener, Supplier<DimensionDataStorage> persistentStateManagerFactory, int viewDistance, boolean dsync) {
+-        super(new RegionStorageInfo(session.getLevelId(), world.dimension(), "chunk"), session.getDimensionPath(world.dimension()).resolve("region"), dataFixer, dsync);
++        super(Format.getNow().equals(Format.SECTORFILE) ? null : new RegionStorageInfo(session.getLevelId(), world.dimension(), "chunk"), Format.getNow().equals(Format.SECTORFILE) ? world.sectorFileCache : null, session.getDimensionPath(world.dimension()).resolve("region"), dataFixer, dsync);
+         // Paper - rewrite chunk system
+         this.tickingGenerated = new AtomicInteger();
+         this.playerMap = new PlayerMap();
+@@ -896,12 +897,17 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+     }
+ 
+     public ChunkStatus getChunkStatusOnDiskIfCached(ChunkPos chunkPos) {
++        if (Format.getNow().equals(Format.SECTORFILE)) return null;
+         net.minecraft.world.level.chunk.storage.RegionFile regionFile = regionFileCache.getRegionFileIfLoaded(chunkPos);
+ 
+         return regionFile == null ? null : regionFile.getStatusIfCached(chunkPos.x, chunkPos.z);
+     }
+ 
+     public ChunkStatus getChunkStatusOnDisk(ChunkPos chunkPos) throws IOException {
++        if (Format.getNow().equals(Format.SECTORFILE)) {
++            CompoundTag nbt = this.readConvertChunkSync(chunkPos);
++            return nbt == null ? null : ChunkSerializer.getStatus(nbt);
++        }
+         net.minecraft.world.level.chunk.storage.RegionFile regionFile = regionFileCache.getRegionFile(chunkPos, true);
+ 
+         if (regionFile == null || !regionFileCache.chunkExists(chunkPos)) {
+@@ -920,6 +926,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+     }
+ 
+     public void updateChunkStatusOnDisk(ChunkPos chunkPos, @Nullable CompoundTag compound) throws IOException {
++        if (Format.getNow().equals(Format.SECTORFILE)) return;
+         net.minecraft.world.level.chunk.storage.RegionFile regionFile = regionFileCache.getRegionFile(chunkPos, false);
+ 
+         regionFile.setStatus(chunkPos.x, chunkPos.z, ChunkSerializer.getStatus(compound));
+diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
+index 6b2f07689a91daedd6f9bfa809227b52ce91ff20..71cdb8322a28b51f031efe74e59d3d2ac1bbf013 100644
+--- a/src/main/java/net/minecraft/server/level/ServerLevel.java
++++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
+@@ -164,6 +164,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
+ import net.minecraft.world.phys.shapes.Shapes;
+ import net.minecraft.world.phys.shapes.VoxelShape;
+ import net.minecraft.world.ticks.LevelTicks;
++import one.tranic.vine.region.Format;
+ import org.slf4j.Logger;
+ import org.bukkit.Bukkit;
+ import org.bukkit.WeatherType;
+@@ -365,9 +366,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
+     }
+ 
+     // Paper start - rewrite chunk system
++    public final ca.spottedleaf.io.region.SectorFileCache sectorFileCache;
+     public final io.papermc.paper.chunk.system.scheduling.ChunkTaskScheduler chunkTaskScheduler;
+     public final io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController chunkDataControllerNew
+-        = new io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController(io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.CHUNK_DATA) {
++            = new io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController(io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.CHUNK_DATA, this) {
+ 
+         @Override
+         public net.minecraft.world.level.chunk.storage.RegionFileStorage getCache() {
+@@ -385,7 +387,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         }
+     };
+     public final io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController poiDataControllerNew
+-        = new io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController(io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.POI_DATA) {
++            = new io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController(io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.POI_DATA, this) {
+ 
+         @Override
+         public net.minecraft.world.level.chunk.storage.RegionFileStorage getCache() {
+@@ -403,7 +405,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         }
+     };
+     public final io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController entityDataControllerNew
+-        = new io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController(io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.ENTITY_DATA) {
++            = new io.papermc.paper.chunk.system.io.RegionFileIOThread.ChunkDataController(io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.ENTITY_DATA, this) {
+ 
+         @Override
+         public net.minecraft.world.level.chunk.storage.RegionFileStorage getCache() {
+@@ -429,6 +431,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         }
+ 
+         protected void write(ChunkPos pos, net.minecraft.nbt.CompoundTag nbt) throws IOException {
++            if (Format.getNow().equals(Format.SECTORFILE)) return;
+             ChunkPos nbtPos = nbt == null ? null : EntityStorage.readChunkPos(nbt);
+             if (nbtPos != null && !pos.equals(nbtPos)) {
+                 throw new IllegalArgumentException(
+@@ -447,7 +450,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+                 io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.ENTITY_DATA);
+             return;
+         }
+-        this.entityStorage.write(new ChunkPos(chunkX, chunkZ), compound);
++        if (!Format.getNow().equals(Format.SECTORFILE)) this.entityStorage.write(new ChunkPos(chunkX, chunkZ), compound);
+     }
+ 
+     private net.minecraft.nbt.CompoundTag readEntityChunk(int chunkX, int chunkZ) throws IOException {
+@@ -457,6 +460,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
+                 io.papermc.paper.chunk.system.io.RegionFileIOThread.getIOBlockingPriorityForCurrentThread()
+             );
+         }
++        if (Format.getNow().equals(Format.SECTORFILE)) {
++            return this.sectorFileCache.read(
++                    ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkX, chunkZ,
++                    ca.spottedleaf.io.region.MinecraftRegionFileType.ENTITY.getNewId()
++            );
++        }
+         return this.entityStorage.read(new ChunkPos(chunkX, chunkZ));
+     }
+ 
+@@ -758,7 +767,13 @@ public class ServerLevel extends Level implements WorldGenLevel {
+         // CraftBukkit end
+         boolean flag2 = minecraftserver.forceSynchronousWrites();
+         DataFixer datafixer = minecraftserver.getFixerUpper();
+-        this.entityStorage = new EntityRegionFileStorage(new RegionStorageInfo(convertable_conversionsession.getLevelId(), resourcekey, "entities"), convertable_conversionsession.getDimensionPath(resourcekey).resolve("entities"), flag2); // Paper - rewrite chunk system
++        if (Format.getNow().equals(Format.SECTORFILE)) {
++            this.sectorFileCache = new ca.spottedleaf.io.region.SectorFileCache(convertable_conversionsession.getDimensionPath(resourcekey).resolve("sectors").toFile(), flag2);
++            this.entityStorage = null;
++        } else {
++            this.sectorFileCache = null;
++            this.entityStorage = new EntityRegionFileStorage(new RegionStorageInfo(convertable_conversionsession.getLevelId(), resourcekey, "entities"), convertable_conversionsession.getDimensionPath(resourcekey).resolve("entities"), flag2); // Paper - rewrite chunk system
++        }
+ 
+         // this.entityManager = new PersistentEntitySectionManager<>(Entity.class, new ServerLevel.EntityCallbacks(), entitypersistentstorage, this.entitySliceManager); // Paper // Paper - rewrite chunk system
+         StructureTemplateManager structuretemplatemanager = minecraftserver.getStructureManager();
+diff --git a/src/main/java/net/minecraft/util/worldupdate/WorldUpgrader.java b/src/main/java/net/minecraft/util/worldupdate/WorldUpgrader.java
+index 5b60a7fc75d0e2beafb8787fbe0708e07c7203f8..d0e7edde62c1e0bfe3d046ca438bd9f97d1c1c83 100644
+--- a/src/main/java/net/minecraft/util/worldupdate/WorldUpgrader.java
++++ b/src/main/java/net/minecraft/util/worldupdate/WorldUpgrader.java
+@@ -47,6 +47,7 @@ import net.minecraft.world.level.chunk.storage.SimpleRegionStorage;
+ import net.minecraft.world.level.dimension.LevelStem;
+ import net.minecraft.world.level.storage.DimensionDataStorage;
+ import net.minecraft.world.level.storage.LevelStorageSource;
++import one.tranic.vine.region.Format;
+ import org.slf4j.Logger;
+ 
+ public class WorldUpgrader {
+@@ -80,6 +81,7 @@ public class WorldUpgrader {
+     final DimensionDataStorage overworldDataStorage;
+ 
+     public WorldUpgrader(LevelStorageSource.LevelStorageAccess session, DataFixer dataFixer, RegistryAccess dynamicRegistryManager, boolean eraseCache, boolean recreateRegionFiles) {
++        if (Format.getNow().equals(Format.SECTORFILE)) throw new UnsupportedOperationException();
+         this.dimensions = dynamicRegistryManager.registryOrThrow(Registries.LEVEL_STEM);
+         this.levels = (Set) java.util.stream.Stream.of(session.dimensionType).map(Registries::levelStemToLevel).collect(Collectors.toUnmodifiableSet()); // CraftBukkit
+         this.eraseCache = eraseCache;
+@@ -249,7 +251,8 @@ public class WorldUpgrader {
+ 
+         @Override
+         protected ChunkStorage createStorage(RegionStorageInfo key, Path worldDirectory) {
+-            return (ChunkStorage) (WorldUpgrader.this.recreateRegionFiles ? new RecreatingChunkStorage(key.withTypeSuffix("source"), worldDirectory, key.withTypeSuffix("target"), WorldUpgrader.resolveRecreateDirectory(worldDirectory), WorldUpgrader.this.dataFixer, true) : new ChunkStorage(key, worldDirectory, WorldUpgrader.this.dataFixer, true));
++            if (Format.getNow().equals(Format.SECTORFILE)) return WorldUpgrader.this.recreateRegionFiles ? new RecreatingChunkStorage(key.withTypeSuffix("source"), worldDirectory, key.withTypeSuffix("target"), WorldUpgrader.resolveRecreateDirectory(worldDirectory), WorldUpgrader.this.dataFixer, true) : new ChunkStorage(null, worldDirectory, WorldUpgrader.this.dataFixer, true);
++            return WorldUpgrader.this.recreateRegionFiles ? new RecreatingChunkStorage(key.withTypeSuffix("source"), worldDirectory, key.withTypeSuffix("target"), WorldUpgrader.resolveRecreateDirectory(worldDirectory), WorldUpgrader.this.dataFixer, true) : new ChunkStorage(key, worldDirectory, WorldUpgrader.this.dataFixer, true);
+         }
+     }
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java b/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
+index 256fbdc2a287a8232c8ecb9d0e06290a141a49ee..189236175eb31232b3597077f36e0b982580e41d 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
++++ b/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
+@@ -36,6 +36,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
+ import net.minecraft.world.level.chunk.storage.RegionStorageInfo;
+ import net.minecraft.world.level.chunk.storage.SectionStorage;
+ import net.minecraft.world.level.chunk.storage.SimpleRegionStorage;
++import one.tranic.vine.region.Format;
+ 
+ public class PoiManager extends SectionStorage<PoiSection> {
+     public static final int MAX_VILLAGE_DISTANCE = 6;
+@@ -438,6 +439,12 @@ public class PoiManager extends SectionStorage<PoiSection> {
+             );
+         }
+         // Paper end - rewrite chunk system
++        if (Format.getNow().equals(Format.SECTORFILE)) {
++            return this.world.sectorFileCache.read(
++                    ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkcoordintpair.x, chunkcoordintpair.z,
++                    ca.spottedleaf.io.region.MinecraftRegionFileType.POI.getNewId()
++            );
++        }
+         return super.read(chunkcoordintpair);
+     }
+ 
+@@ -451,6 +458,13 @@ public class PoiManager extends SectionStorage<PoiSection> {
+             return;
+         }
+         // Paper end - rewrite chunk system
++        if (Format.getNow().equals(Format.SECTORFILE)) {
++            this.world.sectorFileCache.write(
++                    ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkcoordintpair.x, chunkcoordintpair.z,
++                    ca.spottedleaf.io.region.MinecraftRegionFileType.POI.getNewId(), nbttagcompound
++            );
++            return;
++        }
+         super.write(chunkcoordintpair, nbttagcompound);
+     }
+     // Paper end
+diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkStorage.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkStorage.java
+index 7801fac96d728f951989fca36f6a4890a0638c36..49221b2f2b0459e4522db28407dac3a35cc937d0 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkStorage.java
++++ b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkStorage.java
+@@ -27,21 +27,36 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
+ import net.minecraft.world.level.dimension.LevelStem;
+ import net.minecraft.world.level.levelgen.structure.LegacyStructureDataHandler;
+ import net.minecraft.world.level.storage.DimensionDataStorage;
++import one.tranic.vine.region.Format;
+ 
+ public class ChunkStorage implements AutoCloseable {
+ 
+     public static final int LAST_MONOLYTH_STRUCTURE_DATA_VERSION = 1493;
+     // Paper start - rewrite chunk system; async chunk IO
+     private final Object persistentDataLock = new Object();
++    @Nullable
+     public final RegionFileStorage regionFileCache;
+     // Paper end - rewrite chunk system
+     protected final DataFixer fixerUpper;
+     @Nullable
+     private volatile LegacyStructureDataHandler legacyStructureHandler;
++    @Nullable
++    protected final ca.spottedleaf.io.region.SectorFileCache sectorCache;
+ 
+-    public ChunkStorage(RegionStorageInfo storageKey, Path directory, DataFixer dataFixer, boolean dsync) {
++    public ChunkStorage(@Nullable RegionStorageInfo storageKey, Path directory, DataFixer dataFixer, boolean dsync) {
+         this.fixerUpper = dataFixer;
+         this.regionFileCache = new RegionFileStorage(storageKey, directory, dsync, true); // Paper - rewrite chunk system; async chunk IO & Attempt to recalculate regionfile header if it is corrupt
++        this.sectorCache = null;
++    }
++
++    public ChunkStorage(@Nullable RegionStorageInfo storageKey, @Nullable ca.spottedleaf.io.region.SectorFileCache sectorCache, Path directory, DataFixer dataFixer, boolean dsync) {
++        this.fixerUpper = dataFixer;
++        if (storageKey == null) {
++            this.regionFileCache = null;
++        } else {
++            this.regionFileCache = new RegionFileStorage(storageKey, directory, dsync, true); // Paper - rewrite chunk system; async chunk IO & Attempt to recalculate regionfile header if it is corrupt
++        }
++        this.sectorCache = sectorCache;
+     }
+ 
+     public boolean isOldChunkAround(ChunkPos chunkPos, int checkRadius) {
+@@ -181,6 +196,11 @@ public class ChunkStorage implements AutoCloseable {
+     }
+     @Nullable
+     public CompoundTag readSync(ChunkPos chunkPos) throws IOException {
++        if (Format.getNow().equals(Format.SECTORFILE))
++            return this.sectorCache.read(
++                    ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(),
++                    chunkPos.x, chunkPos.z, ca.spottedleaf.io.region.MinecraftRegionFileType.CHUNK.getNewId()
++            );
+         return this.regionFileCache.read(chunkPos);
+     }
+     // Paper end - async chunk io
+@@ -193,7 +213,12 @@ public class ChunkStorage implements AutoCloseable {
+                 + " but compound says coordinate is " + ChunkSerializer.getChunkCoordinate(nbt) + (world == null ? " for an unknown world" : (" for world: " + world)));
+         }
+         // Paper end - guard against serializing mismatching coordinates
+-        this.regionFileCache.write(chunkPos, nbt); // Paper - rewrite chunk system; async chunk io, move above legacy structure index
++        if (Format.getNow().equals(Format.SECTORFILE))
++            this.sectorCache.write(
++                    ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(),
++                    chunkPos.x, chunkPos.z, ca.spottedleaf.io.region.MinecraftRegionFileType.CHUNK.getNewId(), nbt
++            );
++        else this.regionFileCache.write(chunkPos, nbt); // Paper - rewrite chunk system; async chunk io, move above legacy structure index
+         this.handleLegacyStructureIndex(chunkPos);
+         // Paper - rewrite chunk system; async chunk io, move above legacy structure index
+         return null;
+@@ -213,14 +238,20 @@ public class ChunkStorage implements AutoCloseable {
+     }
+ 
+     public void close() throws IOException {
+-        this.regionFileCache.close(); // Paper - nuke IO worker
++        if (!Format.getNow().equals(Format.SECTORFILE)) this.regionFileCache.close(); // Paper - nuke IO worker
+     }
+ 
+     public ChunkScanAccess chunkScanner() {
+         // Paper start - nuke IO worker
+         return ((chunkPos, streamTagVisitor) -> {
+             try {
+-                this.regionFileCache.scanChunk(chunkPos, streamTagVisitor);
++                if (Format.getNow().equals(Format.SECTORFILE))
++                    this.sectorCache.scanChunk(
++                            ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(),
++                            chunkPos.x, chunkPos.z, ca.spottedleaf.io.region.MinecraftRegionFileType.CHUNK.getNewId(),
++                            streamTagVisitor
++                    );
++                else this.regionFileCache.scanChunk(chunkPos, streamTagVisitor);
+                 return java.util.concurrent.CompletableFuture.completedFuture(null);
+             } catch (IOException e) {
+                 throw new RuntimeException(e);
+diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileStorage.java b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
+index 1090b7e36e3c1c105bc36135b82751c651f237d4..dca9c1618de6ad541756b7ac524254f73d7358d4 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
++++ b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileStorage.java
+@@ -16,6 +16,7 @@ import net.minecraft.nbt.NbtIo;
+ import net.minecraft.nbt.StreamTagVisitor;
+ import net.minecraft.util.ExceptionCollector;
+ import net.minecraft.world.level.ChunkPos;
++import one.tranic.vine.region.Format;
+ 
+ public class RegionFileStorage implements AutoCloseable {
+ 
+diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileVersion.java b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileVersion.java
+index f4a39f49b354c560d614483db1cd3dfc154e94b4..93ad07729d5d184a435169eebd5264a86949abf9 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileVersion.java
++++ b/src/main/java/net/minecraft/world/level/chunk/storage/RegionFileVersion.java
+@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
+ import net.jpountz.lz4.LZ4BlockInputStream;
+ import net.jpountz.lz4.LZ4BlockOutputStream;
+ import net.minecraft.util.FastBufferedInputStream;
++import one.tranic.vine.region.Format;
+ import org.slf4j.Logger;
+ 
+ public class RegionFileVersion {
+@@ -60,6 +61,7 @@ public class RegionFileVersion {
+ 
+     // Paper start - Configurable region compression format
+     public static RegionFileVersion getCompressionFormat() {
++        if (Format.getNow().equals(Format.SECTORFILE)) throw new UnsupportedOperationException();
+         return switch (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.compressionFormat) {
+             case GZIP -> VERSION_GZIP;
+             case ZLIB -> VERSION_DEFLATE;
+diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/SectionStorage.java b/src/main/java/net/minecraft/world/level/chunk/storage/SectionStorage.java
+index a4a919d8373f1535e336de7e648d41a07efb1cba..887073b2967bd832321130b2aca26e1983b389c8 100644
+--- a/src/main/java/net/minecraft/world/level/chunk/storage/SectionStorage.java
++++ b/src/main/java/net/minecraft/world/level/chunk/storage/SectionStorage.java
+@@ -30,6 +30,7 @@ import net.minecraft.nbt.Tag;
+ import net.minecraft.resources.RegistryOps;
+ import net.minecraft.world.level.ChunkPos;
+ import net.minecraft.world.level.LevelHeightAccessor;
++import one.tranic.vine.region.Format;
+ import org.slf4j.Logger;
+ 
+ public class SectionStorage<R> extends RegionFileStorage implements AutoCloseable { // Paper - nuke IOWorker
+@@ -62,6 +63,18 @@ public class SectionStorage<R> extends RegionFileStorage implements AutoCloseabl
+         this.levelHeightAccessor = world;
+     }
+ 
++    @Override
++    public CompoundTag read(ChunkPos pos) throws IOException {
++        if (Format.getNow().equals(Format.SECTORFILE)) throw new AbstractMethodError();
++        else return super.read(pos);
++    }
++
++    @Override
++    public void write(ChunkPos pos, CompoundTag tag) throws IOException {
++        if (Format.getNow().equals(Format.SECTORFILE)) throw new AbstractMethodError();
++        else super.write(pos, tag);
++    }
++
+     protected void tick(BooleanSupplier shouldKeepTicking) {
+         while (this.hasWork() && shouldKeepTicking.getAsBoolean()) {
+             ChunkPos chunkPos = SectionPos.of(this.dirty.firstLong()).chunk();
+@@ -233,6 +246,7 @@ public class SectionStorage<R> extends RegionFileStorage implements AutoCloseabl
+ 
+     @Override
+     public void close() throws IOException {
++        if (Format.getNow().equals(Format.SECTORFILE)) return;
+         super.close(); // Paper - nuke I/O worker - don't call the worker
+     }
+ }
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+index 12091e6b2696f7adf5275988ecc4cdc51e6760be..00b226e6f24568eebf6b7e209c533a3e9acd65c3 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftWorld.java
+@@ -71,6 +71,7 @@ import net.minecraft.world.phys.AABB;
+ import net.minecraft.world.phys.HitResult;
+ import net.minecraft.world.phys.Vec3;
+ import net.minecraft.world.phys.shapes.CollisionContext;
++import one.tranic.vine.region.Format;
+ import org.bukkit.BlockChangeDelegate;
+ import org.bukkit.Bukkit;
+ import org.bukkit.Chunk;
+@@ -618,16 +619,18 @@ public class CraftWorld extends CraftRegionAccessor implements World {
+                 world.getChunk(x, z); // make sure we're at ticket level 32 or lower
+                 return true;
+             }
+-            net.minecraft.world.level.chunk.storage.RegionFile file;
+-            try {
+-                file = world.getChunkSource().chunkMap.regionFileCache.getRegionFile(chunkPos, false);
+-            } catch (java.io.IOException ex) {
+-                throw new RuntimeException(ex);
+-            }
++            if (!Format.getNow().equals(Format.SECTORFILE)) {
++                net.minecraft.world.level.chunk.storage.RegionFile file;
++                try {
++                    file = world.getChunkSource().chunkMap.regionFileCache.getRegionFile(chunkPos, false);
++                } catch (java.io.IOException ex) {
++                    throw new RuntimeException(ex);
++                }
+ 
+-            ChunkStatus status = file.getStatusIfCached(x, z);
+-            if (!file.hasChunk(chunkPos) || (status != null && status != ChunkStatus.FULL)) {
+-                return false;
++                ChunkStatus status = file.getStatusIfCached(x, z);
++                if (!file.hasChunk(chunkPos) || (status != null && status != ChunkStatus.FULL)) {
++                    return false;
++                }
+             }
+ 
+             ChunkAccess chunk = world.getChunkSource().getChunk(x, z, ChunkStatus.EMPTY, true);

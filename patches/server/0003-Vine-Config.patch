@@ -471,7 +471,7 @@ index 0000000000000000000000000000000000000000..1912152e305c4aa92e23335990b847b6
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..dec485aad1a718e53cdf74b5971be06bf16397e0
+index 0000000000000000000000000000000000000000..39cd03eb8475d673609c40fae6d9cb96a99dd92e
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 @@ -0,0 +1,87 @@
@@ -531,7 +531,7 @@ index 0000000000000000000000000000000000000000..dec485aad1a718e53cdf74b5971be06b
 +            if (Locker.regionFormat == null) {
 +                val b = Format.getFormat(it)
 +                Locker.regionFormat = b
-+                Format.setNow(Feature.Region.format)
++                Format.setNow(b)
 +            } else if (Locker.regionFormat != Format.getFormat(it)) {
 +                VineLogger.error("Forbidden to modify the parameter \"feature.region.format\" during runtime!!!")
 +            }
