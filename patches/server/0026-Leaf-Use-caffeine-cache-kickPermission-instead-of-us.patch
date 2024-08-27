@@ -1,0 +1,44 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Dreeam <61569423+Dreeam-qwq@users.noreply.github.com>
+Date: Sun, 23 Jun 2024 11:26:20 +0800
+Subject: [PATCH] Leaf: Use caffeine cache kickPermission instead of using 
+ google.common.cache
+
+
+diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+index ee8f2fce3b6b2ddd6fb7a767a30dcf4d0e4888e7..9a4f53ebee1c7be2b61ddb203a4d36e138886a52 100644
+--- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
++++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
+@@ -333,19 +333,12 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+     private boolean justTeleported = false;
+     // CraftBukkit end
+ 
+-        // Purpur start
+-    private final com.google.common.cache.LoadingCache<CraftPlayer, Boolean> kickPermissionCache = com.google.common.cache.CacheBuilder.newBuilder()
++    // Purpur start // Leaf start - Use caffeine cache kickPermission instead of using google.common.cache
++    private final com.github.benmanes.caffeine.cache.LoadingCache<CraftPlayer, Boolean> kickPermissionCache = com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
+         .maximumSize(1000)
+         .expireAfterWrite(1, java.util.concurrent.TimeUnit.MINUTES)
+-        .build(
+-            new com.google.common.cache.CacheLoader<>() {
+-                @Override
+-                public Boolean load(CraftPlayer player) {
+-                    return player.hasPermission("purpur.bypassIdleKick");
+-                }
+-            }
+-        );
+-    // Purpur end
++            .build(player -> player.hasPermission("purpur.bypassIdleKick"));
++    // Purpur end // Leaf - Use caffeine cache kickPermission instead of using google.common.cache
+ 
+     @Override
+     public void tick() {
+@@ -416,7 +409,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
+         if (this.player.getLastActionTime() > 0L && this.server.getPlayerIdleTimeout() > 0 && Util.getMillis() - this.player.getLastActionTime() > (long) this.server.getPlayerIdleTimeout() * 1000L * 60L && !this.player.wonGame) { // Paper - Prevent AFK kick while watching end credits
+             // Purpur start
+             this.player.setAfk(true);
+-            if (!this.player.level().purpurConfig.idleTimeoutKick || (!Boolean.parseBoolean(System.getenv("PURPUR_FORCE_IDLE_KICK")) && kickPermissionCache.getUnchecked(this.player.getBukkitEntity()))) {
++            if (!this.player.level().purpurConfig.idleTimeoutKick || (!Boolean.parseBoolean(System.getenv("PURPUR_FORCE_IDLE_KICK")) && kickPermissionCache.get(this.player.getBukkitEntity()))) { // Leaf - Use caffeine cache kickPermission instead of using google.common.cache
+                 return;
+             }
+             // Purpur end
