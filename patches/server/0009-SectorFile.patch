@@ -433,13 +433,12 @@ index 0000000000000000000000000000000000000000..e5c77a99d513edc57f4b63c13ad1d9e5
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/ConversionRegionFile.java b/src/main/java/ca/spottedleaf/io/region/ConversionRegionFile.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..e92e9c9a4bbcb5f1e34b6bc798fc6747f5779797
+index 0000000000000000000000000000000000000000..034a28e89c08281b3ca7b471005fa23829736b9a
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/ConversionRegionFile.java
-@@ -0,0 +1,558 @@
+@@ -0,0 +1,557 @@
 +package ca.spottedleaf.io.region;
 +
-+import ca.spottedleaf.io.region.SectorFile;
 +import ca.spottedleaf.io.region.io.bytebuffer.BufferedFileChannelInputStream;
 +import ca.spottedleaf.io.region.io.bytebuffer.ByteBufferInputStream;
 +import ca.spottedleaf.io.buffer.BufferChoices;
@@ -1066,16 +1065,16 @@ index 0000000000000000000000000000000000000000..bd1e9c84efc671b8b572d93a2ee9c22b
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFile.java b/src/main/java/ca/spottedleaf/io/region/SectorFile.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d94807563249
+index 0000000000000000000000000000000000000000..ad5d71fc8369e288f79249d32af6700d501a5914
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFile.java
-@@ -0,0 +1,1915 @@
+@@ -0,0 +1,1925 @@
 +package ca.spottedleaf.io.region;
 +
-+import ca.spottedleaf.io.buffer.BufferChoices;
 +import ca.spottedleaf.io.region.io.bytebuffer.BufferedFileChannelInputStream;
 +import ca.spottedleaf.io.region.io.bytebuffer.ByteBufferInputStream;
 +import ca.spottedleaf.io.region.io.bytebuffer.ByteBufferOutputStream;
++import ca.spottedleaf.io.buffer.BufferChoices;
 +import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 +import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 +import it.unimi.dsi.fastutil.ints.IntIterator;
@@ -1088,8 +1087,14 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +import net.jpountz.xxhash.XXHashFactory;
 +import org.slf4j.Logger;
 +import org.slf4j.LoggerFactory;
-+
-+import java.io.*;
++import java.io.Closeable;
++import java.io.DataInputStream;
++import java.io.DataOutputStream;
++import java.io.EOFException;
++import java.io.File;
++import java.io.IOException;
++import java.io.InputStream;
++import java.io.OutputStream;
 +import java.nio.ByteBuffer;
 +import java.nio.channels.FileChannel;
 +import java.nio.file.AtomicMoveNotSupportedException;
@@ -1112,15 +1117,15 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +    private static final Logger LOGGER = LoggerFactory.getLogger(SectorFile.class);
 +
-+    private static final int BYTE_SIZE = Byte.BYTES;
-+    private static final int SHORT_SIZE = Short.BYTES;
-+    private static final int INT_SIZE = Integer.BYTES;
-+    private static final int LONG_SIZE = Long.BYTES;
-+    private static final int FLOAT_SIZE = Float.BYTES;
++    private static final int BYTE_SIZE   = Byte.BYTES;
++    private static final int SHORT_SIZE  = Short.BYTES;
++    private static final int INT_SIZE    = Integer.BYTES;
++    private static final int LONG_SIZE   = Long.BYTES;
++    private static final int FLOAT_SIZE  = Float.BYTES;
 +    private static final int DOUBLE_SIZE = Double.BYTES;
 +
-+    public static final String FILE_EXTENSION = ".sf";
-+    public static final String FILE_EXTERNAL_EXTENSION = ".sfe";
++    public static final String FILE_EXTENSION              = ".sf";
++    public static final String FILE_EXTERNAL_EXTENSION     = ".sfe";
 +    public static final String FILE_EXTERNAL_TMP_EXTENSION = FILE_EXTERNAL_EXTENSION + ".tmp";
 +
 +    public static String getFileName(final int sectionX, final int sectionZ) {
@@ -1143,7 +1148,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +    }
 +
 +    public static String getExternalTempFileName(final int sectionX, final int sectionZ,
-+                                                 final int localX, final int localZ, final int type) {
++                                                  final int localX, final int localZ, final int type) {
 +        return getExternalBase(sectionX, sectionZ, localX, localZ, type) + FILE_EXTERNAL_TMP_EXTENSION;
 +    }
 +
@@ -1167,7 +1172,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +    public static final class FileHeader {
 +
-+        public static final int FILE_HEADER_SIZE_BYTES = LONG_SIZE + MAX_TYPES * (LONG_SIZE + INT_SIZE);
++        public static final int FILE_HEADER_SIZE_BYTES = LONG_SIZE + MAX_TYPES*(LONG_SIZE + INT_SIZE);
 +        public static final int FILE_HEADER_TOTAL_SECTORS = (FILE_HEADER_SIZE_BYTES + (SECTOR_SIZE - 1)) >> SECTOR_SHIFT;
 +
 +        public final long[] xxHash64TypeHeader = new long[MAX_TYPES];
@@ -1205,7 +1210,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +            buffer.duplicate().position(buffer.position() + LONG_SIZE).asLongBuffer().get(0, fileHeader.xxHash64TypeHeader);
 +
 +            buffer.duplicate().position(buffer.position() + LONG_SIZE + LONG_SIZE * MAX_TYPES)
-+                    .asIntBuffer().get(0, fileHeader.typeHeaderOffsets);
++                .asIntBuffer().get(0, fileHeader.typeHeaderOffsets);
 +
 +            buffer.position(buffer.position() + FILE_HEADER_SIZE_BYTES);
 +        }
@@ -1271,7 +1276,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +            final ByteBuffer buffer = ByteBuffer.allocate(DATA_HEADER_LENGTH);
 +
 +            // read = 0 when buffer is full
-+            while (input.read(buffer) > 0) ;
++            while (input.read(buffer) > 0);
 +
 +            buffer.flip();
 +            return read(buffer);
@@ -1291,7 +1296,6 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +    private static final int SECTOR_LENGTH_BITS = 10;
 +    private static final int SECTOR_OFFSET_BITS = 22;
-+
 +    static {
 +        if ((SECTOR_OFFSET_BITS + SECTOR_LENGTH_BITS) != 32) {
 +            throw new IllegalStateException();
@@ -1316,7 +1320,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +    }
 +
 +    // point to file header sector when absent, as we know that sector is allocated and will not conflict with any real allocation
-+    private static final int ABSENT_LOCATION = makeLocation(FILE_HEADER_SECTOR, 0);
++    private static final int ABSENT_LOCATION              = makeLocation(FILE_HEADER_SECTOR, 0);
 +    // point to outside the maximum allocatable range for external allocations, which will not conflict with any other
 +    // data allocation (although, it may conflict with a type header allocation)
 +    private static final int EXTERNAL_ALLOCATION_LOCATION = makeLocation(MAX_NORMAL_SECTOR_OFFSET + 1, 0);
@@ -1413,7 +1417,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        }
 +    }
 +
-+    public static final int OPEN_FLAGS_READ_ONLY = 1 << 0;
++    public static final int OPEN_FLAGS_READ_ONLY   = 1 << 0;
 +    public static final int OPEN_FLAGS_SYNC_WRITES = 1 << 1;
 +
 +    public SectorFile(final File file, final int sectionX, final int sectionZ,
@@ -1500,7 +1504,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +    }
 +
 +    public static final int RECALCULATE_FLAGS_NO_BACKUP = 1 << 0;
-+    public static final int RECALCULATE_FLAGS_NO_LOG = 1 << 1;
++    public static final int RECALCULATE_FLAGS_NO_LOG    = 1 << 1;
 +
 +    // returns whether any changes were made, useful for testing
 +    public boolean recalculateFile(final BufferChoices unscopedBufferChoices, final int flags) throws IOException {
@@ -1509,7 +1513,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        }
 +        if ((flags & RECALCULATE_FLAGS_NO_LOG) == 0) {
 +            LOGGER.error("An inconsistency has been detected in the headers for file '" + this.file.getAbsolutePath() +
-+                    "', recalculating the headers", new Throwable());
++                "', recalculating the headers", new Throwable());
 +        }
 +        // The headers are determined as incorrect, so we are going to rebuild it from the file
 +        final SectorAllocator newSectorAllocation = newSectorAllocator();
@@ -1535,7 +1539,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        // located closest to start internally
 +
 +        // force creation tentative type headers for required headers, as we will later replace the current ones
-+        for (final IntIterator iterator = this.typeTranslationTable.keySet().iterator(); iterator.hasNext(); ) {
++        for (final IntIterator iterator = this.typeTranslationTable.keySet().iterator(); iterator.hasNext();) {
 +            newTypeHeaders.put(iterator.nextInt(), new TentativeTypeHeader());
 +        }
 +
@@ -1544,8 +1548,8 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        try (final BufferChoices scopedChoices = unscopedBufferChoices.scope()) {
 +            final ByteBuffer buffer = scopedChoices.t1m().acquireDirectBuffer();
 +
-+            final long fileSectors = (this.channel.size() + (long) (SECTOR_SIZE - 1)) >>> SECTOR_SHIFT;
-+            for (long i = (long) (FILE_HEADER_SECTOR + FileHeader.FILE_HEADER_TOTAL_SECTORS); i <= Math.min(fileSectors, (long) MAX_NORMAL_SECTOR_OFFSET); ++i) {
++            final long fileSectors = (this.channel.size() + (long)(SECTOR_SIZE - 1)) >>> SECTOR_SHIFT;
++            for (long i = (long)(FILE_HEADER_SECTOR + FileHeader.FILE_HEADER_TOTAL_SECTORS); i <= Math.min(fileSectors, (long)MAX_NORMAL_SECTOR_OFFSET); ++i) {
 +                buffer.limit(DataHeader.DATA_HEADER_LENGTH);
 +                buffer.position(0);
 +
@@ -1572,8 +1576,8 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +                    continue;
 +                }
 +
-+                final int typeId = (int) (dataHeader.typeId & 0xFF);
-+                final int index = (int) (dataHeader.index & 0xFFFF);
++                final int typeId = (int)(dataHeader.typeId & 0xFF);
++                final int index = (int)(dataHeader.index & 0xFFFF);
 +
 +                if (typeId < 0 || typeId >= MAX_TYPES) {
 +                    // type id is too large or small
@@ -1599,7 +1603,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +                // read remaining data
 +                buffer.limit(dataHeader.compressedSize);
 +                buffer.position(0);
-+                this.channel.read(buffer, (i << SECTOR_SHIFT) + (long) DataHeader.DATA_HEADER_LENGTH);
++                this.channel.read(buffer, (i << SECTOR_SHIFT) + (long)DataHeader.DATA_HEADER_LENGTH);
 +
 +                if (buffer.hasRemaining()) {
 +                    // data is truncated, skip
@@ -1618,7 +1622,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +                // since we are a newer timestamp than prev, replace it
 +
-+                final int sectorOffset = (int) i; // i <= MAX_NORMAL_SECTOR_OFFSET
++                final int sectorOffset = (int)i; // i <= MAX_NORMAL_SECTOR_OFFSET
 +                final int sectorLength = (dataHeader.compressedSize + DataHeader.DATA_HEADER_LENGTH + (SECTOR_SIZE - 1)) >> SECTOR_SHIFT;
 +                final int newLocation = makeLocation(sectorOffset, sectorLength);
 +
@@ -1634,7 +1638,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +                typeHeader.timestamps[index] = dataHeader.timeWritten;
 +
 +                // skip over the sectors, we know they're good
-+                i += (long) sectorLength;
++                i += (long)sectorLength;
 +                --i;
 +                continue;
 +            }
@@ -1646,7 +1650,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        possibleTypes.addAll(newTypeHeaders.keySet());
 +
 +        // search for external files
-+        for (final IntIterator iterator = possibleTypes.iterator(); iterator.hasNext(); ) {
++        for (final IntIterator iterator = possibleTypes.iterator(); iterator.hasNext();) {
 +            final int type = iterator.nextInt();
 +            for (int localZ = 0; localZ < SECTION_SIZE; ++localZ) {
 +                for (int localX = 0; localX < SECTION_SIZE; ++localX) {
@@ -1660,7 +1664,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +                    // read header
 +                    final DataHeader header;
 +                    try (final BufferChoices scopedChoices = unscopedBufferChoices.scope();
-+                         final FileChannel input = FileChannel.open(external.toPath(), StandardOpenOption.READ)) {
++                        final FileChannel input = FileChannel.open(external.toPath(), StandardOpenOption.READ)) {
 +                        final ByteBuffer buffer = scopedChoices.t16k().acquireDirectBuffer();
 +
 +                        buffer.limit(DataHeader.DATA_HEADER_LENGTH);
@@ -1690,17 +1694,17 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +                    // verify the rest of the header
 +
-+                    if (type != ((int) header.typeId & 0xFF)) {
++                    if (type != ((int)header.typeId & 0xFF)) {
 +                        LOGGER.warn("Mismatch of type and expected type for external file '" + external.getAbsolutePath() + "'");
 +                        continue;
 +                    }
 +
-+                    if (index != ((int) header.index & 0xFFFF)) {
++                    if (index != ((int)header.index & 0xFFFF)) {
 +                        LOGGER.warn("Mismatch of index and expected index for external file '" + external.getAbsolutePath() + "'");
 +                        continue;
 +                    }
 +
-+                    if (external.length() != ((long) DataHeader.DATA_HEADER_LENGTH + (long) header.compressedSize)) {
++                    if (external.length() != ((long)DataHeader.DATA_HEADER_LENGTH + (long)header.compressedSize)) {
 +                        LOGGER.warn("Mismatch of filesize and compressed size for external file '" + external.getAbsolutePath() + "'");
 +                        continue;
 +                    }
@@ -1749,7 +1753,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        final Int2ObjectLinkedOpenHashMap<TypeHeader> newHeaders = new Int2ObjectLinkedOpenHashMap<>(newTypeHeaders.size());
 +        final FileHeader newFileHeader = new FileHeader();
 +
-+        for (final Iterator<Int2ObjectMap.Entry<TentativeTypeHeader>> iterator = newTypeHeaders.int2ObjectEntrySet().fastIterator(); iterator.hasNext(); ) {
++        for (final Iterator<Int2ObjectMap.Entry<TentativeTypeHeader>> iterator = newTypeHeaders.int2ObjectEntrySet().fastIterator(); iterator.hasNext();) {
 +            final Int2ObjectMap.Entry<TentativeTypeHeader> entry = iterator.next();
 +
 +            final int type = entry.getIntKey();
@@ -1785,7 +1789,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        boolean changes = false;
 +
 +        // make sure to use the tentative type headers, in case the tentative header was not allocated due to being empty
-+        for (final Iterator<Int2ObjectMap.Entry<TentativeTypeHeader>> iterator = newTypeHeaders.int2ObjectEntrySet().fastIterator(); iterator.hasNext(); ) {
++        for (final Iterator<Int2ObjectMap.Entry<TentativeTypeHeader>> iterator = newTypeHeaders.int2ObjectEntrySet().fastIterator(); iterator.hasNext();) {
 +            final Int2ObjectMap.Entry<TentativeTypeHeader> entry = iterator.next();
 +            final int type = entry.getIntKey();
 +            final TypeHeader newTypeHeader = entry.getValue().typeHeader;
@@ -1862,7 +1866,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        // write to disk
 +        try {
 +            // first, the type headers
-+            for (final IntIterator iterator = newHeaders.keySet().iterator(); iterator.hasNext(); ) {
++            for (final IntIterator iterator = newHeaders.keySet().iterator(); iterator.hasNext();) {
 +                final int type = iterator.nextInt();
 +                try (final BufferChoices headerBuffers = unscopedBufferChoices.scope()) {
 +                    try {
@@ -1903,7 +1907,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        while (len > 0) {
 +            final int written = this.channel.write(buffer, position);
 +            len -= written;
-+            position += (long) written;
++            position += (long)written;
 +        }
 +    }
 +
@@ -1913,7 +1917,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +        this.fileHeader.write(ioBuffer.duplicate());
 +
-+        this.write(ioBuffer, (long) FILE_HEADER_SECTOR << SECTOR_SHIFT);
++        this.write(ioBuffer, (long)FILE_HEADER_SECTOR << SECTOR_SHIFT);
 +    }
 +
 +    private void readFileHeader(final BufferChoices unscopedBufferChoices) throws IOException {
@@ -1930,7 +1934,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +            final long fileLengthSectors = (this.channel.size() + (SECTOR_SIZE - 1L)) >> SECTOR_SHIFT;
 +
-+            int read = this.channel.read(buffer, (long) FILE_HEADER_SECTOR << SECTOR_SHIFT);
++            int read = this.channel.read(buffer, (long)FILE_HEADER_SECTOR << SECTOR_SHIFT);
 +
 +            if (read != buffer.limit()) {
 +                LOGGER.warn("File '" + this.file.getAbsolutePath() + "' has a truncated file header");
@@ -1976,7 +1980,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +                // parse header
 +                buffer.position(0);
 +                buffer.limit(TypeHeader.TYPE_HEADER_SIZE_BYTES);
-+                read = this.channel.read(buffer, (long) typeHeaderOffset << SECTOR_SHIFT);
++                read = this.channel.read(buffer, (long)typeHeaderOffset << SECTOR_SHIFT);
 +
 +                if (read != buffer.limit()) {
 +                    LOGGER.error("File '" + this.file.getAbsolutePath() + "' has type header " + this.debugType(i) + " pointing to outside of file: " + typeHeaderOffset);
@@ -2033,7 +2037,12 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +                this.typeHeaders.put(i, typeHeader);
 +            }
 +
-+            if (needsRecalculation) this.recalculateFile(unscopedBufferChoices, 0);
++            if (needsRecalculation) {
++                this.recalculateFile(unscopedBufferChoices, 0);
++                return;
++            }
++
++            return;
 +        }
 +    }
 +
@@ -2061,7 +2070,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +            this.fileHeader.xxHash64TypeHeader[type] = hash;
 +        }
 +
-+        this.write(buffer, (long) offset << SECTOR_SHIFT);
++        this.write(buffer, (long)offset << SECTOR_SHIFT);
 +
 +        if (writeFileHeader) {
 +            this.writeFileHeader(buffer);
@@ -2093,7 +2102,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +    }
 +
 +    public static Long computeExternalHash(final BufferChoices unscopedBufferChoices, final File externalFile) throws IOException {
-+        if (!externalFile.isFile() || externalFile.length() < (long) DataHeader.DATA_HEADER_LENGTH) {
++        if (!externalFile.isFile() || externalFile.length() < (long)DataHeader.DATA_HEADER_LENGTH) {
 +            return null;
 +        }
 +
@@ -2104,7 +2113,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +            // first, skip header
 +            try {
-+                fileInput.skipNBytes((long) DataHeader.DATA_HEADER_LENGTH);
++                fileInput.skipNBytes((long)DataHeader.DATA_HEADER_LENGTH);
 +            } catch (final EOFException ex) {
 +                return null;
 +            }
@@ -2118,9 +2127,9 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        }
 +    }
 +
-+    public static final int READ_FLAG_CHECK_HEADER_HASH = 1 << 0;
-+    public static final int READ_FLAG_CHECK_INTERNAL_DATA_HASH = 1 << 1;
-+    public static final int READ_FLAG_CHECK_EXTERNAL_DATA_HASH = 1 << 2;
++    public static final int READ_FLAG_CHECK_HEADER_HASH          = 1 << 0;
++    public static final int READ_FLAG_CHECK_INTERNAL_DATA_HASH   = 1 << 1;
++    public static final int READ_FLAG_CHECK_EXTERNAL_DATA_HASH   = 1 << 2;
 +
 +    // do not check external data hash, there is not much we can do if it is actually bad
 +    public static final int RECOMMENDED_READ_FLAGS = READ_FLAG_CHECK_HEADER_HASH | READ_FLAG_CHECK_INTERNAL_DATA_HASH;
@@ -2148,8 +2157,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        return location != ABSENT_LOCATION;
 +    }
 +
-+    public static record SectorFileInput(DataInputStream data, boolean external) {
-+    }
++    public static record SectorFileInput(DataInputStream data, boolean external) {}
 +
 +    private static final SectorFileInput NULL_DATA = new SectorFileInput(null, false);
 +
@@ -2214,7 +2222,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +            final int length = getLocationLength(location);
 +
 +            buffer.limit(length << SECTOR_SHIFT);
-+            this.channel.read(buffer, (long) offset << SECTOR_SHIFT);
++            this.channel.read(buffer, (long)offset << SECTOR_SHIFT);
 +            buffer.flip();
 +
 +            rawIn = new ByteBufferInputStream(buffer);
@@ -2234,12 +2242,12 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +            }
 +        }
 +
-+        if ((int) (dataHeader.typeId & 0xFF) != type) {
++        if ((int)(dataHeader.typeId & 0xFF) != type) {
 +            rawIn.close();
 +            return this.tryRecalculate("mismatch of expected type and data header type", scopedBufferChoices, buffer, localX, localZ, type, readFlags);
 +        }
 +
-+        if (((int) dataHeader.index & 0xFFFF) != index) {
++        if (((int)dataHeader.index & 0xFFFF) != index) {
 +            rawIn.close();
 +            return this.tryRecalculate("mismatch of expected coordinates and data header coordinates", scopedBufferChoices, buffer, localX, localZ, type, readFlags);
 +        }
@@ -2270,7 +2278,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        }
 +
 +        final byte compressType = dataHeader.compressionType;
-+        final SectorFileCompressionType compressionType = SectorFileCompressionType.getById((int) compressType & 0xFF);
++        final SectorFileCompressionType compressionType = SectorFileCompressionType.getById((int)compressType & 0xFF);
 +        if (compressionType == null) {
 +            LOGGER.error("File '" + this.file.getAbsolutePath() + "' has unrecognized compression type for data type " + this.debugType(type) + " located at " + this.getAbsoluteCoordinate(index));
 +            // recalculate will not clobber data types if the compression is unrecognized, so we can only return null here
@@ -2346,17 +2354,16 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +    }
 +
 +    // performs a sync as if the sync flag is used for creating the sectorfile
-+    public static final int WRITE_FLAG_SYNC = 1 << 0;
++    public static final int WRITE_FLAG_SYNC         = 1 << 0;
 +    // avoid compressing data, but store target compression type (use if the data is already compressed)
-+    public static final int WRITE_FLAG_RAW = 1 << 1;
++    public static final int WRITE_FLAG_RAW          = 1 << 1;
 +
 +    public static record SectorFileOutput(
 +            /* Must run save (before close()) to cause the data to be written to the file, close() will not do this */
 +            SectorFileOutputStream rawOutput,
 +            /* Close is required to run on the outputstream to free resources, but will not commit the data */
 +            DataOutputStream outputStream
-+    ) {
-+    }
++    ) {}
 +
 +    public SectorFileOutput write(final BufferChoices scopedBufferChoices, final int localX, final int localZ, final int type,
 +                                  final SectorFileCompressionType forceCompressionType, final int writeFlags) throws IOException {
@@ -2389,8 +2396,8 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        final int index = getIndex(localX, localZ);
 +
 +        DataHeader.storeHeader(
-+                buffer.duplicate(), XXHASH64, dataHash, System.currentTimeMillis(), compressedSize,
-+                (short) index, (byte) type, (byte) compressionType.getId()
++            buffer.duplicate(), XXHASH64, dataHash, System.currentTimeMillis(), compressedSize,
++            (short)index, (byte)type, (byte)compressionType.getId()
 +        );
 +
 +        final int requiredSectors = (totalSize + (SECTOR_SIZE - 1)) >> SECTOR_SHIFT;
@@ -2431,7 +2438,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        }
 +
 +        // write data to allocated space
-+        this.write(buffer, (long) sectorToStore << SECTOR_SHIFT);
++        this.write(buffer, (long)sectorToStore << SECTOR_SHIFT);
 +
 +        final int prevLocation = this.typeHeaders.get(type).locations[index];
 +
@@ -2473,12 +2480,12 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +
 +            DataHeader.storeHeader(
 +                    buffer.duplicate(), XXHASH64, dataHash, System.currentTimeMillis(), compressedSize,
-+                    (short) index, (byte) type, (byte) compressionType.getId()
++                    (short)index, (byte)type, (byte)compressionType.getId()
 +            );
 +
 +            int offset = 0;
 +            while (buffer.hasRemaining()) {
-+                offset += channel.write(buffer, (long) offset);
++                offset += channel.write(buffer, (long)offset);
 +            }
 +        }
 +
@@ -2543,7 +2550,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +            this.buffer.limit(((MAX_NORMAL_SECTOR_LENGTH - 1) << SECTOR_SHIFT) + 1);
 +            // make space for the header
 +            for (int i = 0; i < DataHeader.DATA_HEADER_LENGTH; ++i) {
-+                this.buffer.put(i, (byte) 0);
++                this.buffer.put(i, (byte)0);
 +            }
 +            this.buffer.position(DataHeader.DATA_HEADER_LENGTH);
 +
@@ -2700,6 +2707,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        if (!this.channel.isOpen()) {
 +            return;
 +        }
++
 +        try {
 +            this.flush();
 +        } finally {
@@ -2708,8 +2716,9 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +    }
 +
 +    public static final class SectorAllocator {
++
 +        // smallest size first, then by lowest position in file
-+        private final LongRBTreeSet freeBlocksBySize = new LongRBTreeSet((LongComparator) (final long a, final long b) -> {
++        private final LongRBTreeSet freeBlocksBySize = new LongRBTreeSet((LongComparator)(final long a, final long b) -> {
 +            final int sizeCompare = Integer.compare(getFreeBlockLength(a), getFreeBlockLength(b));
 +            if (sizeCompare != 0) {
 +                return sizeCompare;
@@ -2718,7 +2727,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +            return Integer.compare(getFreeBlockStart(a), getFreeBlockStart(b));
 +        });
 +
-+        private final LongRBTreeSet freeBlocksByOffset = new LongRBTreeSet((LongComparator) (final long a, final long b) -> {
++        private final LongRBTreeSet freeBlocksByOffset = new LongRBTreeSet((LongComparator)(final long a, final long b) -> {
 +            return Integer.compare(getFreeBlockStart(a), getFreeBlockStart(b));
 +        });
 +
@@ -2771,15 +2780,15 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 +        }
 +
 +        private static long makeFreeBlock(final int start, final int length) {
-+            return ((start & 0xFFFFFFFFL) | ((long) length << 32));
++            return ((start & 0xFFFFFFFFL) | ((long)length << 32));
 +        }
 +
 +        private static int getFreeBlockStart(final long freeBlock) {
-+            return (int) freeBlock;
++            return (int)freeBlock;
 +        }
 +
 +        private static int getFreeBlockLength(final long freeBlock) {
-+            return (int) (freeBlock >>> 32);
++            return (int)(freeBlock >>> 32);
 +        }
 +
 +        private void splitBlock(final long fromBlock, final int allocStart, final int allocEnd) {
@@ -2988,7 +2997,7 @@ index 0000000000000000000000000000000000000000..4b49dc3df3f3352e4447b66a3207d948
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java b/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..af55a9ba5f07fddf91f709cc2f8772144f2d5531
+index 0000000000000000000000000000000000000000..14a6a996e3fa3d2c89f997843659ef97ae5d9497
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java
 @@ -0,0 +1,392 @@
@@ -3038,13 +3047,13 @@ index 0000000000000000000000000000000000000000..af55a9ba5f07fddf91f709cc2f877214
 +        return BUFFER_CHOICES.get();
 +    }
 +
-+    private static ca.spottedleaf.io.region.SectorFileCompressionType getCompressionType() {
++    public static SectorFileCompressionType getCompressionType() {
 +        return switch (one.tranic.vine.region.Compression.getNow()) {
-+            case GZIP -> ca.spottedleaf.io.region.SectorFileCompressionType.GZIP;
-+            case ZLIB -> ca.spottedleaf.io.region.SectorFileCompressionType.DEFLATE;
-+            case LZ4 -> ca.spottedleaf.io.region.SectorFileCompressionType.LZ4;
-+            case ZSTD -> ca.spottedleaf.io.region.SectorFileCompressionType.ZSTD;
-+            case BROTLI -> ca.spottedleaf.io.region.SectorFileCompressionType.BROTLI;
++            case one.tranic.vine.region.Compression.GZIP -> SectorFileCompressionType.GZIP;
++            case one.tranic.vine.region.Compression.ZLIB -> SectorFileCompressionType.DEFLATE;
++            case one.tranic.vine.region.Compression.LZ4 -> SectorFileCompressionType.LZ4;
++            case one.tranic.vine.region.Compression.ZSTD -> SectorFileCompressionType.ZSTD;
++            case one.tranic.vine.region.Compression.BROTLI -> SectorFileCompressionType.BROTLI;
 +            default -> SectorFileCompressionType.NONE;
 +        };
 +    }
@@ -3236,7 +3245,7 @@ index 0000000000000000000000000000000000000000..af55a9ba5f07fddf91f709cc2f877214
 +                            continue;
 +                        }
 +
-+                        try (final BufferChoices writeScope = readScope.scope();) {
++                        try (final BufferChoices writeScope = readScope.scope()) {
 +                            final SectorFile.SectorFileOutput output = sectorFile.write(
 +                                    writeScope, chunkX, chunkZ, type.getNewId(),
 +                                    SectorFileCompressionType.fromRegionFile(read),
@@ -3387,10 +3396,10 @@ index 0000000000000000000000000000000000000000..af55a9ba5f07fddf91f709cc2f877214
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java b/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..b70d5e78ff9c7657fd5066180bb553c09b0d360e
+index 0000000000000000000000000000000000000000..9e3ab7aa036172d9f965e2268780cd5b840dca93
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java
-@@ -0,0 +1,135 @@
+@@ -0,0 +1,142 @@
 +package ca.spottedleaf.io.region;
 +
 +import ca.spottedleaf.io.region.io.bytebuffer.ByteBufferInputStream;
@@ -3407,7 +3416,6 @@ index 0000000000000000000000000000000000000000..b70d5e78ff9c7657fd5066180bb553c0
 +import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 +import net.jpountz.lz4.LZ4BlockInputStream;
 +import net.jpountz.lz4.LZ4BlockOutputStream;
-+
 +import java.io.IOException;
 +import java.io.InputStream;
 +import java.io.OutputStream;
@@ -3417,6 +3425,8 @@ index 0000000000000000000000000000000000000000..b70d5e78ff9c7657fd5066180bb553c0
 +import java.util.zip.InflaterInputStream;
 +
 +public abstract class SectorFileCompressionType {
++
++    private static final Int2ObjectMap<SectorFileCompressionType> BY_ID = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<>());
 +
 +    public static final SectorFileCompressionType GZIP = new SectorFileCompressionType(1) {
 +        @Override
@@ -3490,7 +3500,7 @@ index 0000000000000000000000000000000000000000..b70d5e78ff9c7657fd5066180bb553c0
 +            return new SimpleBufferedOutputStream(new BrotliOutputStream(output), scopedBufferChoices.t16k().acquireJavaBuffer());
 +        }
 +    };
-+    private static final Int2ObjectMap<SectorFileCompressionType> BY_ID = Int2ObjectMaps.synchronize(new Int2ObjectOpenHashMap<>());
++
 +    private final int id;
 +
 +    protected SectorFileCompressionType(final int id) {
@@ -3500,24 +3510,6 @@ index 0000000000000000000000000000000000000000..b70d5e78ff9c7657fd5066180bb553c0
 +        }
 +    }
 +
-+    public static SectorFileCompressionType getById(final int id) {
-+        return BY_ID.get(id);
-+    }
-+
-+    public static SectorFileCompressionType fromRegionFile(final int id) {
-+        return switch (id) {
-+            case 1 -> // GZIP
-+                    SectorFileCompressionType.GZIP;
-+            case 2 -> // DEFLATE
-+                    SectorFileCompressionType.DEFLATE;
-+            case 3 -> // NONE
-+                    SectorFileCompressionType.NONE;
-+            case 4 -> // LZ4
-+                    SectorFileCompressionType.LZ4;
-+            default -> throw new IllegalArgumentException();
-+        };
-+    }
-+
 +    public final int getId() {
 +        return this.id;
 +    }
@@ -3525,6 +3517,30 @@ index 0000000000000000000000000000000000000000..b70d5e78ff9c7657fd5066180bb553c0
 +    public abstract InputStream createInput(final BufferChoices scopedBufferChoices, final ByteBufferInputStream input) throws IOException;
 +
 +    public abstract OutputStream createOutput(final BufferChoices scopedBufferChoices, final ByteBufferOutputStream output) throws IOException;
++
++    public static SectorFileCompressionType getById(final int id) {
++        return BY_ID.get(id);
++    }
++
++    public static SectorFileCompressionType fromRegionFile(final int id) {
++        switch (id) {
++            case 1: { // GZIP
++                return SectorFileCompressionType.GZIP;
++            }
++            case 2: { // DEFLATE
++                return SectorFileCompressionType.DEFLATE;
++            }
++            case 3: { // NONE
++                return SectorFileCompressionType.NONE;
++            }
++            case 4: { // LZ4
++                return SectorFileCompressionType.LZ4;
++            }
++            default: {
++                throw new IllegalArgumentException();
++            }
++        }
++    }
 +}
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileTracer.java b/src/main/java/ca/spottedleaf/io/region/SectorFileTracer.java
