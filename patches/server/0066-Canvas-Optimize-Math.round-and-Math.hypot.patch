@@ -165,10 +165,10 @@ index 23fe7c4c1844d321efed6b7b886c422761ad6594..c968a07ef296f8a4d3d97085727ed715
  
      @VisibleForTesting
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index cbac51b55b91cf9be8af3b5e9a992fa8b33f82ec..dff9b8e5712c6744791be0684aeb215f155e4c5c 100644
+index a1eff8c1ff357e8bd8a20e1564c67014fac381fa..35dae62d2863dcc771a9e3e457e87163f7d45c6e 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
-@@ -1515,7 +1515,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+@@ -1516,7 +1516,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
                      }
  
                      double overuseCount = (double)overuse/(double)MAX_CHUNK_EXEC_TIME;

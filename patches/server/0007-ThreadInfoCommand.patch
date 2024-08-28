@@ -79,7 +79,7 @@ index 0000000000000000000000000000000000000000..ecc2ed943f88454406bca71780678e41
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-index 61bb276a0f099888911aa630bb9e9e5b06ed53dc..d170d8be4e84247bba06e3ac296045c2ffab574c 100644
+index a0e735da72644446a5fba7832d1e33ed62f8419b..5396c7a11ae6576c2e3cabd8ecb669063381cdb5 100644
 --- a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 @@ -15,6 +15,7 @@ object ConfigUtil {

@@ -905,7 +905,7 @@ index f5154194df9e44f8bcf431029f4bbed68db49658..8f14ed215ff2eb1e6a1d5c117425c897
                          packet.handle(listener);
                      } catch (Exception exception) {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index ccd25a26cfd3b4075279bb89657563fb7f2fbd21..88aa9cda084f2b68629ffd00532eb849a595763a 100644
+index f1eed0eef796d3ecced91d6bf770e1aead019650..85574b14b656b8d8c096909210be14093469a79c 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -189,7 +189,7 @@ import org.bukkit.craftbukkit.CraftRegistry;
