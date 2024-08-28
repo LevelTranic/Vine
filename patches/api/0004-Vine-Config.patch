@@ -107,10 +107,10 @@ index 0000000000000000000000000000000000000000..b743c171d46ec07cd5c2da71b272fe07
 +}
 diff --git a/src/main/java/one/tranic/vine/region/Compression.java b/src/main/java/one/tranic/vine/region/Compression.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..598d967fc91b3301015523a4698312200c17d45f
+index 0000000000000000000000000000000000000000..2d8179733bbd2edcaa6acf77a2cb654d5d83a8d3
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/region/Compression.java
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,49 @@
 +package one.tranic.vine.region;
 +
 +public enum Compression {
@@ -121,7 +121,11 @@ index 0000000000000000000000000000000000000000..598d967fc91b3301015523a469831220
 +    ZSTD,
 +    BROTLI;
 +
-+    public static Compression now;
++    private static Compression now;
++
++    public static boolean equals(Compression input) {
++        return input.ordinal() == now.ordinal();
++    }
 +
 +    @Override
 +    public String toString() {
@@ -151,16 +155,17 @@ index 0000000000000000000000000000000000000000..598d967fc91b3301015523a469831220
 +    }
 +
 +    public static void setNow(final Compression now) {
++        if (Compression.now != null) throw new RuntimeException("Disallow reassignment to \"now\".");
 +        one.tranic.vine.config.VineConfig.Feature.Region.compressionFormat = now;
 +        Compression.now = now;
 +    }
 +}
 diff --git a/src/main/java/one/tranic/vine/region/Format.java b/src/main/java/one/tranic/vine/region/Format.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..0e302de56b2a294a975d5b257012c16d78fd57ea
+index 0000000000000000000000000000000000000000..cd4967fd8341c33ef88f987a13c1ab3a665408bc
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/region/Format.java
-@@ -0,0 +1,35 @@
+@@ -0,0 +1,40 @@
 +package one.tranic.vine.region;
 +
 +public enum Format {
@@ -168,7 +173,11 @@ index 0000000000000000000000000000000000000000..0e302de56b2a294a975d5b257012c16d
 +    LINEAR,
 +    SECTORFILE;
 +
-+    public static Format now;
++    private static Format now;
++
++    public static boolean equals(Format input) {
++        return input.ordinal() == now.ordinal();
++    }
 +
 +    @Override
 +    public String toString() {
@@ -192,6 +201,7 @@ index 0000000000000000000000000000000000000000..0e302de56b2a294a975d5b257012c16d
 +    }
 +
 +    public static void setNow(Format now) {
++        if (Format.now != null) throw new RuntimeException("Disallow reassignment to \"now\".");
 +        one.tranic.vine.config.VineConfig.Feature.Region.format = now;
 +        Format.now = now;
 +    }

@@ -127,7 +127,7 @@ index 0000000000000000000000000000000000000000..819da2962087ce70c6b9b4ec758937ef
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..38064202131f042d3d38757afdab76960b4fb232
+index 0000000000000000000000000000000000000000..655dcd125a58aec84ee93a90cf087b0b10052830
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 @@ -0,0 +1,148 @@
@@ -183,7 +183,7 @@ index 0000000000000000000000000000000000000000..38064202131f042d3d38757afdab7696
 +        reload()
 +        // If SECTORFILE is enabled and BROTLI is selected as the compression format,
 +        // initialize the dependent libraries.
-+        if (Format.getNow().equals(Format.SECTORFILE) && Compression.getNow().equals(Compression.BROTLI)) {
++        if (Format.equals(Format.SECTORFILE) && Compression.equals(Compression.BROTLI)) {
 +            Brotli4jLoader.ensureAvailability()
 +        }
 +    }
@@ -471,7 +471,7 @@ index 0000000000000000000000000000000000000000..1912152e305c4aa92e23335990b847b6
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..39cd03eb8475d673609c40fae6d9cb96a99dd92e
+index 0000000000000000000000000000000000000000..904816530087bc3938228070eaf2fe05abfbffb6
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 @@ -0,0 +1,87 @@
@@ -528,20 +528,20 @@ index 0000000000000000000000000000000000000000..39cd03eb8475d673609c40fae6d9cb96
 +
 +    override fun load() {
 +        getString("feature.region.format") {
++            val b = Format.getFormat(it)
 +            if (Locker.regionFormat == null) {
-+                val b = Format.getFormat(it)
 +                Locker.regionFormat = b
 +                Format.setNow(b)
-+            } else if (Locker.regionFormat != Format.getFormat(it)) {
++            } else if (!b.equals(Locker.regionFormat)) {
 +                VineLogger.error("Forbidden to modify the parameter \"feature.region.format\" during runtime!!!")
 +            }
 +        }
 +        getString("feature.region.compression-format") {
++            val b = Compression.getCompression(it)
 +            if (Locker.compressionFormat == null) {
-+                val b = Compression.getCompression(it)
 +                Locker.compressionFormat = b
 +                Compression.setNow(b)
-+            } else if (Locker.compressionFormat != Compression.getCompression(it)) {
++            } else if (!b.equals(Locker.compressionFormat)) {
 +                VineLogger.error("Forbidden to modify the parameter \"feature.region.compression-format\" during runtime!!!")
 +            }
 +        }
