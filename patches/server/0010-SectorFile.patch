@@ -2997,10 +2997,10 @@ index 0000000000000000000000000000000000000000..ad5d71fc8369e288f79249d32af6700d
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java b/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..14a6a996e3fa3d2c89f997843659ef97ae5d9497
+index 0000000000000000000000000000000000000000..a3f269c357832fe3f012c1c03f32cee0bb78386f
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFileCache.java
-@@ -0,0 +1,392 @@
+@@ -0,0 +1,393 @@
 +package ca.spottedleaf.io.region;
 +
 +import ca.spottedleaf.io.buffer.BufferChoices;
@@ -3054,6 +3054,7 @@ index 0000000000000000000000000000000000000000..14a6a996e3fa3d2c89f997843659ef97
 +            case one.tranic.vine.region.Compression.LZ4 -> SectorFileCompressionType.LZ4;
 +            case one.tranic.vine.region.Compression.ZSTD -> SectorFileCompressionType.ZSTD;
 +            case one.tranic.vine.region.Compression.BROTLI -> SectorFileCompressionType.BROTLI;
++            case one.tranic.vine.region.Compression.SNAPPY -> SectorFileCompressionType.SNAPPY;
 +            default -> SectorFileCompressionType.NONE;
 +        };
 +    }
@@ -3396,10 +3397,10 @@ index 0000000000000000000000000000000000000000..14a6a996e3fa3d2c89f997843659ef97
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java b/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..9e3ab7aa036172d9f965e2268780cd5b840dca93
+index 0000000000000000000000000000000000000000..6c2a7b91fc04936b4699ee0f4cca9f21207a20d7
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java
-@@ -0,0 +1,142 @@
+@@ -0,0 +1,156 @@
 +package ca.spottedleaf.io.region;
 +
 +import ca.spottedleaf.io.region.io.bytebuffer.ByteBufferInputStream;
@@ -3416,6 +3417,9 @@ index 0000000000000000000000000000000000000000..9e3ab7aa036172d9f965e2268780cd5b
 +import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 +import net.jpountz.lz4.LZ4BlockInputStream;
 +import net.jpountz.lz4.LZ4BlockOutputStream;
++import org.xerial.snappy.SnappyInputStream;
++import org.xerial.snappy.SnappyOutputStream;
++
 +import java.io.IOException;
 +import java.io.InputStream;
 +import java.io.OutputStream;
@@ -3498,6 +3502,17 @@ index 0000000000000000000000000000000000000000..9e3ab7aa036172d9f965e2268780cd5b
 +        @Override
 +        public OutputStream createOutput(final BufferChoices scopedBufferChoices, final ByteBufferOutputStream output) throws IOException {
 +            return new SimpleBufferedOutputStream(new BrotliOutputStream(output), scopedBufferChoices.t16k().acquireJavaBuffer());
++        }
++    };
++    public static final SectorFileCompressionType SNAPPY = new SectorFileCompressionType(7) {
++        @Override
++        public InputStream createInput(final BufferChoices scopedBufferChoices, final ByteBufferInputStream input) throws IOException {
++            return new SimpleBufferedInputStream(new SnappyInputStream(input), scopedBufferChoices.t16k().acquireJavaBuffer());
++        }
++
++        @Override
++        public OutputStream createOutput(final BufferChoices scopedBufferChoices, final ByteBufferOutputStream output) throws IOException {
++            return new SimpleBufferedOutputStream(new SnappyOutputStream(output), scopedBufferChoices.t16k().acquireJavaBuffer());
 +        }
 +    };
 +

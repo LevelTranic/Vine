@@ -6,7 +6,7 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..b743c171d46ec07cd5c2da71b272fe073ec4da81
+index 0000000000000000000000000000000000000000..6864207a28badf5c3e4bab31c1ffd6b9f394e62f
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
 @@ -0,0 +1,95 @@
@@ -74,7 +74,7 @@ index 0000000000000000000000000000000000000000..b743c171d46ec07cd5c2da71b272fe07
 +        public static class Region {
 +            /**Support: ANVIL (Vanilla), LINEAR, SECTORFILE*/
 +            public static Format format = Format.ANVIL;
-+            /**Only SECTORFILE | Support: GZIP, ZLIB, LZ4, BROTLI (Only Tranic Server), ZSTD*/
++            /**Only SECTORFILE | Support: GZIP, ZLIB, LZ4, BROTLI (Only Tranic Server), SNAPPY (Only Tranic Server), ZSTD*/
 +            public static Compression compressionFormat = Compression.ZSTD;
 +            /**Only LINEAR | 1-15*/
 +            public static int compressionLevel = 1;
@@ -107,10 +107,10 @@ index 0000000000000000000000000000000000000000..b743c171d46ec07cd5c2da71b272fe07
 +}
 diff --git a/src/main/java/one/tranic/vine/region/Compression.java b/src/main/java/one/tranic/vine/region/Compression.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..2d8179733bbd2edcaa6acf77a2cb654d5d83a8d3
+index 0000000000000000000000000000000000000000..6e8be5b0d3e9f4f37be23d1069a5750115084f55
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/region/Compression.java
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,52 @@
 +package one.tranic.vine.region;
 +
 +public enum Compression {
@@ -119,7 +119,8 @@ index 0000000000000000000000000000000000000000..2d8179733bbd2edcaa6acf77a2cb654d
 +    LZ4,
 +    NONE,
 +    ZSTD,
-+    BROTLI;
++    BROTLI,
++    SNAPPY;
 +
 +    private static Compression now;
 +
@@ -135,6 +136,7 @@ index 0000000000000000000000000000000000000000..2d8179733bbd2edcaa6acf77a2cb654d
 +            case LZ4 -> "LZ4";
 +            case ZSTD -> "ZSTD";
 +            case BROTLI -> "BROTLI";
++            case SNAPPY -> "SNAPPY";
 +            default -> "NONE";
 +        };
 +    }
@@ -146,6 +148,7 @@ index 0000000000000000000000000000000000000000..2d8179733bbd2edcaa6acf77a2cb654d
 +            case "LZ4" -> LZ4;
 +            case "ZSTD" -> ZSTD;
 +            case "BROTLI" -> BROTLI;
++            case "SNAPPY" -> SNAPPY;
 +            default -> NONE;
 +        };
 +    }

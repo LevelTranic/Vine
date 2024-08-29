@@ -471,7 +471,7 @@ index 0000000000000000000000000000000000000000..1912152e305c4aa92e23335990b847b6
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..904816530087bc3938228070eaf2fe05abfbffb6
+index 0000000000000000000000000000000000000000..3f89f14785f4ee57c1c76e8c37fbe016145f768f
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 @@ -0,0 +1,87 @@
@@ -503,7 +503,7 @@ index 0000000000000000000000000000000000000000..904816530087bc3938228070eaf2fe05
 +        addDefault(
 +            "feature.region.compression-format", "ZSTD", listOf(
 +                "Only applicable to SECTORFILE, support list:",
-+                "\"GZIP, ZLIB, LZ4, BROTLI, ZSTD\"",
++                "\"GZIP, ZLIB, NONE, LZ4, BROTLI, SNAPPY, ZSTD\"",
 +                "Brotli is only available on TranicServer for Vine.",
 +                "There is currently no tool to convert it back to ANVIL. Enable with caution!"
 +            )
