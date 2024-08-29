@@ -5,7 +5,7 @@ Subject: [PATCH] Leaves: Entity Utils
 
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index af86daf687d4727f651b7590776f8d13b87de2e6..54065a663adeec4f8d429a14dd1e4f5fd47a6f48 100644
+index 55cf9f6e0529eab328c112322098dbb19207a2e1..b5e18649bb7b64df4f34b3deee5829dbdca8b915 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -437,6 +437,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
@@ -36,7 +36,7 @@ index af86daf687d4727f651b7590776f8d13b87de2e6..54065a663adeec4f8d429a14dd1e4f5f
  
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.forThrowable(throwable, "Loading entity NBT");
-@@ -5221,4 +5228,10 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -5220,4 +5227,10 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      public CompoundTag requestVineStorage() {
          return vineStorage;
      }
