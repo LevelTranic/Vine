@@ -817,7 +817,7 @@ index 0000000000000000000000000000000000000000..913870c77ccb6f399d46c76e0408798c
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..cadb03a3b41d960c8ce19c0dc53ba0bd5245ab84
+index 0000000000000000000000000000000000000000..c120f700e2785c64549e7875ae9b828acd5d595c
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
 @@ -0,0 +1,40 @@
@@ -831,7 +831,7 @@ index 0000000000000000000000000000000000000000..cadb03a3b41d960c8ce19c0dc53ba0bd
 +object Value : ConfigImpl {
 +    override fun default() {
 +        addDefault(
-+            "faster-structure-gen-future-sequencing",
++            "optimize.faster-structure-gen-future-sequencing",
 +            false,
 +            "May cause the inconsistent order of future compose tasks."
 +        )
