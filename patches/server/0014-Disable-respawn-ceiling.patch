@@ -8,17 +8,18 @@ This feature is not yet complete, but no major bugs have been found.
 Note that you should set spawnRadius to at least 1, not 0, and the spawn point range should be at least 3*3 (or more)
 
 diff --git a/src/main/java/net/minecraft/server/level/PlayerRespawnLogic.java b/src/main/java/net/minecraft/server/level/PlayerRespawnLogic.java
-index e1ee330b6fdd43114a1330677b1597bf437c1ed5..1d6394f645cd1d47a9128de2859f8c241ab3f3fc 100644
+index e1ee330b6fdd43114a1330677b1597bf437c1ed5..4c0cd2432a99b0d0b8f80eb46bff17b24ff6ede1 100644
 --- a/src/main/java/net/minecraft/server/level/PlayerRespawnLogic.java
 +++ b/src/main/java/net/minecraft/server/level/PlayerRespawnLogic.java
-@@ -11,20 +11,23 @@ import net.minecraft.world.level.block.state.BlockState;
+@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
+ import net.minecraft.core.SectionPos;
+ import net.minecraft.world.level.ChunkPos;
+ import net.minecraft.world.level.block.Block;
++import net.minecraft.world.level.block.Blocks;
+ import net.minecraft.world.level.block.state.BlockState;
  import net.minecraft.world.level.chunk.LevelChunk;
  import net.minecraft.world.level.levelgen.Heightmap;
- import io.multipaper.shreddedpaper.region.RegionPos;
-+import org.bukkit.World;
- 
- public class PlayerRespawnLogic {
-     @Nullable
+@@ -17,14 +18,29 @@ public class PlayerRespawnLogic {
      protected static BlockPos getOverworldRespawnPos(ServerLevel world, int x, int z) {
          boolean bl = world.dimensionType().hasCeiling();
          LevelChunk levelChunk = world.getChunk(SectionPos.blockToSectionCoord(x), SectionPos.blockToSectionCoord(z));
@@ -30,18 +31,31 @@ index e1ee330b6fdd43114a1330677b1597bf437c1ed5..1d6394f645cd1d47a9128de2859f8c24
 +        if (bl) {
 +            i = world.getChunkSource().getGenerator().getSpawnHeight(world);
          } else {
-+            i = one.tranic.vine.config.VineConfig.Feature.disableRespawnCeiling ? world.levelData.getSpawnPos().getY():levelChunk.getHeight(Heightmap.Types.MOTION_BLOCKING, x & 15, z & 15);
-+        }
-+        if (i >= world.getMinBuildHeight()) {
-             int j = levelChunk.getHeight(Heightmap.Types.WORLD_SURFACE, x & 15, z & 15);
+-            int j = levelChunk.getHeight(Heightmap.Types.WORLD_SURFACE, x & 15, z & 15);
 -            if (j <= i && j > levelChunk.getHeight(Heightmap.Types.OCEAN_FLOOR, x & 15, z & 15)) {
 -                return null;
--            } else {
++            // Vine start - Safe respawn
++            if (one.tranic.vine.config.VineConfig.Feature.disableRespawnCeiling) {
++                i = world.levelData.getSpawnPos().getY();
++                for (int w = 0; w < 10; w++) {
++                    BlockPos block = new BlockPos(x, i, z);
++                    if (world.getBlockState(block).getBlock() == Blocks.AIR) {
++                        break;
++                    }
++                    i = i + 3;
++                }
++                // Vine end - Safe respawn
+             } else {
++                i = levelChunk.getHeight(Heightmap.Types.MOTION_BLOCKING, x & 15, z & 15);
++            }
++        }
++        if (i >= world.getMinBuildHeight()) {
++            int j = levelChunk.getHeight(Heightmap.Types.WORLD_SURFACE, x & 15, z & 15);
 +            if (j > i || j <= levelChunk.getHeight(Heightmap.Types.OCEAN_FLOOR, x & 15, z & 15)) {
                  BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
  
                  for (int k = i + 1; k >= world.getMinBuildHeight(); k--) {
-@@ -42,6 +45,8 @@ public class PlayerRespawnLogic {
+@@ -42,6 +58,8 @@ public class PlayerRespawnLogic {
                  return null;
              }
          }
@@ -50,7 +64,7 @@ index e1ee330b6fdd43114a1330677b1597bf437c1ed5..1d6394f645cd1d47a9128de2859f8c24
      }
  
      @Nullable
-@@ -50,16 +55,16 @@ public class PlayerRespawnLogic {
+@@ -50,16 +68,16 @@ public class PlayerRespawnLogic {
              return null;
          } else {
              return world.chunkScheduler.getRegionLocker().lockRegion(RegionPos.forChunk(chunkPos), () -> { // ShreddedPaper - lock region
