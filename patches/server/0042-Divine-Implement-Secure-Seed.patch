@@ -208,7 +208,7 @@ index 927bdebdb8ae01613f0cea074b3367bd7ffe9ab1..2ffee338107a97fc13c870f6c1a5f263
  
                      StructureSet.StructureSelectionEntry structureset_a1;
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java b/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
-index a6b6e5ea191c0e2cd7a2e4f01b89d8af40a83c1b..86568d60cdc274ac7fe8d24f3518c8df24b9b409 100644
+index 713fced29fbd819ee6f151c7f3e462f58a21d5e6..d0733c56fe8202d646fd3863e6e48d7d9589f20d 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
 @@ -39,6 +39,11 @@ import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStruct

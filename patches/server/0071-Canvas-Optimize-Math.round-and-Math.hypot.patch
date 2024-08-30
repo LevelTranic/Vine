@@ -508,7 +508,7 @@ index 26ec4838c476b8091f80aeac61db8041d5c89e88..b74042399b0c9d150f9e5d6178a2a850
  
          i = Mth.clamp(i, 0, 15);
 diff --git a/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java b/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
-index 86568d60cdc274ac7fe8d24f3518c8df24b9b409..4f3fd69c99c14cfa4b59caba37aa368fb4a20837 100644
+index d0733c56fe8202d646fd3863e6e48d7d9589f20d..872420100e4efb5a35ad921f75ca4ed63e17b641 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
 +++ b/src/main/java/net/minecraft/world/level/chunk/ChunkGeneratorStructureState.java
 @@ -248,8 +248,8 @@ public class ChunkGeneratorStructureState {
