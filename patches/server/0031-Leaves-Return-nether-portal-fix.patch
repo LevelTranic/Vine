@@ -95,7 +95,7 @@ index 531a6707c7de91608e825b81b782acdfdeacafd1..01ef8234eb80e85e1bf5689c2ce9360f
  
          // Save player file again if they were disconnected
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index d54e696d425e83a286de12ea8082ae7acfe3fb05..ddb5b8182db5f398a8248e85e08ae7bf16b158d9 100644
+index 96a32c70f1de053a01ac89abdbc7ff3c41f1993f..5c498e72f7712df3a59ed884b3c32e7b3da254f4 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -251,7 +251,7 @@ public abstract class LivingEntity extends Entity implements Attackable {

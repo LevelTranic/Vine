@@ -6,7 +6,7 @@ Subject: [PATCH] lithium: fast powder snow check
 You can find the original code on https://github.com/CaffeineMC/lithium-fabric
 
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index eb30577154677fb42c0b4c116064e455abd4e16f..373341615b4097a0f4f137e3431846958aa0091f 100644
+index 5e14d1521b779cda13bf6b35422936f390caefff..bc611a97250c9dfc3e7b75c1e9d68fea8e48d29d 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -599,11 +599,11 @@ public abstract class LivingEntity extends Entity implements Attackable {
