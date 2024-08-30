@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..0dde53d78c961549f4acf7ee482fb091187993fa
+index 0000000000000000000000000000000000000000..5b5e620936801cff2f4776bf295155fbe2df844f
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,98 @@
+@@ -0,0 +1,102 @@
 +package one.tranic.vine.config;
 +
 +import one.tranic.vine.region.Compression;
@@ -96,6 +96,10 @@ index 0000000000000000000000000000000000000000..0dde53d78c961549f4acf7ee482fb091
 +        /**As the name suggests, it can slightly improve world generation performance, maybe.*/
 +        public static boolean noiseGeneration = true;
 +        public static boolean skipSelfRaidCheck = false;
++        public static class loadChunks {
++            public static boolean spawnPhantoms = true;
++            public static boolean activateClimbingEntities = true;
++        }
 +        /**Optimize stacked minecarts*/
 +        public static class Minecart {
 +            public static boolean enabled = true;

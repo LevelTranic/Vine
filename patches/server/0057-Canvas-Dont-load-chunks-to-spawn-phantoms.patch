@@ -6,7 +6,7 @@ Subject: [PATCH] Canvas: Dont load chunks to spawn phantoms
 You can find the original code on https://github.com/CraftCanvasMC/Canvas
 
 diff --git a/src/main/java/net/minecraft/world/level/levelgen/PhantomSpawner.java b/src/main/java/net/minecraft/world/level/levelgen/PhantomSpawner.java
-index 21104075c85efa41b2f56d6426ec20547b393ca8..e7e09742f4fbf81ac72b0752cd288d1f423d6329 100644
+index 21104075c85efa41b2f56d6426ec20547b393ca8..95ec4cd10640273d5ba5dbf32020ee15492a0760 100644
 --- a/src/main/java/net/minecraft/world/level/levelgen/PhantomSpawner.java
 +++ b/src/main/java/net/minecraft/world/level/levelgen/PhantomSpawner.java
 @@ -67,10 +67,10 @@ public class PhantomSpawner implements CustomSpawner {
@@ -17,7 +17,7 @@ index 21104075c85efa41b2f56d6426ec20547b393ca8..e7e09742f4fbf81ac72b0752cd288d1f
  
                                      if (randomsource.nextInt(j) >= world.paperConfig().entities.behavior.playerInsomniaStartTicks) { // Paper - Ability to control player's insomnia and phantoms
                                          BlockPos blockposition1 = blockposition.above(20 + randomsource.nextInt(15)).east(-10 + randomsource.nextInt(21)).south(-10 + randomsource.nextInt(21));
-+                                        if (world.hasChunkAt(blockposition1)) return; // Canvas
++                                        if (!one.tranic.vine.config.VineConfig.Optimize.loadChunks.spawnPhantoms && world.hasChunkAt(blockposition1)) return; // Canvas
                                          BlockState iblockdata = world.getBlockState(blockposition1);
                                          FluidState fluid = world.getFluidState(blockposition1);
  

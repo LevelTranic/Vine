@@ -745,6 +745,33 @@ index 0000000000000000000000000000000000000000..c221e08aa8e2702fe1041f97781ef899
 +
 +}
 \ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..109c90f68d16f49855256afc48f49d7797627d8c
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt
+@@ -0,0 +1,20 @@
++package one.tranic.vine.config.module.optimize
++
++import one.tranic.vine.config.ConfigUtil.addDefault
++import one.tranic.vine.config.ConfigUtil.getBoolean
++import one.tranic.vine.config.VineConfig.Optimize
++import one.tranic.vine.config.impl.ConfigImpl
++
++object LoadChunks: ConfigImpl {
++    override fun default() {
++        addDefault(
++            "optimize.load-chunks.spawn-phantoms", true
++        )
++        addDefault("optimize.load-chunks.activate-climbing-entities", true)
++    }
++
++    override fun load() {
++        Optimize.loadChunks.spawnPhantoms = getBoolean("optimize.load-chunks.spawn-phantoms")
++        Optimize.loadChunks.activateClimbingEntities = getBoolean("optimize.load-chunks.activate-climbing-entities")
++    }
++}
+\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt
 new file mode 100644
 index 0000000000000000000000000000000000000000..39c71a02a91c91a0d14c0021a781237f28fda74d
