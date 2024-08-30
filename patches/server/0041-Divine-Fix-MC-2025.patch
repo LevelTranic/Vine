@@ -10,7 +10,7 @@ Original post on Mojira: https://bugs.mojang.com/browse/MC-2025
 Fix taken from Reddit: https://redd.it/8pgd4q
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index e1b63e185f054b35b1ba522407541b21247e2e1f..ca9d63cd2212191ff41b1161f683876c90f701d9 100644
+index bf76fb92aef1ff12423c10a8dc9b5f6b626b8d97..ddbb7b3de1d46b71547d638991df9950dbdbd318 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
 @@ -2619,6 +2619,17 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess

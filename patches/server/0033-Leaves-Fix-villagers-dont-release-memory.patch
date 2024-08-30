@@ -1,0 +1,31 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: violetc <58360096+s-yh-china@users.noreply.github.com>
+Date: Sat, 22 Jul 2023 12:00:59 +0800
+Subject: [PATCH] Leaves: Fix villagers dont release memory
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+index 971f2d594ead143f34911eea857203aac5bdd0b5..680b4b889f04afa604baa3513de5338f402b56b4 100644
+--- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
++++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+@@ -1185,4 +1185,20 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+ 
+         return optional.isPresent() ? worldTime - (Long) optional.get() < 24000L : false;
+     }
++
++    // Leaves start - fixes a memory leak when villagers get moved to another world
++    @Nullable
++    @Override
++    public Entity changeDimension(ServerLevel destination) {
++        if (one.tranic.vine.config.VineConfig.Fix.villagersDontReleaseMemory) {
++            this.releaseAllPois();
++            this.getBrain().eraseMemory(MemoryModuleType.HOME);
++            this.getBrain().eraseMemory(MemoryModuleType.JOB_SITE);
++            this.getBrain().eraseMemory(MemoryModuleType.POTENTIAL_JOB_SITE);
++            this.getBrain().eraseMemory(MemoryModuleType.MEETING_POINT);
++            this.refreshBrain(destination);
++        }
++        return super.changeDimension(destination);
++    }
++    // Leaves end - fixes a memory leak when villagers get moved to another world
+ }

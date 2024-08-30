@@ -696,10 +696,10 @@ index 0000000000000000000000000000000000000000..d584e3ca8e1bc70cee2bcb2a209f32d3
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..2914e9f87e50385cc64ab7c344ff29107a8793c8
+index 0000000000000000000000000000000000000000..c221e08aa8e2702fe1041f97781ef899faaef32c
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,44 @@
 +package one.tranic.vine.config.module.fix
 +
 +import one.tranic.vine.config.ConfigUtil.addDefault
@@ -730,12 +730,17 @@ index 0000000000000000000000000000000000000000..2914e9f87e50385cc64ab7c344ff2910
 +            false,
 +            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
 +        )
++        addDefault(
++            "fix.villagers-dont-release-memory",
++            false,
++        )
 +    }
 +
 +    override fun load() {
 +        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
 +        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
 +        Fix.netherPortal = getBoolean("fix.nether-portal")
++        Fix.villagersDontReleaseMemory = getBoolean("fix.villagers-dont-release-memory")
 +    }
 +
 +}
