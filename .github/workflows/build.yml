@@ -35,7 +35,7 @@ jobs:
       - name: Apply Patches
         run: gradle applyPatches
       - name: CreateJar
-        run: gradle createMojmapBundlerJar && gradle createMojmapPaperclipJar
+        run: gradle createMojmapPaperclipJar
       - name: SetENV
         run: pwsh scripts/SetEnv.ps1
       - name: Upload to Mars API
