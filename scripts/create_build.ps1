@@ -9,6 +9,16 @@ param(
     [string]$channel = "default"
 )
 
+$currentDirectory = Get-Location
+
+if (-not (Test-Path "$currentDirectory\.git")) {
+    Write-Error "Current directory is not a Git repository."
+    exit 1
+}
+
+$repoNameClassic = git rev-parse --show-toplevel | Split-Path -Leaf
+$repoName = $repoNameClassic.ToLower()
+
 $api = "https://mars.tranic.one"
 
 if (-not $token)
@@ -26,7 +36,6 @@ function Get-GitInfo
     $commit = git log -1 --pretty=format:"%H"
     $title = git log -1 --pretty=format:"%s"
     $message = (git log -1 --pretty=format:"%B") -replace "`r`n", "\n" -replace "`n", "\n"
-    $repoName = (git rev-parse --show-toplevel | Split-Path -Leaf).ToLower()
 
     return @{
         Commit = $commit
@@ -52,7 +61,7 @@ function Get-BuildInfo
     $fileInfo = @{ }
     foreach ($file in $files)
     {
-        if ($file.Name -match "vine-(bundler|paperclip)-(\d+\.\d+\.\d+)(-[^\-]+)*\.jar")
+        if ($file.Name -match "$repoName-(bundler|paperclip)-(\d+\.\d+\.\d+)(-[^\-]+)*\.jar")
         {
             $key = $matches[1]
             $version = $matches[2]
@@ -61,7 +70,7 @@ function Get-BuildInfo
             $fileInfo[$key] = @{
                 name = $file.Name
                 sha256 = $fileHash.Hash
-                url = "https://github.com/LevelTranic/$( $gitInfo.RepoName )/releases/download/$mcVersion-$commitHash/$( $file.Name )"
+                url = "https://github.com/LevelTranic/$( $repoNameClassic )/releases/download/$mcVersion-$commitHash/$( $file.Name )"
             }
         }
     }
@@ -117,7 +126,7 @@ $gitInfo = Get-GitInfo
 $buildInfo = Get-BuildInfo
 
 $jsonData = @{
-    project = $gitInfo.RepoName
+    project = $repoName
     version = $buildInfo.Version
     family = $buildInfo.Family
     channel = $channel
@@ -151,7 +160,7 @@ if ($responseObj -and $responseObj.build_id -ne 0)
     try
     {
         $uploadData = @{
-            project = $gitInfo.RepoName
+            project = $repoName
             version = $buildInfo.Version
             build = $responseObj.build_id
             file = $buildInfo.Files
