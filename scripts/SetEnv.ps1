@@ -22,9 +22,9 @@ $grdversion = Get-Property "version"
 $preVersion = Get-Property "preVersion"
 $release_tag = "$mcversion-$commitid-september-test"
 $jarName = "$project_id-paperclip-$mcversion.jar"
-$jarName_bundler = "$project_id-bundler-$mcversion.jar"
+#$jarName_bundler = "$project_id-bundler-$mcversion.jar"
 $jarName_dir = "build/libs/$jarName"
-$jarName_bundler_dir = "build/libs/$jarName_bundler"
+#$jarName_bundler_dir = "build/libs/$jarName_bundler"
 $make_latest = if ($preVersion -eq "true") { "false" } else { "true" }
 
 Move-Item "build/libs/$project_id-paperclip-$grdversion-mojmap.jar" $jarName_dir
@@ -40,5 +40,5 @@ Add-Content -Path $env:GITHUB_ENV -Value "pre=$preVersion"
 Add-Content -Path $env:GITHUB_ENV -Value "tag=$release_tag"
 Add-Content -Path $env:GITHUB_ENV -Value "jar=$jarName"
 Add-Content -Path $env:GITHUB_ENV -Value "jar_dir=$jarName_dir"
-Add-Content -Path $env:GITHUB_ENV -Value "jar_dir_bundler=$jarName_bundler_dir"
+#Add-Content -Path $env:GITHUB_ENV -Value "jar_dir_bundler=$jarName_bundler_dir"
 Add-Content -Path $env:GITHUB_ENV -Value "make_latest=$make_latest"

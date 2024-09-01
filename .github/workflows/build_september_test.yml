@@ -60,7 +60,6 @@ jobs:
             ${{ env.commit_msg }}
           artifacts: |
             ${{ env.jar_dir }}
-            ${{ env.jar_dir_bundler }}
           generateReleaseNotes: true
           prerelease: ${{ env.pre }}
           makeLatest: ${{ env.make_latest }}
