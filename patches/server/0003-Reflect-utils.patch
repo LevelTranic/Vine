@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 1 Sep 2024 17:14:34 +0800
+Subject: [PATCH] Reflect utils
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/util/Reflect.kt b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9191478b739383c4956d0c661617ebe8e632b5bd
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
+@@ -0,0 +1,23 @@
++package one.tranic.vine.util
++
++import com.google.common.reflect.ClassPath
++import java.io.IOException
++import kotlin.reflect.full.isSubclassOf
++
++
++object Reflect {
++    @Throws(IOException::class)
++    inline fun <reified T> findObjectClass(packageName: String): Set<T> {
++        val implSet = mutableSetOf<T>()
++        val classs = ClassPath.from(Thread.currentThread().contextClassLoader)
++        val classes = classs.getTopLevelClasses(packageName)
++        for (classInfo in classes) {
++            val clazz = Class.forName(classInfo.name).kotlin
++            if (clazz.objectInstance != null && clazz.isSubclassOf(T::class)) {
++                val objInstance = clazz.objectInstance as T
++                implSet.add(objInstance)
++            }
++        }
++        return implSet
++    }
++}
+\ No newline at end of file

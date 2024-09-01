@@ -1,0 +1,83 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Wed, 28 Aug 2024 09:07:38 +0800
+Subject: [PATCH] Preload Utils
+
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index ccd25a26cfd3b4075279bb89657563fb7f2fbd21..532cd7902711391048a9f7898b94e163da4f87fa 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1175,6 +1175,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa
+ 
+             org.spigotmc.WatchdogThread.tick(); // Paper
+             org.spigotmc.WatchdogThread.hasStarted = true; // Paper
++            one.tranic.vine.config.ConfigUtil.preload(); // Vine
+             Arrays.fill( this.recentTps, 20 );
+             // Paper start - further improve server tick loop
+             long tickSection = Util.getNanos();
+diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
+index 655dcd125a58aec84ee93a90cf087b0b10052830..9d7008fac113de175d3680f17ac8e60f177352d2 100644
+--- a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
++++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
+@@ -8,6 +8,7 @@ import java.io.File
+ import one.tranic.vine.commands.*
+ import one.tranic.vine.region.Compression
+ import one.tranic.vine.region.Format
++import one.tranic.vine.util.preload.Preload
+ 
+ object ConfigUtil {
+     private lateinit var configuration: YamlConfiguration
+@@ -55,6 +56,11 @@ object ConfigUtil {
+         }
+     }
+ 
++    @JvmStatic
++    fun preload() {
++        Preload.preload()
++    }
++
+     private fun addDefault(configFile: File) {
+         configuration.options().setHeader(
+             listOf(
+diff --git a/src/main/kotlin/one/tranic/vine/util/preload/Preload.kt b/src/main/kotlin/one/tranic/vine/util/preload/Preload.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d549f1ae7ac6585d69b26fa1aeef9d8acbd527a5
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/preload/Preload.kt
+@@ -0,0 +1,22 @@
++package one.tranic.vine.util.preload
++
++import one.tranic.vine.util.Reflect
++import one.tranic.vine.util.preload.impl.PreloadImpl
++
++object Preload: PreloadImpl {
++    private val clazz: ArrayList<PreloadImpl> = ArrayList()
++
++    private fun ArrayList<PreloadImpl>.addImpl(packageName: String) {
++        this.addAll(Reflect.findObjectClass(packageName))
++    }
++
++    init {
++        clazz.addImpl("one.tranic.vine.util.preload.module")
++    }
++
++    override fun preload() {
++        for (c in clazz) {
++            c.preload()
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/util/preload/impl/PreloadImpl.kt b/src/main/kotlin/one/tranic/vine/util/preload/impl/PreloadImpl.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..f8d072c1363e0cd8cfd70bf1abf17ab133275eb8
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/preload/impl/PreloadImpl.kt
+@@ -0,0 +1,5 @@
++package one.tranic.vine.util.preload.impl
++
++interface PreloadImpl {
++    fun preload()
++}
+\ No newline at end of file

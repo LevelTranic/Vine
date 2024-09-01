@@ -3397,7 +3397,7 @@ index 0000000000000000000000000000000000000000..a3f269c357832fe3f012c1c03f32cee0
 \ No newline at end of file
 diff --git a/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java b/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..6c2a7b91fc04936b4699ee0f4cca9f21207a20d7
+index 0000000000000000000000000000000000000000..190dd864e0dc5dfa40a355ff86a2fe4bdefd0ebf
 --- /dev/null
 +++ b/src/main/java/ca/spottedleaf/io/region/SectorFileCompressionType.java
 @@ -0,0 +1,156 @@

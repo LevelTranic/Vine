@@ -370,20 +370,20 @@ index 0000000000000000000000000000000000000000..d336332ccdd0fb8d78da01004981fea5
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Module.kt b/src/main/kotlin/one/tranic/vine/config/module/Module.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..e97a7eb2cc6825a1cc7e6a91e305a86a82747fcf
+index 0000000000000000000000000000000000000000..b3b73d63002001de4b1cce5a58a2ab1a1e3423ba
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Module.kt
 @@ -0,0 +1,30 @@
 +package one.tranic.vine.config.module
 +
 +import one.tranic.vine.config.impl.ConfigImpl
-+import one.tranic.vine.util.Ref
++import one.tranic.vine.util.Reflect
 +
 +object Module : ConfigImpl {
-+    val clazz: ArrayList<ConfigImpl> = ArrayList()
++    private val clazz: ArrayList<ConfigImpl> = ArrayList()
 +
 +    private fun ArrayList<ConfigImpl>.addImpl(packageName: String) {
-+        this.addAll(Ref.findConfigImpl(packageName))
++        this.addAll(Reflect.findObjectClass(packageName))
 +    }
 +
 +    init {
@@ -890,36 +890,5 @@ index 0000000000000000000000000000000000000000..f196e07de9f610a2604145d3268ee002
 +        Optimize.skipSelfRaidCheck = getBoolean("optimize.skip-self-raid-check")
 +    }
 +
-+}
-\ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/util/Ref.kt b/src/main/kotlin/one/tranic/vine/util/Ref.kt
-new file mode 100644
-index 0000000000000000000000000000000000000000..ab8a24157ad9828dc9555a3af9bb303afc310380
---- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/util/Ref.kt
-@@ -0,0 +1,24 @@
-+package one.tranic.vine.util
-+
-+import com.google.common.reflect.ClassPath
-+import one.tranic.vine.config.impl.ConfigImpl
-+import java.io.IOException
-+import kotlin.reflect.full.isSubclassOf
-+
-+
-+object Ref {
-+    @Throws(IOException::class)
-+    fun findConfigImpl(packageName: String): Set<ConfigImpl> {
-+        val implSet = mutableSetOf<ConfigImpl>()
-+        val classs = ClassPath.from(Thread.currentThread().contextClassLoader)
-+        val classes = classs.getTopLevelClasses(packageName)
-+        for (classInfo in classes) {
-+            val clazz = Class.forName(classInfo.name).kotlin
-+            if (clazz.objectInstance != null && clazz.isSubclassOf(ConfigImpl::class)) {
-+                val objInstance = clazz.objectInstance as ConfigImpl
-+                implSet.add(objInstance)
-+            }
-+        }
-+        return implSet
-+    }
 +}
 \ No newline at end of file

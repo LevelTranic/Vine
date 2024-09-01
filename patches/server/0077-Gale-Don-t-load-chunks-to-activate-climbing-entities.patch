@@ -28,7 +28,7 @@ index 37028c5cb90addaa8a032854e47dd277c0d201a2..f547b7ed867ddc8064a250522ab19ab5
          return this.chunkPosition;
      }
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 8176d9e8a4ef138a2ad5b82d090a5a0c3ae26367..8c4238f16ff5130478d9692ad87e884eb7067b45 100644
+index 5e14d1521b779cda13bf6b35422936f390caefff..dd164dff4a1eef0332c1ca48fb38597222925d17 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
 @@ -141,7 +141,6 @@ import org.bukkit.entity.Player;

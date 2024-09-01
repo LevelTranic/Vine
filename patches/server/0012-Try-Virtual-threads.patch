@@ -159,7 +159,7 @@ index 4dc0b2d15ff2c0a84df08186d2a8e29d30136dac..2806be6c1e6908f9dd23a160243d413d
      private static final ProtocolInfo<ServerHandshakePacketListener> INITIAL_PROTOCOL = HandshakeProtocols.SERVERBOUND;
      private final PacketFlow receiving;
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 85574b14b656b8d8c096909210be14093469a79c..a1eff8c1ff357e8bd8a20e1564c67014fac381fa 100644
+index 52c62442e68634358ea4112fa1aacdab2cca97bb..9231375976f0cd21c5e8a808736cb0db09a648a6 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -2995,7 +2995,7 @@ public abstract class MinecraftServer extends ReentrantBlockableEventLoop<TickTa

@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 1 Sep 2024 17:04:51 +0800
+Subject: [PATCH] Fix console freeze
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/util/preload/module/FixConsole.kt b/src/main/kotlin/one/tranic/vine/util/preload/module/FixConsole.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b8a4ab7a597ca803798929598b28dfa18f0c72be
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/preload/module/FixConsole.kt
+@@ -0,0 +1,10 @@
++package one.tranic.vine.util.preload.module
++
++import gg.pufferfish.pufferfish.simd.SIMDDetection
++import one.tranic.vine.util.preload.impl.PreloadImpl
++
++object FixConsole: PreloadImpl {
++    override fun preload() {
++        if (SIMDDetection.getJavaVersion() > 21) System.setProperty("jdk.console", "java.base");
++    }
++}
+\ No newline at end of file

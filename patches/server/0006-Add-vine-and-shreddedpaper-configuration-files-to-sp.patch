@@ -1,0 +1,26 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 1 Sep 2024 17:03:19 +0800
+Subject: [PATCH] Add vine and shreddedpaper configuration files to spark
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/util/preload/module/Spark.kt b/src/main/kotlin/one/tranic/vine/util/preload/module/Spark.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0d4b3ced45d089fc6c92b6b969d2b2b78222a4d5
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/preload/module/Spark.kt
+@@ -0,0 +1,13 @@
++package one.tranic.vine.util.preload.module
++
++import one.tranic.vine.config.VineConfig
++import one.tranic.vine.util.preload.impl.PreloadImpl
++import org.bukkit.Bukkit
++
++object Spark: PreloadImpl {
++    override fun preload() {
++        if (!VineConfig.Feature.disableSpark && Bukkit.getServer().getPluginManager().getPlugin("spark") != null) {
++            System.setProperty("spark.serverconfigs.extra", "vine.yml,shreddedpaper.yml")
++        }
++    }
++}
+\ No newline at end of file
