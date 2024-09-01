@@ -844,7 +844,7 @@ index 0000000000000000000000000000000000000000..913870c77ccb6f399d46c76e0408798c
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..6dd2c285028f685523ae7a686da916b2d888c14c
+index 0000000000000000000000000000000000000000..f196e07de9f610a2604145d3268ee002e24adf59
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
 @@ -0,0 +1,43 @@
@@ -858,7 +858,7 @@ index 0000000000000000000000000000000000000000..6dd2c285028f685523ae7a686da916b2
 +
 +object Value : ConfigImpl {
 +    override fun default() {
-+        addDefault("optimize.acquire-poi-for-stuck-entity", false, "Reduce acquire POI for stuck entities")
++        addDefault("optimize.acquire-poi-for-stuck-entity", 60, "Reduce acquire POI for stuck entities")
 +        addDefault(
 +            "optimize.faster-structure-gen-future-sequencing",
 +            false,
