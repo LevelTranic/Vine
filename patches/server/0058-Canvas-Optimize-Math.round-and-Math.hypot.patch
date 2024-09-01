@@ -252,7 +252,7 @@ index d04c7cee101e2591d912fc015e30c61913381b8b..37eeefd690e34b53ee0fe27826bc0bd7
  
              if (entity instanceof AbstractMinecart) {
 diff --git a/src/main/java/net/minecraft/util/Mth.java b/src/main/java/net/minecraft/util/Mth.java
-index 0fac5e30419d65ceba348a1f7bf253766b548d9c..7d25160c3eaf7c60d1f186aedc66e67ba9a279b5 100644
+index 9b5aca3bb44ae0aedb0df38dfecbd7a4e3b7a65a..6994aabad832118c4f8ff0f95a25286cf28a27f1 100644
 --- a/src/main/java/net/minecraft/util/Mth.java
 +++ b/src/main/java/net/minecraft/util/Mth.java
 @@ -29,7 +29,7 @@ public class Mth {
@@ -264,7 +264,7 @@ index 0fac5e30419d65ceba348a1f7bf253766b548d9c..7d25160c3eaf7c60d1f186aedc66e67b
          for (int ix = 0; ix < sineTable.length; ix++) {
              sineTable[ix] = (float)Math.sin((double)ix * Math.PI * 2.0 / 65536.0);
          }
-@@ -626,6 +626,7 @@ public class Mth {
+@@ -627,6 +627,7 @@ public class Mth {
      }
  
      public static double length(double a, double b) {
@@ -286,10 +286,10 @@ index 52151082b031f250b13bfaa35417e1d934a54f60..5d31a8f143ba13624e81013e15e07b16
  
      public int fromDegrees(float degrees) {
 diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-index 8c4238f16ff5130478d9692ad87e884eb7067b45..dd164dff4a1eef0332c1ca48fb38597222925d17 100644
+index 8176d9e8a4ef138a2ad5b82d090a5a0c3ae26367..5e14d1521b779cda13bf6b35422936f390caefff 100644
 --- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
 +++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
-@@ -1664,7 +1664,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -1665,7 +1665,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
              if (this instanceof ServerPlayer) {
                  CriteriaTriggers.ENTITY_HURT_PLAYER.trigger((ServerPlayer) this, source, f1, amount, flag);
                  if (f2 > 0.0F && f2 < 3.4028235E37F) {
@@ -298,7 +298,7 @@ index 8c4238f16ff5130478d9692ad87e884eb7067b45..dd164dff4a1eef0332c1ca48fb385972
                  }
              }
  
-@@ -2304,9 +2304,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2281,9 +2281,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
  
                  if (f3 > 0.0F && f3 < 3.4028235E37F) {
                      if (this instanceof ServerPlayer) {
@@ -310,7 +310,7 @@ index 8c4238f16ff5130478d9692ad87e884eb7067b45..dd164dff4a1eef0332c1ca48fb385972
                      }
                  }
              }
-@@ -2418,9 +2418,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2395,9 +2395,9 @@ public abstract class LivingEntity extends Entity implements Attackable {
                  float f3 = (float) -event.getDamage(DamageModifier.RESISTANCE);
                  if (f3 > 0.0F && f3 < 3.4028235E37F) {
                      if (this instanceof ServerPlayer) {
@@ -322,7 +322,7 @@ index 8c4238f16ff5130478d9692ad87e884eb7067b45..dd164dff4a1eef0332c1ca48fb385972
                      }
                  }
              }
-@@ -2452,7 +2452,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2429,7 +2429,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
              float f2 = absorptionModifier;
  
              if (f2 > 0.0F && f2 < 3.4028235E37F && this instanceof net.minecraft.world.entity.player.Player) {
@@ -331,7 +331,7 @@ index 8c4238f16ff5130478d9692ad87e884eb7067b45..dd164dff4a1eef0332c1ca48fb385972
              }
              if (f2 > 0.0F && f2 < 3.4028235E37F) {
                  Entity entity = damagesource.getEntity();
-@@ -2460,7 +2460,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2437,7 +2437,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                  if (entity instanceof ServerPlayer) {
                      ServerPlayer entityplayer = (ServerPlayer) entity;
  
@@ -340,7 +340,7 @@ index 8c4238f16ff5130478d9692ad87e884eb7067b45..dd164dff4a1eef0332c1ca48fb385972
                  }
              }
  
-@@ -2469,7 +2469,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2446,7 +2446,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                      // PAIL: Be sure to drag all this code from the EntityHuman subclass each update.
                      ((net.minecraft.world.entity.player.Player) this).causeFoodExhaustion(damagesource.getFoodExhaustion(), org.bukkit.event.entity.EntityExhaustionEvent.ExhaustionReason.DAMAGED); // CraftBukkit - EntityExhaustionEvent
                      if (f < 3.4028235E37F) {
@@ -349,7 +349,7 @@ index 8c4238f16ff5130478d9692ad87e884eb7067b45..dd164dff4a1eef0332c1ca48fb385972
                      }
                  }
                  // CraftBukkit end
-@@ -2489,7 +2489,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -2466,7 +2466,7 @@ public abstract class LivingEntity extends Entity implements Attackable {
                          CriteriaTriggers.ENTITY_HURT_PLAYER.trigger((ServerPlayer) this, damagesource, originalDamage, f, true); // Paper - fix taken/dealt param order
                          f2 = (float) -event.getDamage(DamageModifier.BLOCKING);
                          if (f2 > 0.0F && f2 < 3.4028235E37F) {
@@ -358,7 +358,7 @@ index 8c4238f16ff5130478d9692ad87e884eb7067b45..dd164dff4a1eef0332c1ca48fb385972
                          }
                      }
  
-@@ -3277,13 +3277,13 @@ public abstract class LivingEntity extends Entity implements Attackable {
+@@ -3254,13 +3254,13 @@ public abstract class LivingEntity extends Entity implements Attackable {
          //this.level().getProfiler().push("rangeChecks"); // Purpur
  
          // Paper start - stop large pitch and yaw changes from crashing the server

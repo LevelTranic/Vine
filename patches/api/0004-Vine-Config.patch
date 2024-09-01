@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..5b5e620936801cff2f4776bf295155fbe2df844f
+index 0000000000000000000000000000000000000000..ebfeba8c009a70cba060a5daaa1c83c363e5f9a2
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,102 @@
+@@ -0,0 +1,103 @@
 +package one.tranic.vine.config;
 +
 +import one.tranic.vine.region.Compression;
@@ -85,6 +85,7 @@ index 0000000000000000000000000000000000000000..5b5e620936801cff2f4776bf295155fb
 +    }
 +
 +    public static class Optimize {
++        public static int acquirePoiForStuckEntity = 60;
 +        /**May cause the inconsistent order of future compose tasks.*/
 +        public static boolean fasterStructureGenFutureSequencing = false;
 +        public static boolean floatingPointPositive = false;
