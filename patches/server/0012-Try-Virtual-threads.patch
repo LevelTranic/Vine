@@ -320,6 +320,36 @@ index 9aaa8989832c238c66eb8c21256309cc37c2f18d..27d692e370e02ba4e7ba6262195ba019
          this.logAppenderThread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(MinecraftServerGui.LOGGER));
          this.logAppenderThread.setDaemon(true);
          return jpanel;
+diff --git a/src/main/java/net/minecraft/server/network/ServerConnectionListener.java b/src/main/java/net/minecraft/server/network/ServerConnectionListener.java
+index 8aff5129f85ab5729b3da2e465871be62d15bdf2..0c89c96deb4a4a02ed6cf0f7aa584bf416c2acc3 100644
+--- a/src/main/java/net/minecraft/server/network/ServerConnectionListener.java
++++ b/src/main/java/net/minecraft/server/network/ServerConnectionListener.java
+@@ -52,10 +52,10 @@ public class ServerConnectionListener {
+ 
+     private static final Logger LOGGER = LogUtils.getLogger();
+     public static final Supplier<NioEventLoopGroup> SERVER_EVENT_GROUP = Suppliers.memoize(() -> {
+-        return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Server IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
++        return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("Netty Server IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
+     });
+     public static final Supplier<EpollEventLoopGroup> SERVER_EPOLL_EVENT_GROUP = Suppliers.memoize(() -> {
+-        return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Server IO #%d").setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
++        return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Server IO #%d").setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setDaemon(true).setUncaughtExceptionHandler(new net.minecraft.DefaultUncaughtExceptionHandlerWithName(LOGGER)).build()); // Paper
+     });
+     final MinecraftServer server;
+     public volatile boolean running;
+diff --git a/src/main/java/net/minecraft/util/datafix/DataFixers.java b/src/main/java/net/minecraft/util/datafix/DataFixers.java
+index fbf236adaee622887e4d34c74095e2b6154e28d0..c2a85dd7a376e3056f2f5720d1bdc5d421ea7b7d 100644
+--- a/src/main/java/net/minecraft/util/datafix/DataFixers.java
++++ b/src/main/java/net/minecraft/util/datafix/DataFixers.java
+@@ -131,7 +131,7 @@ public class DataFixers {
+         if (requiredTypes.isEmpty()) {
+             return datafixerbuilder.buildUnoptimized();
+         } else {
+-            ExecutorService executorservice = Executors.newSingleThreadExecutor((new ThreadFactoryBuilder()).setNameFormat("Datafixer Bootstrap").setDaemon(true).setPriority(1).build());
++            ExecutorService executorservice = Executors.newSingleThreadExecutor((new ThreadFactoryBuilder()).setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("Datafixer Bootstrap").setDaemon(true).setPriority(1).build());
+ 
+             return datafixerbuilder.buildOptimized(requiredTypes, executorservice);
+         }
 diff --git a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java b/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
 index 04460b81d6351f63103199a980e463070c233300..01d3ab53bdf12146b372dea464a4298325b682ed 100644
 --- a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
