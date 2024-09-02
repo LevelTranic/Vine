@@ -565,7 +565,7 @@ index 0000000000000000000000000000000000000000..3f89f14785f4ee57c1c76e8c37fbe016
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..a881b97d383c640a81332910298ab2845fdece27
+index 0000000000000000000000000000000000000000..69841c822202f8b9968fd256130c7904938267ca
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 @@ -0,0 +1,87 @@
@@ -628,7 +628,7 @@ index 0000000000000000000000000000000000000000..a881b97d383c640a81332910298ab284
 +            if (Locker.secureSeed == null) {
 +                Feature.secureSeed = it
 +                Locker.secureSeed = it
-+                if (it) VineLogger.warn("SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
++                if (it) VineLogger.warn("** SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
 +            } else if (Locker.secureSeed != it) {
 +                VineLogger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
 +            }
@@ -638,11 +638,11 @@ index 0000000000000000000000000000000000000000..a881b97d383c640a81332910298ab284
 +                if (it) {
 +                    VineLogger.warn(
 +                        listOf(
-+                            "Virtual threads are enabled.",
-+                            "Vine will try to replace all explicit platform threads with virtual threads,",
-+                            "which may have some undesirable consequences. Do not use it in production if",
-+                            "you are not sure it will be stable.",
-+                            "The ShreddedPaper thread will continue to use the platform thread."
++                            "********",
++                            "Virtual threads enabled.",
++                            "Will try to offload threads other than ShreddedPaper and ChunkThread to dummy threads",
++                            "This feature is very experimental and may have some undesirable consequences",
++                            "********"
 +                        )
 +                    )
 +                }

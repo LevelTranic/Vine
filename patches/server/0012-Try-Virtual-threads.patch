@@ -171,6 +171,155 @@ index 52c62442e68634358ea4112fa1aacdab2cca97bb..9231375976f0cd21c5e8a808736cb0db
  
      public final ChatDecorator improvedChatDecorator = new io.papermc.paper.adventure.ImprovedChatDecorator(this); // Paper - adventure
      public ChatDecorator getChatDecorator() {
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index 7105802aee38f8f0b896e97e59c566dbee8964d2..26450404dc8f1c06a19a925cedb3d53e435917d7 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -95,60 +95,60 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+ 
+     @Override
+     public boolean initServer() throws IOException {
+-        Thread thread = new Thread("Server console handler") {
+-            public void run() {
+-                // CraftBukkit start
+-                if (!org.bukkit.craftbukkit.Main.useConsole) {
+-                    return;
+-                }
+-                // Paper start - Use TerminalConsoleAppender
+-                if (DedicatedServer.this.gui == null || System.console() != null) // Purpur - has no GUI or has console (did not double-click)
+-                new com.destroystokyo.paper.console.PaperConsole(DedicatedServer.this).start();
+-                /*
+-                jline.console.ConsoleReader bufferedreader = DedicatedServer.this.reader;
++        Runnable run = () -> {
++            // CraftBukkit start
++            if (!org.bukkit.craftbukkit.Main.useConsole) {
++                return;
++            }
++            // Paper start - Use TerminalConsoleAppender
++            if (DedicatedServer.this.gui == null || System.console() != null) // Purpur - has no GUI or has console (did not double-click)
++            new com.destroystokyo.paper.console.PaperConsole(DedicatedServer.this).start();
++            /*
++            jline.console.ConsoleReader bufferedreader = DedicatedServer.this.reader;
+ 
+-                // MC-33041, SPIGOT-5538: if System.in is not valid due to javaw, then return
+-                try {
+-                    System.in.available();
+-                } catch (IOException ex) {
+-                    return;
+-                }
+-                // CraftBukkit end
++            // MC-33041, SPIGOT-5538: if System.in is not valid due to javaw, then return
++            try {
++                System.in.available();
++            } catch (IOException ex) {
++                return;
++            }
++            // CraftBukkit end
+ 
+-                String s;
++            String s;
+ 
+-                try {
+-                    // CraftBukkit start - JLine disabling compatibility
+-                    while (!DedicatedServer.this.isStopped() && DedicatedServer.this.isRunning()) {
+-                        if (org.bukkit.craftbukkit.Main.useJline) {
+-                            s = bufferedreader.readLine(">", null);
+-                        } else {
+-                            s = bufferedreader.readLine();
+-                        }
++            try {
++                // CraftBukkit start - JLine disabling compatibility
++                while (!DedicatedServer.this.isStopped() && DedicatedServer.this.isRunning()) {
++                    if (org.bukkit.craftbukkit.Main.useJline) {
++                        s = bufferedreader.readLine(">", null);
++                    } else {
++                        s = bufferedreader.readLine();
++                    }
+ 
+-                        // SPIGOT-5220: Throttle if EOF (ctrl^d) or stdin is /dev/null
+-                        if (s == null) {
+-                            try {
+-                                Thread.sleep(50L);
+-                            } catch (InterruptedException ex) {
+-                                Thread.currentThread().interrupt();
+-                            }
+-                            continue;
++                    // SPIGOT-5220: Throttle if EOF (ctrl^d) or stdin is /dev/null
++                    if (s == null) {
++                        try {
++                            Thread.sleep(50L);
++                        } catch (InterruptedException ex) {
++                            Thread.currentThread().interrupt();
+                         }
+-                        if (s.trim().length() > 0) { // Trim to filter lines which are just spaces
+-                            DedicatedServer.this.issueCommand(s, DedicatedServer.this.getServerCommandListener());
+-                        }
+-                        // CraftBukkit end
++                        continue;
++                    }
++                    if (s.trim().length() > 0) { // Trim to filter lines which are just spaces
++                        DedicatedServer.this.issueCommand(s, DedicatedServer.this.getServerCommandListener());
+                     }
+-                } catch (IOException ioexception) {
+-                    DedicatedServer.LOGGER.error("Exception handling console input", ioexception);
++                    // CraftBukkit end
+                 }
+-
+-                */
+-                // Paper end
++            } catch (IOException ioexception) {
++                DedicatedServer.LOGGER.error("Exception handling console input", ioexception);
+             }
++
++            */
++            // Paper end
+         };
+ 
++        Thread thread = one.tranic.vine.util.AnyThread.getThread(run, "Server console handler");
++
+         // CraftBukkit start - TODO: handle command-line logging arguments
+         java.util.logging.Logger global = java.util.logging.Logger.getLogger("");
+         global.setUseParentHandlers(false);
+@@ -372,7 +372,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+             }
+ 
+             if (false && this.getMaxTickLength() > 0L) {  // Spigot - disable
+-                Thread thread1 = new Thread(new ServerWatchdog(this));
++                Thread thread1 = one.tranic.vine.util.AnyThread.getThread(new ServerWatchdog(this));
+ 
+                 thread1.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(DedicatedServer.LOGGER));
+                 thread1.setName("Server Watchdog");
+@@ -530,7 +530,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+                     sender.sendMessage(net.kyori.adventure.text.Component.text("Failed to dump chunk information, see console", net.kyori.adventure.text.format.NamedTextColor.RED));
+                 }
+             };
+-            Thread t = new Thread(run);
++            Thread t = one.tranic.vine.util.AnyThread.getThread(run);
+             t.setName("Async debug thread #" + ASYNC_DEBUG_CHUNKS_COUNT.getAndIncrement());
+             t.setDaemon(true);
+             t.start();
+diff --git a/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java b/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
+index 9aaa8989832c238c66eb8c21256309cc37c2f18d..27d692e370e02ba4e7ba6262195ba01988918673 100644
+--- a/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
++++ b/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
+@@ -219,14 +219,15 @@ public class MinecraftServerGui extends JComponent {
+         jpanel.add(jscrollpane, "Center");
+         jpanel.add(jtextfield, "South");
+         jpanel.setBorder(new TitledBorder(new EtchedBorder(), "Log and chat"));
+-        this.logAppenderThread = new Thread(() -> {
++        Runnable run = () -> {
+             String s;
+ 
+             while ((s = LogQueues.getNextLogEvent("ServerGuiConsole")) != null) {
+                 this.print(jtextarea, jscrollpane, s);
+             }
+ 
+-        });
++        };
++        this.logAppenderThread = one.tranic.vine.util.AnyThread.getThread(run);
+         this.logAppenderThread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandler(MinecraftServerGui.LOGGER));
+         this.logAppenderThread.setDaemon(true);
+         return jpanel;
 diff --git a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java b/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
 index 04460b81d6351f63103199a980e463070c233300..01d3ab53bdf12146b372dea464a4298325b682ed 100644
 --- a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
