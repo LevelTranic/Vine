@@ -1,0 +1,71 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Mon, 2 Sep 2024 08:45:02 +0800
+Subject: [PATCH] Remove deprecation flags in SIMD
+
+
+diff --git a/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java
+index 7024a47b0de5083c3ba49c8e45b4c4b1369ab2c5..6b371d2f16c6abc8a20b7d762242f2ceeafe754d 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java
++++ b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDChecker.java
+@@ -9,10 +9,8 @@ import jdk.incubator.vector.VectorSpecies;
+ /**
+  * Basically, java is annoying and we have to push this out to its own class.
+  */
+-@Deprecated
+ public class SIMDChecker {
+-	
+-	@Deprecated
++
+ 	public static boolean canEnable(Logger logger) {
+ 		try {
+ 			if (SIMDDetection.getJavaVersion() < 17) {
+diff --git a/src/main/java/gg/pufferfish/pufferfish/simd/SIMDDetection.java b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDDetection.java
+index a84889d3e9cfc4d7ab5f867820a6484c6070711b..99d24fb74de68a9b7c656ca59dc51712926c089e 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/simd/SIMDDetection.java
++++ b/src/main/java/gg/pufferfish/pufferfish/simd/SIMDDetection.java
+@@ -2,14 +2,12 @@ package gg.pufferfish.pufferfish.simd;
+ 
+ import java.util.logging.Logger;
+ 
+-@Deprecated
+ public class SIMDDetection {
+ 	
+ 	public static boolean isEnabled = false;
+ 	public static boolean versionLimited = false;
+ 	public static boolean testRun = false;
+-	
+-	@Deprecated
++
+ 	public static boolean canEnable(Logger logger) {
+ 		try {
+ 			return SIMDChecker.canEnable(logger);
+@@ -17,8 +15,7 @@ public class SIMDDetection {
+ 			return false;
+ 		}
+ 	}
+-	
+-	@Deprecated
++
+ 	public static int getJavaVersion() {
+ 		// https://stackoverflow.com/a/2591122
+ 		String version = System.getProperty("java.version");
+diff --git a/src/main/java/gg/pufferfish/pufferfish/simd/VectorMapPalette.java b/src/main/java/gg/pufferfish/pufferfish/simd/VectorMapPalette.java
+index ae2464920c9412ac90b819a540ee58be0741465f..b3d87875facc3e2981646a39b68afb3eb2659e86 100644
+--- a/src/main/java/gg/pufferfish/pufferfish/simd/VectorMapPalette.java
++++ b/src/main/java/gg/pufferfish/pufferfish/simd/VectorMapPalette.java
+@@ -7,13 +7,11 @@ import jdk.incubator.vector.VectorMask;
+ import jdk.incubator.vector.VectorSpecies;
+ import org.bukkit.map.MapPalette;
+ 
+-@Deprecated
+ public class VectorMapPalette {
+ 	
+ 	private static final VectorSpecies<Integer> I_SPEC = IntVector.SPECIES_PREFERRED;
+ 	private static final VectorSpecies<Float> F_SPEC = FloatVector.SPECIES_PREFERRED;
+-	
+-	@Deprecated
++
+ 	public static void matchColorVectorized(int[] in, byte[] out) {
+ 		int speciesLength = I_SPEC.length();
+ 		int i;

@@ -5,7 +5,7 @@ Subject: [PATCH] Kotlin api
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index ab1116a3abbce6c3c5a6fb484a00530291fd0153..6e3daea37891143240f6e6fe785a84f19d9d57eb 100644
+index ab1116a3abbce6c3c5a6fb484a00530291fd0153..766394287ca6e6ca3a0d4908e32e8025e6d16463 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -58,6 +58,15 @@ dependencies {
