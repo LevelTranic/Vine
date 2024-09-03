@@ -6,28 +6,50 @@ Subject: [PATCH] Reflect utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/Reflect.kt b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..9191478b739383c4956d0c661617ebe8e632b5bd
+index 0000000000000000000000000000000000000000..c2a6add7b813e27b4f1ac00945ef8e5969a5ce15
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
-@@ -0,0 +1,23 @@
+@@ -0,0 +1,45 @@
 +package one.tranic.vine.util
 +
 +import com.google.common.reflect.ClassPath
 +import java.io.IOException
++import kotlin.reflect.full.createInstance
 +import kotlin.reflect.full.isSubclassOf
 +
 +
 +object Reflect {
 +    @Throws(IOException::class)
 +    inline fun <reified T> findObjectClass(packageName: String): Set<T> {
++        return findClass<T>(packageName, true)
++    }
++
++    @Throws(IOException::class)
++    inline fun <reified T> findClass(packageName: String): Set<T> {
++        return findClass<T>(packageName, false)
++    }
++
++    @Throws(IOException::class)
++    inline fun <reified T> findClass(packageName: String, isObject: Boolean): Set<T> {
 +        val implSet = mutableSetOf<T>()
 +        val classs = ClassPath.from(Thread.currentThread().contextClassLoader)
 +        val classes = classs.getTopLevelClasses(packageName)
 +        for (classInfo in classes) {
 +            val clazz = Class.forName(classInfo.name).kotlin
-+            if (clazz.objectInstance != null && clazz.isSubclassOf(T::class)) {
-+                val objInstance = clazz.objectInstance as T
-+                implSet.add(objInstance)
++            runCatching {
++                if (!clazz.isSubclassOf(T::class)) return@runCatching
++                val objInstance: T? = if (isObject && clazz.objectInstance != null) {
++                    clazz.objectInstance as T
++                } else if (!isObject && clazz.isAbstract) {
++                    clazz.createInstance() as T
++                } else {
++                    null
++                }
++                if (objInstance != null) {
++                    implSet.add(objInstance)
++                }
++            }.getOrElse {
++                it.printStackTrace()
 +            }
 +        }
 +        return implSet
