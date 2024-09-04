@@ -36,20 +36,18 @@ index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..af2593d911938de5b5127b3e4e76f7ad1d4f5c70
+index 0000000000000000000000000000000000000000..5593ddbaaa74ab7511a9b9e804da7e5978638d2d
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 @@ -0,0 +1,143 @@
 +package one.tranic.vine.config
 +
 +import com.aayushatharva.brotli4j.Brotli4jLoader
-+import org.bukkit.Bukkit
-+import org.bukkit.configuration.file.YamlConfiguration
-+import java.io.File
-+
-+import one.tranic.vine.commands.*
 +import one.tranic.vine.region.Compression
 +import one.tranic.vine.region.Format
++import one.tranic.vine.util.VineLogger
++import org.bukkit.configuration.file.YamlConfiguration
++import java.io.File
 +
 +object ConfigUtil {
 +    private lateinit var configuration: YamlConfiguration
@@ -75,7 +73,7 @@ index 0000000000000000000000000000000000000000..af2593d911938de5b5127b3e4e76f7ad
 +            }
 +            configuration = YamlConfiguration.loadConfiguration(configFile)
 +            addDefault(configFile)
-+            loadConfigValue()
++            one.tranic.vine.config.module.Module.load()
 +        }.getOrElse {
 +            throw RuntimeException(it)
 +        }
@@ -89,6 +87,12 @@ index 0000000000000000000000000000000000000000..af2593d911938de5b5127b3e4e76f7ad
 +        // initialize the dependent libraries.
 +        if (Format.equals(Format.SECTORFILE) && Compression.equals(Compression.BROTLI)) {
 +            Brotli4jLoader.ensureAvailability()
++            VineLogger.warn(
++                listOf(
++                    "Brotli in SectorFile currently faces poor performance issues,",
++                    "it is recommended to choose ZSTD instead of Brotli"
++                )
++            )
 +        }
 +    }
 +
@@ -105,10 +109,6 @@ index 0000000000000000000000000000000000000000..af2593d911938de5b5127b3e4e76f7ad
 +
 +        configuration.options().copyDefaults(true)
 +        configuration.save(configFile)
-+    }
-+
-+    private fun loadConfigValue() {
-+        one.tranic.vine.config.module.Module.load()
 +    }
 +
 +    // Vine start - Configuration file tools
@@ -182,62 +182,6 @@ index 0000000000000000000000000000000000000000..af2593d911938de5b5127b3e4e76f7ad
 +        return configuration.getMapList(path)
 +    }
 +    // Vine end - Configuration file tools
-+}
-\ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/config/VineLogger.kt b/src/main/kotlin/one/tranic/vine/config/VineLogger.kt
-new file mode 100644
-index 0000000000000000000000000000000000000000..58ad9bdcba665b54bcde3ad05a01127ab62c6838
---- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/config/VineLogger.kt
-@@ -0,0 +1,49 @@
-+package one.tranic.vine.config
-+
-+import net.minecraft.server.MinecraftServer
-+
-+object VineLogger {
-+    private val logger: org.slf4j.Logger = MinecraftServer.LOGGER
-+
-+    fun info(msg: String) {
-+        logger.info(msg)
-+    }
-+
-+    fun info(msg: String, vararg args: Any) {
-+        logger.info(msg, args)
-+    }
-+
-+    fun info(msg: List<String>) {
-+        for (str in msg) {
-+            logger.info(str)
-+        }
-+    }
-+
-+    fun warn(msg: String) {
-+        logger.warn(msg)
-+    }
-+
-+    fun warn(msg: String, vararg args: Any) {
-+        logger.warn(msg, args)
-+    }
-+
-+    fun warn(msg: List<String>) {
-+        for (str in msg) {
-+            logger.warn(str)
-+        }
-+    }
-+
-+    fun error(msg: String) {
-+        logger.error(msg)
-+    }
-+
-+    fun error(msg: String, vararg args: Any) {
-+        logger.error(msg, args)
-+    }
-+
-+    fun error(msg: List<String>) {
-+        for (str in msg) {
-+            logger.error(str)
-+        }
-+    }
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/impl/ConfigImpl.kt b/src/main/kotlin/one/tranic/vine/config/impl/ConfigImpl.kt
@@ -375,7 +319,7 @@ index 0000000000000000000000000000000000000000..1912152e305c4aa92e23335990b847b6
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..3f89f14785f4ee57c1c76e8c37fbe016145f768f
+index 0000000000000000000000000000000000000000..d1def2cda6471013ce28558caf2ae74ff8aac25f
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 @@ -0,0 +1,87 @@
@@ -385,11 +329,11 @@ index 0000000000000000000000000000000000000000..3f89f14785f4ee57c1c76e8c37fbe016
 +import one.tranic.vine.config.ConfigUtil.getInt
 +import one.tranic.vine.config.ConfigUtil.getString
 +import one.tranic.vine.config.VineConfig.Feature
-+import one.tranic.vine.config.VineLogger
 +import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.module.Locker
 +import one.tranic.vine.region.Compression
 +import one.tranic.vine.region.Format
++import one.tranic.vine.util.VineLogger
 +
 +object Region : ConfigImpl {
 +    override fun default() {
@@ -469,7 +413,7 @@ index 0000000000000000000000000000000000000000..3f89f14785f4ee57c1c76e8c37fbe016
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..69841c822202f8b9968fd256130c7904938267ca
+index 0000000000000000000000000000000000000000..888941012da759f7580853dc8774b332ee3981d5
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 @@ -0,0 +1,87 @@
@@ -478,9 +422,9 @@ index 0000000000000000000000000000000000000000..69841c822202f8b9968fd256130c7904
 +import one.tranic.vine.config.ConfigUtil.addDefault
 +import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Feature
-+import one.tranic.vine.config.VineLogger
 +import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.module.Locker
++import one.tranic.vine.util.VineLogger
 +
 +object Value : ConfigImpl {
 +    override fun default() {
@@ -534,7 +478,7 @@ index 0000000000000000000000000000000000000000..69841c822202f8b9968fd256130c7904
 +                Locker.secureSeed = it
 +                if (it) VineLogger.warn("** SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
 +            } else if (Locker.secureSeed != it) {
-+                VineLogger.error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
++                VineLogger.get().error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
 +            }
 +        }
 +        getBoolean("feature.try-virtual-threads") {
@@ -553,14 +497,13 @@ index 0000000000000000000000000000000000000000..69841c822202f8b9968fd256130c7904
 +                Feature.tryVirtualThreads = it
 +                Locker.virtualThread = it
 +            } else if (it != Locker.virtualThread) {
-+                VineLogger.error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
++                VineLogger.get().error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
 +            }
 +        }
 +        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +    }
 +}
-\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt b/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt
 new file mode 100644
 index 0000000000000000000000000000000000000000..d584e3ca8e1bc70cee2bcb2a209f32d345c69b9a
