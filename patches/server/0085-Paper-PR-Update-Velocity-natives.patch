@@ -1,0 +1,20 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Wed, 4 Sep 2024 16:35:46 +0800
+Subject: [PATCH] Paper PR Update Velocity natives
+
+Source in https://github.com/PaperMC/Paper/pull/11347
+
+diff --git a/build.gradle.kts b/build.gradle.kts
+index 505076251981597e8830f9c978869a930cbbece0..0f00485e4e1ba714f4ddaae64b70a9c8d2e1a3f1 100644
+--- a/build.gradle.kts
++++ b/build.gradle.kts
+@@ -41,7 +41,7 @@ dependencies {
+     runtimeOnly("com.mysql:mysql-connector-j:8.3.0")
+     runtimeOnly("com.lmax:disruptor:3.4.4") // Paper
+     // Paper start - Use Velocity cipher
+-    implementation("com.velocitypowered:velocity-native:3.1.2-SNAPSHOT") {
++    implementation("com.velocitypowered:velocity-native:3.3.0-SNAPSHOT") {
+         isTransitive = false
+     }
+     // Paper end - Use Velocity cipher
