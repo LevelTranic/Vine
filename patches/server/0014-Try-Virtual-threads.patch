@@ -172,10 +172,10 @@ index ff13358678c420c5bc1504deb5b83384bf449794..bdd6938b3102e7201cc6700ce1213209
      public final ChatDecorator improvedChatDecorator = new io.papermc.paper.adventure.ImprovedChatDecorator(this); // Paper - adventure
      public ChatDecorator getChatDecorator() {
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 7105802aee38f8f0b896e97e59c566dbee8964d2..26450404dc8f1c06a19a925cedb3d53e435917d7 100644
+index 90728949052211a33e979fc7839f17f03bc0c523..54a67ef91a3b26f65173c98e4a02b357e642f9aa 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -95,60 +95,60 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -104,60 +104,60 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
  
      @Override
      public boolean initServer() throws IOException {
@@ -280,7 +280,7 @@ index 7105802aee38f8f0b896e97e59c566dbee8964d2..26450404dc8f1c06a19a925cedb3d53e
          // CraftBukkit start - TODO: handle command-line logging arguments
          java.util.logging.Logger global = java.util.logging.Logger.getLogger("");
          global.setUseParentHandlers(false);
-@@ -372,7 +372,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -379,7 +379,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
              }
  
              if (false && this.getMaxTickLength() > 0L) {  // Spigot - disable
@@ -289,7 +289,7 @@ index 7105802aee38f8f0b896e97e59c566dbee8964d2..26450404dc8f1c06a19a925cedb3d53e
  
                  thread1.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(DedicatedServer.LOGGER));
                  thread1.setName("Server Watchdog");
-@@ -530,7 +530,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -537,7 +537,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
                      sender.sendMessage(net.kyori.adventure.text.Component.text("Failed to dump chunk information, see console", net.kyori.adventure.text.format.NamedTextColor.RED));
                  }
              };

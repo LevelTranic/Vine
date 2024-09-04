@@ -1,0 +1,49 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Wed, 4 Sep 2024 08:30:54 +0800
+Subject: [PATCH] Config command
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/commands/module/ConfigCommand.kt b/src/main/kotlin/one/tranic/vine/commands/module/ConfigCommand.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..167d67efe14e31e3385339c4cab29ad5c403b17f
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/commands/module/ConfigCommand.kt
+@@ -0,0 +1,36 @@
++package one.tranic.vine.commands.module
++
++import net.kyori.adventure.text.Component
++import net.kyori.adventure.text.format.TextColor
++import one.tranic.vine.config.ConfigUtil
++import org.bukkit.command.Command
++import org.bukkit.command.CommandSender
++
++class ConfigCommand : Command("vinecfg") {
++    init {
++        this.permission = "vine.commands.cfg"
++        this.description = "Manage config file"
++    }
++
++    override fun execute(sender: CommandSender, commandLabel: String, args: Array<String>): Boolean {
++        if (!this.testPermission(sender)) {
++            sender.sendMessage(
++                Component
++                    .text("No permission to execute this command!")
++                    .color(TextColor.color(255, 0, 0))
++            )
++            return true
++        }
++        ConfigUtil.reload()
++        sender.sendMessage(
++            Component
++                .text("Reloaded Vine config file!")
++                .color(TextColor.color(0, 255, 0))
++        )
++        return true
++    }
++
++    override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> {
++        return emptyList()
++    }
++}
+\ No newline at end of file

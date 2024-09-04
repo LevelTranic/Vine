@@ -4,13 +4,13 @@ Date: Fri, 16 Aug 2024 21:02:50 +0800
 Subject: [PATCH] ThreadInfoCommand
 
 
-diff --git a/src/main/kotlin/one/tranic/vine/commands/ThreadInfoCommand.kt b/src/main/kotlin/one/tranic/vine/commands/ThreadInfoCommand.kt
+diff --git a/src/main/kotlin/one/tranic/vine/commands/module/ThreadInfoCommand.kt b/src/main/kotlin/one/tranic/vine/commands/module/ThreadInfoCommand.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..ecc2ed943f88454406bca71780678e41b495b9eb
+index 0000000000000000000000000000000000000000..bd34eba01844dd33f311bec6be57c894c943cf1f
 --- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/commands/ThreadInfoCommand.kt
-@@ -0,0 +1,67 @@
-+package one.tranic.vine.commands
++++ b/src/main/kotlin/one/tranic/vine/commands/module/ThreadInfoCommand.kt
+@@ -0,0 +1,66 @@
++package one.tranic.vine.commands.module
 +
 +import net.kyori.adventure.text.Component
 +import net.kyori.adventure.text.format.NamedTextColor
@@ -23,8 +23,7 @@ index 0000000000000000000000000000000000000000..ecc2ed943f88454406bca71780678e41
 +class ThreadInfoCommand : Command("threads") {
 +    init {
 +        this.permission = "vine.commands.threads"
-+        this.setDescription("Threads")
-+        this.setUsage("/threads")
++        this.description = "Threads"
 +    }
 +
 +    private val color = TextColor.color(0, 245, 255)
@@ -78,15 +77,3 @@ index 0000000000000000000000000000000000000000..ecc2ed943f88454406bca71780678e41
 +    }
 +}
 \ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-index 655dcd125a58aec84ee93a90cf087b0b10052830..f2acb72254cf89ae62e87556430d456349e87310 100644
---- a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-+++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -15,6 +15,7 @@ object ConfigUtil {
-     @JvmStatic
-     fun setCommand() {
-         Bukkit.getCommandMap().register("vinecfg", "vine", VineCfgCommand())
-+        Bukkit.getCommandMap().register("threads", "vine", ThreadInfoCommand())
-     }
- 
-     /**

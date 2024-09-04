@@ -6,10 +6,10 @@ Subject: [PATCH] Reflect utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/Reflect.kt b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..c2a6add7b813e27b4f1ac00945ef8e5969a5ce15
+index 0000000000000000000000000000000000000000..1d727c617cadd3e06f4bd74df3a7ffa08c68bafe
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
-@@ -0,0 +1,45 @@
+@@ -0,0 +1,43 @@
 +package one.tranic.vine.util
 +
 +import com.google.common.reflect.ClassPath
@@ -40,7 +40,7 @@ index 0000000000000000000000000000000000000000..c2a6add7b813e27b4f1ac00945ef8e59
 +                if (!clazz.isSubclassOf(T::class)) return@runCatching
 +                val objInstance: T? = if (isObject && clazz.objectInstance != null) {
 +                    clazz.objectInstance as T
-+                } else if (!isObject && clazz.isAbstract) {
++                } else if (!clazz.isData && !clazz.isFun && !clazz.isValue) {
 +                    clazz.createInstance() as T
 +                } else {
 +                    null
@@ -48,9 +48,7 @@ index 0000000000000000000000000000000000000000..c2a6add7b813e27b4f1ac00945ef8e59
 +                if (objInstance != null) {
 +                    implSet.add(objInstance)
 +                }
-+            }.getOrElse {
-+                it.printStackTrace()
-+            }
++            }.getOrElse {}
 +        }
 +        return implSet
 +    }

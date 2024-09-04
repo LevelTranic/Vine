@@ -17,51 +17,6 @@ index a7ffbbfd2a9fdeae0953ec8753ce48e93ccce086..9e58bce64d46a1ac12bcc067a0788306
              ShreddedPaperConfigurationLoader.init((File) optionset.valueOf("shreddedpaper-settings")); // ShreddedPaper
  
              // Purpur start - load config files early
-diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..9863790cfea027a775fae3c26b0f4515216dc22b 100644
---- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-+++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -1,20 +1,14 @@
- package net.minecraft.server.dedicated;
- 
--import com.google.common.collect.Lists;
- import com.mojang.authlib.GameProfile;
- import com.mojang.datafixers.DataFixer;
- import com.mojang.logging.LogUtils;
--import java.io.BufferedReader;
- import java.io.BufferedWriter;
- import java.io.IOException;
--import java.io.InputStreamReader;
- import java.net.InetAddress;
- import java.net.Proxy;
--import java.nio.charset.StandardCharsets;
- import java.nio.file.Files;
- import java.nio.file.Path;
--import java.util.Collections;
--import java.util.List;
- import java.util.Locale;
- import java.util.Optional;
- import java.util.function.BooleanSupplier;
-@@ -63,9 +57,6 @@ import org.apache.logging.log4j.Level;
- import org.apache.logging.log4j.LogManager;
- import org.apache.logging.log4j.io.IoBuilder;
- import org.bukkit.command.CommandSender;
--import co.aikar.timings.MinecraftTimings; // Paper
--import org.bukkit.craftbukkit.util.TerminalCompletionHandler;
--import org.bukkit.craftbukkit.util.TerminalConsoleWriterThread;
- import org.bukkit.event.server.ServerCommandEvent;
- import org.bukkit.craftbukkit.util.Waitable; // Paper
- import org.bukkit.event.server.RemoteServerCommandEvent;
-@@ -224,6 +215,9 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
-         this.paperConfigurations.initializeGlobalConfiguration(this.registryAccess());
-         this.paperConfigurations.initializeWorldDefaultsConfiguration(this.registryAccess());
-         // Paper end - initialize global and world-defaults configuration
-+
-+        one.tranic.vine.config.ConfigUtil.setCommand();
-+
-         // Paper start - fix converting txt to json file; convert old users earlier after PlayerList creation but before file load/save
-         if (this.convertOldUsers()) {
-             this.getProfileCache().save(false); // Paper
 diff --git a/src/main/java/one/tranic/vine/config/package-info.java b/src/main/java/one/tranic/vine/config/package-info.java
 new file mode 100644
 index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736aa465f6b
@@ -79,58 +34,12 @@ index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736
 + * */
 +package one.tranic.vine.config;
 \ No newline at end of file
-diff --git a/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
-new file mode 100644
-index 0000000000000000000000000000000000000000..819da2962087ce70c6b9b4ec758937ef1b27e34d
---- /dev/null
-+++ b/src/main/kotlin/one/tranic/vine/commands/VineCfgCommand.kt
-@@ -0,0 +1,39 @@
-+package one.tranic.vine.commands
-+
-+import org.bukkit.command.Command
-+import org.bukkit.command.CommandSender
-+import net.kyori.adventure.text.Component
-+import net.kyori.adventure.text.format.TextColor
-+import one.tranic.vine.config.ConfigUtil
-+
-+class VineCfgCommand : Command("vinecfg") {
-+    init {
-+        this.permission = "vine.commands.cfg"
-+        this.description = "Manage config file"
-+        this.usage = "/vinecfg"
-+    }
-+
-+    override fun execute(sender: CommandSender, commandLabel: String, args: Array<String>): Boolean {
-+        if (!this.testPermission(sender)) {
-+            sender.sendMessage(
-+                Component
-+                    .text("No permission to execute this command!")
-+                    .color(TextColor.color(255, 0, 0))
-+            )
-+            return true
-+        }
-+
-+        ConfigUtil.reload()
-+
-+        sender.sendMessage(
-+            Component
-+                .text("Reloaded Vine config file!")
-+                .color(TextColor.color(0, 255, 0))
-+        )
-+        return true
-+    }
-+
-+    override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> {
-+        return emptyList()
-+    }
-+}
-\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..655dcd125a58aec84ee93a90cf087b0b10052830
+index 0000000000000000000000000000000000000000..af2593d911938de5b5127b3e4e76f7ad1d4f5c70
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,148 @@
+@@ -0,0 +1,143 @@
 +package one.tranic.vine.config
 +
 +import com.aayushatharva.brotli4j.Brotli4jLoader
@@ -144,11 +53,6 @@ index 0000000000000000000000000000000000000000..655dcd125a58aec84ee93a90cf087b0b
 +
 +object ConfigUtil {
 +    private lateinit var configuration: YamlConfiguration
-+
-+    @JvmStatic
-+    fun setCommand() {
-+        Bukkit.getCommandMap().register("vinecfg", "vine", VineCfgCommand())
-+    }
 +
 +    /**
 +     * Load the configuration file.

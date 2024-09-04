@@ -905,7 +905,7 @@ index f5154194df9e44f8bcf431029f4bbed68db49658..8f14ed215ff2eb1e6a1d5c117425c897
                          packet.handle(listener);
                      } catch (Exception exception) {
 diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
-index 56a2cee4faca2f0ba33ebe0b57b8b206ccd370a2..ff13358678c420c5bc1504deb5b83384bf449794 100644
+index ccd25a26cfd3b4075279bb89657563fb7f2fbd21..88aa9cda084f2b68629ffd00532eb849a595763a 100644
 --- a/src/main/java/net/minecraft/server/MinecraftServer.java
 +++ b/src/main/java/net/minecraft/server/MinecraftServer.java
 @@ -189,7 +189,7 @@ import org.bukkit.craftbukkit.CraftRegistry;
@@ -927,10 +927,19 @@ index 56a2cee4faca2f0ba33ebe0b57b8b206ccd370a2..ff13358678c420c5bc1504deb5b83384
          // Purpur start
          if (upnp) {
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-index 9863790cfea027a775fae3c26b0f4515216dc22b..7105802aee38f8f0b896e97e59c566dbee8964d2 100644
+index d281fe5f75f6f99f869fa3cc8da4f1ff9f96a7bf..f171106aadf061b7a420ceb4a79b6f9b285a29a0 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
-@@ -832,7 +832,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -63,7 +63,7 @@ import org.apache.logging.log4j.Level;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.io.IoBuilder;
+ import org.bukkit.command.CommandSender;
+-import co.aikar.timings.MinecraftTimings; // Paper
++// import co.aikar.timings.MinecraftTimings; // Paper // Vine - Remove Timings
+ import org.bukkit.craftbukkit.util.TerminalCompletionHandler;
+ import org.bukkit.craftbukkit.util.TerminalConsoleWriterThread;
+ import org.bukkit.event.server.ServerCommandEvent;
+@@ -838,7 +838,8 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
              }
              // Paper start
              command.set(event.getCommand());
@@ -940,7 +949,7 @@ index 9863790cfea027a775fae3c26b0f4515216dc22b..7105802aee38f8f0b896e97e59c566db
                  org.bukkit.command.BufferedCommandSender sender = new org.bukkit.command.BufferedCommandSender();
                  Waitable<String> waitable = new Waitable<>() {
                      @Override
-@@ -842,11 +843,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+@@ -848,11 +849,11 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
                  };
                  waitableArray[0] = waitable;
                  co.aikar.timings.Timings.generateReport(new co.aikar.timings.TimingsReportListener(sender, waitable));

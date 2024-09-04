@@ -1,0 +1,35 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 3 Sep 2024 22:59:12 +0800
+Subject: [PATCH] Command Utils
+
+
+diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+index f171106aadf061b7a420ceb4a79b6f9b285a29a0..90728949052211a33e979fc7839f17f03bc0c523 100644
+--- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -224,6 +224,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         this.paperConfigurations.initializeGlobalConfiguration(this.registryAccess());
+         this.paperConfigurations.initializeWorldDefaultsConfiguration(this.registryAccess());
+         // Paper end - initialize global and world-defaults configuration
++        one.tranic.vine.commands.Command.INSTANCE.register(); // Vine - register commands
+         // Paper start - fix converting txt to json file; convert old users earlier after PlayerList creation but before file load/save
+         if (this.convertOldUsers()) {
+             this.getProfileCache().save(false); // Paper
+diff --git a/src/main/kotlin/one/tranic/vine/commands/Command.kt b/src/main/kotlin/one/tranic/vine/commands/Command.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..f268cd373e670493b6b85a7d6fd31d4e3120b494
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/commands/Command.kt
+@@ -0,0 +1,10 @@
++package one.tranic.vine.commands
++
++import one.tranic.vine.util.Reflect
++import org.bukkit.Bukkit
++
++object Command {
++    fun register() {
++        Reflect.findClass<org.bukkit.command.Command>("one.tranic.vine.commands.module").forEach { Bukkit.getCommandMap().register(it.name, "vine", it) }
++    }
++}
+\ No newline at end of file
