@@ -2,8 +2,8 @@ From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Barnaby <22575741+barnabwhy@users.noreply.github.com>
 Date: Sat, 29 Jun 2024 12:06:51 +0100
 Subject: [PATCH] Paper PR: Reduce work done in CraftMapCanvas.drawImage by
- limiting size  of image and using System.arraycopy instead of for loops and
- use bitwise  operations to do bounds checks.
+ limiting size of image and using System.arraycopy instead of for loops and
+ use bitwise operations to do bounds checks.
 
 Source in https://github.com/PaperMC/Paper/pull/11000
 

@@ -4868,7 +4868,7 @@ index 9fe91892ce469bc207ad9ca4f3ca3f9f1ebef794..67be68e0ab1e2f206b6be6db820a6067
  
          regionFile.setStatus(chunkPos.x, chunkPos.z, ChunkSerializer.getStatus(compound));
 diff --git a/src/main/java/net/minecraft/server/level/ServerLevel.java b/src/main/java/net/minecraft/server/level/ServerLevel.java
-index 6b2f07689a91daedd6f9bfa809227b52ce91ff20..7c0dd49485ed4993fcb22c306122aa4ec539cf9a 100644
+index 6b2f07689a91daedd6f9bfa809227b52ce91ff20..171d80390169a99b83f19e4dee5536d321960f34 100644
 --- a/src/main/java/net/minecraft/server/level/ServerLevel.java
 +++ b/src/main/java/net/minecraft/server/level/ServerLevel.java
 @@ -164,6 +164,7 @@ import net.minecraft.world.phys.shapes.BooleanOp;
@@ -4917,28 +4917,30 @@ index 6b2f07689a91daedd6f9bfa809227b52ce91ff20..7c0dd49485ed4993fcb22c306122aa4e
              ChunkPos nbtPos = nbt == null ? null : EntityStorage.readChunkPos(nbt);
              if (nbtPos != null && !pos.equals(nbtPos)) {
                  throw new IllegalArgumentException(
-@@ -447,7 +450,7 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -447,7 +450,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
                  io.papermc.paper.chunk.system.io.RegionFileIOThread.RegionFileType.ENTITY_DATA);
              return;
          }
 -        this.entityStorage.write(new ChunkPos(chunkX, chunkZ), compound);
-+        if (!Format.equals(Format.SECTORFILE)) this.entityStorage.write(new ChunkPos(chunkX, chunkZ), compound);
++        if (!Format.equals(Format.SECTORFILE)) this.entityStorage.write(new ChunkPos(chunkX, chunkZ), compound); else this.sectorFileCache.write(
++                ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkX, chunkZ,
++                ca.spottedleaf.io.region.MinecraftRegionFileType.ENTITY.getNewId(), compound
++        );
      }
  
      private net.minecraft.nbt.CompoundTag readEntityChunk(int chunkX, int chunkZ) throws IOException {
-@@ -457,6 +460,12 @@ public class ServerLevel extends Level implements WorldGenLevel {
+@@ -457,7 +463,10 @@ public class ServerLevel extends Level implements WorldGenLevel {
                  io.papermc.paper.chunk.system.io.RegionFileIOThread.getIOBlockingPriorityForCurrentThread()
              );
          }
-+        if (Format.equals(Format.SECTORFILE)) {
-+            return this.sectorFileCache.read(
-+                    ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkX, chunkZ,
-+                    ca.spottedleaf.io.region.MinecraftRegionFileType.ENTITY.getNewId()
-+            );
-+        }
-         return this.entityStorage.read(new ChunkPos(chunkX, chunkZ));
+-        return this.entityStorage.read(new ChunkPos(chunkX, chunkZ));
++        return Format.equals(Format.SECTORFILE) ? this.sectorFileCache.read(
++                ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkX, chunkZ,
++                ca.spottedleaf.io.region.MinecraftRegionFileType.ENTITY.getNewId()
++        ) : this.entityStorage.read(new ChunkPos(chunkX, chunkZ));
      }
  
+     private final io.papermc.paper.chunk.system.entity.EntityLookup entityLookup;
 @@ -758,7 +767,13 @@ public class ServerLevel extends Level implements WorldGenLevel {
          // CraftBukkit end
          boolean flag2 = minecraftserver.forceSynchronousWrites();
@@ -4985,7 +4987,7 @@ index 5b60a7fc75d0e2beafb8787fbe0708e07c7203f8..7eb9ceeea08e3c2b0b23b64b4df22868
      }
  
 diff --git a/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java b/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
-index 256fbdc2a287a8232c8ecb9d0e06290a141a49ee..39698b8f6f5007f6fb093f303fdf2390451e3125 100644
+index 256fbdc2a287a8232c8ecb9d0e06290a141a49ee..cd9467d0da9eb5276d83961b7850491b792e856b 100644
 --- a/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
 +++ b/src/main/java/net/minecraft/world/entity/ai/village/poi/PoiManager.java
 @@ -36,6 +36,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
@@ -4996,33 +4998,32 @@ index 256fbdc2a287a8232c8ecb9d0e06290a141a49ee..39698b8f6f5007f6fb093f303fdf2390
  
  public class PoiManager extends SectionStorage<PoiSection> {
      public static final int MAX_VILLAGE_DISTANCE = 6;
-@@ -438,6 +439,12 @@ public class PoiManager extends SectionStorage<PoiSection> {
+@@ -438,7 +439,10 @@ public class PoiManager extends SectionStorage<PoiSection> {
              );
          }
          // Paper end - rewrite chunk system
-+        if (Format.equals(Format.SECTORFILE)) {
-+            return this.world.sectorFileCache.read(
-+                    ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkcoordintpair.x, chunkcoordintpair.z,
-+                    ca.spottedleaf.io.region.MinecraftRegionFileType.POI.getNewId()
-+            );
-+        }
-         return super.read(chunkcoordintpair);
+-        return super.read(chunkcoordintpair);
++        return Format.equals(Format.SECTORFILE) ? this.world.sectorFileCache.read(
++                ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkcoordintpair.x, chunkcoordintpair.z,
++                ca.spottedleaf.io.region.MinecraftRegionFileType.POI.getNewId()
++        ) : super.read(chunkcoordintpair);
      }
  
-@@ -451,6 +458,13 @@ public class PoiManager extends SectionStorage<PoiSection> {
+     @Override
+@@ -451,7 +455,12 @@ public class PoiManager extends SectionStorage<PoiSection> {
              return;
          }
          // Paper end - rewrite chunk system
-+        if (Format.getNow().equals(Format.SECTORFILE)) {
+-        super.write(chunkcoordintpair, nbttagcompound);
++        if (Format.equals(Format.SECTORFILE)) {
 +            this.world.sectorFileCache.write(
 +                    ca.spottedleaf.io.region.SectorFileCache.getUnscopedBufferChoices(), chunkcoordintpair.x, chunkcoordintpair.z,
 +                    ca.spottedleaf.io.region.MinecraftRegionFileType.POI.getNewId(), nbttagcompound
 +            );
-+            return;
-+        }
-         super.write(chunkcoordintpair, nbttagcompound);
++        } else super.write(chunkcoordintpair, nbttagcompound);
      }
      // Paper end
+ 
 diff --git a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkStorage.java b/src/main/java/net/minecraft/world/level/chunk/storage/ChunkStorage.java
 index 7801fac96d728f951989fca36f6a4890a0638c36..3cc83a228a0246a997b4cc2f8ab5cc227df1657c 100644
 --- a/src/main/java/net/minecraft/world/level/chunk/storage/ChunkStorage.java
