@@ -13,7 +13,7 @@
 
 I will provide support for Linear and Sectorfile in the September test version. If confirmation is stable, they will be moved to the main line.
 
-Sectorfile has been completed and is waiting for Linear mergers。
+Both Sectorfile and Linear have merged, and they will soon merge to the main line.
 
 The automatic construction in the September test will not be published to the API.
 
