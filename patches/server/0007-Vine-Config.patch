@@ -413,10 +413,10 @@ index 0000000000000000000000000000000000000000..d1def2cda6471013ce28558caf2ae74f
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..888941012da759f7580853dc8774b332ee3981d5
+index 0000000000000000000000000000000000000000..c0b39d79d8fd8d3fb0bb22e879281711775eb7e0
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
-@@ -0,0 +1,87 @@
+@@ -0,0 +1,90 @@
 +package one.tranic.vine.config.module.feature
 +
 +import one.tranic.vine.config.ConfigUtil.addDefault
@@ -446,6 +446,7 @@ index 0000000000000000000000000000000000000000..888941012da759f7580853dc8774b332
 +                "With that edge cases are more likely to happen"
 +            )
 +        )
++        addDefault("feature.liquid-physics", false, "The new liquid physics system may affect some mechanisms.")
 +        addDefault(
 +            "feature.secure-seed", false, listOf(
 +                "Changes the seed from 64bit to 1024bit, this will strictly secure your seed,",
@@ -472,6 +473,7 @@ index 0000000000000000000000000000000000000000..888941012da759f7580853dc8774b332
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
 +        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
 +        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
++        Feature.liquidPhysics = getBoolean("feature.liquid-physics")
 +        getBoolean("feature.secure-seed") {
 +            if (Locker.secureSeed == null) {
 +                Feature.secureSeed = it
@@ -497,7 +499,8 @@ index 0000000000000000000000000000000000000000..888941012da759f7580853dc8774b332
 +                Feature.tryVirtualThreads = it
 +                Locker.virtualThread = it
 +            } else if (it != Locker.virtualThread) {
-+                VineLogger.get().error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
++                VineLogger.get()
++                    .error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
 +            }
 +        }
 +        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")

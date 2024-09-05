@@ -1,0 +1,490 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: SoSeDiK <mrsosedik@gmail.com>
+Date: Sun, 27 Nov 2022 05:53:10 +0200
+Subject: [PATCH] Kiterino: New liquid physics
+
+You can find the original code on https://github.com/SoSeDiKs-Universe/Kiterino
+
+diff --git a/src/main/java/net/minecraft/world/entity/vehicle/Boat.java b/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
+index ca5d3e0dd4da0aab64a566e6facd8492a166f323..c40bd571195e5a094bee9bbc429c1663cf99fdf7 100644
+--- a/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
++++ b/src/main/java/net/minecraft/world/entity/vehicle/Boat.java
+@@ -616,6 +616,7 @@ public class Boat extends VehicleEntity implements VariantHolder<Boat.Type> {
+         int j = Mth.ceil(axisalignedbb.maxX);
+         int k = Mth.floor(axisalignedbb.minY);
+         int l = Mth.ceil(axisalignedbb.minY + 0.001D);
++        if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics) l++; // Vine - Kiterino extra height
+         int i1 = Mth.floor(axisalignedbb.minZ);
+         int j1 = Mth.ceil(axisalignedbb.maxZ);
+         boolean flag = false;
+@@ -663,7 +664,7 @@ public class Boat extends VehicleEntity implements VariantHolder<Boat.Type> {
+ 
+                     if (fluid.is(FluidTags.WATER) && d0 < (double) ((float) blockposition_mutableblockposition.getY() + fluid.getHeight(this.level(), blockposition_mutableblockposition))) {
+                         if (!fluid.isSource()) {
+-                            return Boat.Status.UNDER_FLOWING_WATER;
++                            return one.tranic.vine.config.VineConfig.Feature.liquidPhysics ? Boat.Status.UNDER_FLOWING_WATER : (fluid.getAmount() == 8 ? Boat.Status.UNDER_FLOWING_WATER : Boat.Status.IN_WATER); // Vine - Kiterino Do not sink boats in flowing water
+                         }
+ 
+                         flag = true;
+diff --git a/src/main/java/net/minecraft/world/level/block/Blocks.java b/src/main/java/net/minecraft/world/level/block/Blocks.java
+index ce639e4a2d87202a10ef4fc73274c4b2c4e95720..793cfa19bd8ca96239683f0f269accd2db03a062 100644
+--- a/src/main/java/net/minecraft/world/level/block/Blocks.java
++++ b/src/main/java/net/minecraft/world/level/block/Blocks.java
+@@ -347,7 +347,7 @@ public class Blocks {
+                 .replaceable()
+                 .noCollission()
+                 .strength(100.0F)
+-                .pushReaction(PushReaction.DESTROY)
++                .pushReaction(one.tranic.vine.config.VineConfig.Feature.liquidPhysics ? PushReaction.PUSH_ONLY : PushReaction.DESTROY) // Vine - Kiterino pushable water
+                 .noLootTable()
+                 .liquid()
+                 .sound(SoundType.EMPTY)
+diff --git a/src/main/java/net/minecraft/world/level/block/piston/PistonBaseBlock.java b/src/main/java/net/minecraft/world/level/block/piston/PistonBaseBlock.java
+index e0c62227b279a5fe0f3868fbf9ce8c78c515a09c..79a1ed3b7e38d1addb611d464be9e3cb40d6ff7f 100644
+--- a/src/main/java/net/minecraft/world/level/block/piston/PistonBaseBlock.java
++++ b/src/main/java/net/minecraft/world/level/block/piston/PistonBaseBlock.java
+@@ -313,6 +313,20 @@ public class PistonBaseBlock extends DirectionalBlock {
+     }
+ 
+     public static boolean isPushable(BlockState state, Level world, BlockPos pos, Direction direction, boolean canBreak, Direction pistonDir) {
++        if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
++            // Vine start - Kiterino New liquid physics
++            net.minecraft.world.level.material.FluidState fluidState = state.getFluidState();
++            if (!fluidState.isEmpty() && fluidState.isSourceOfType(net.minecraft.world.level.material.Fluids.WATER)) {
++                BlockPos nextBlockPos = pos.relative(direction);
++                BlockState nextBlockState = world.getBlockState(nextBlockPos);
++                if (!(nextBlockState.isAir() ||
++                        nextBlockState.getFluidState().is(fluidState.getType()) ||
++                        nextBlockState.getPistonPushReaction() == PushReaction.DESTROY)) {
++                    return false;
++                }
++            }
++            // Vine end - Kiterino New liquid physics
++        }
+         if (pos.getY() >= world.getMinBuildHeight() && pos.getY() <= world.getMaxBuildHeight() - 1 && world.getWorldBorder().isWithinBounds(pos)) {
+             if (state.isAir()) {
+                 return true;
+@@ -421,6 +435,46 @@ public class PistonBaseBlock extends DirectionalBlock {
+             }
+             // CraftBukkit end
+ 
++            if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
++                // Kiterino start
++                Direction oppositeDir = dir.getOpposite();
++
++                java.util.Set<BlockPos> blockPosSet = new java.util.HashSet<>();
++                blockPosSet.add(blockposition1);
++                for (BlockPos movedBlockPos : moved) {
++                    blockPosSet.add(movedBlockPos);
++                    blockPosSet.add(movedBlockPos.relative(dir));
++                }
++
++                for (BlockPos currentBlockPos : blockPosSet) {
++                    BlockState blockState = world.getBlockState(currentBlockPos);
++                    net.minecraft.world.level.material.FluidState fluidState = blockState.getFluidState();
++
++                    if (!fluidState.isEmpty()
++                            && fluidState.is(net.minecraft.world.level.material.Fluids.WATER)
++                            && fluidState.getType() instanceof net.minecraft.world.level.material.FlowingFluid fluid && !fluidState.isSource()) {
++                        java.util.Optional<BlockPos> sourcePos = net.minecraft.world.level.material.FlowingFluid.findSource(
++                                world,
++                                currentBlockPos,
++                                fluidState,
++                                fluid,
++                                oppositeDir,
++                                new java.util.HashSet<>(blockPosSet),
++                                true,
++                                true,
++                                255,
++                                0
++                        );
++
++                        if (sourcePos.isPresent()) {
++                            net.minecraft.world.level.material.FluidState still = fluid.getSource(false);
++                            net.minecraft.world.level.material.FlowingFluid.moveSource(world, sourcePos.get(), currentBlockPos, blockState, fluid, still);
++                        }
++                    }
++                }
++                // Kiterino end
++            }
++
+             BlockPos blockposition3;
+             int j;
+             BlockState iblockdata1;
+diff --git a/src/main/java/net/minecraft/world/level/levelgen/feature/SpringFeature.java b/src/main/java/net/minecraft/world/level/levelgen/feature/SpringFeature.java
+index 72c7179ea7743c67f2489573c0e886f20871fe60..8c90c1d15811444c2edd0eb1b9e05b6b08b52672 100644
+--- a/src/main/java/net/minecraft/world/level/levelgen/feature/SpringFeature.java
++++ b/src/main/java/net/minecraft/world/level/levelgen/feature/SpringFeature.java
+@@ -69,7 +69,28 @@ public class SpringFeature extends Feature<SpringConfiguration> {
+                 }
+ 
+                 if (j == springConfiguration.rockCount && k == springConfiguration.holeCount) {
+-                    worldGenLevel.setBlock(blockPos, springConfiguration.state.createLegacyBlock(), 2);
++                    if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
++                        // Vine start - Kiterino make water springs out of corals and spawn magma block next to lava, so they could persist the fluid physics changes
++                        BlockState springState;
++                        if (springConfiguration.state.is(net.minecraft.world.level.material.Fluids.WATER)) {
++                            java.util.Optional<net.minecraft.world.level.block.Block> optional = net.minecraft.core.registries.BuiltInRegistries.BLOCK.getTag(net.minecraft.tags.BlockTags.CORAL_PLANTS)
++                                    .flatMap((blocks) -> blocks.getRandomElement(context.random()))
++                                    .map(net.minecraft.core.Holder::value);
++                            springState = optional.map(net.minecraft.world.level.block.Block::defaultBlockState).orElseGet(springConfiguration.state::createLegacyBlock);
++                        } else if (springConfiguration.state.is(net.minecraft.world.level.material.Fluids.LAVA)) {
++                            springState = springConfiguration.state.createLegacyBlock();
++                            java.util.List<net.minecraft.core.Direction> springs = new java.util.ArrayList<>(java.util.List.of(net.minecraft.world.level.material.FlowingFluid.ALLOWED_SOURCE_DIRECTIONS));
++                            springs.removeIf(direction -> !worldGenLevel.getBlockState(blockPos.relative(direction)).is(springConfiguration.validBlocks) || worldGenLevel.isEmptyBlock(blockPos.relative(direction)));
++                            if (springs.isEmpty())
++                                worldGenLevel.setBlock(blockPos.relative(net.minecraft.core.Direction.DOWN), net.minecraft.world.level.block.Blocks.MAGMA_BLOCK.defaultBlockState(), 2);
++                            else
++                                worldGenLevel.setBlock(blockPos.relative(springs.get(context.random().nextInt(springs.size()))), net.minecraft.world.level.block.Blocks.MAGMA_BLOCK.defaultBlockState(), 2);
++                        } else {
++                            springState = springConfiguration.state.createLegacyBlock();
++                        }
++                        worldGenLevel.setBlock(blockPos, springState, 2);
++                        // Vine end
++                    } else worldGenLevel.setBlock(blockPos, springConfiguration.state.createLegacyBlock(), 2);
+                     worldGenLevel.scheduleTick(blockPos, springConfiguration.state.getType(), 0);
+                     i++;
+                 }
+diff --git a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
+index 16f1ed279fb05d47d97692f26d083683dd942dc4..9780df3f4cacb305ee6cb95f1c3bcbf9bfc4489d 100644
+--- a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
++++ b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
+@@ -227,7 +227,11 @@ public abstract class FlowingFluid extends Fluid {
+             }
+         }
+ 
+-        if (this.canConvertToSource(world) && j >= getRequiredSources(world)) {
++        boolean b1 = one.tranic.vine.config.VineConfig.Feature.liquidPhysics ?
++                (this.canConvertToSource(world, pos) && j >= getRequiredSources(world)):
++                (this.canConvertToSource(world) && j >= getRequiredSources(world));
++
++        if (b1) {
+             BlockState iblockdata2 = world.getBlockState(pos.below());
+             FluidState fluid1 = iblockdata2.getFluidState();
+ 
+@@ -305,6 +309,28 @@ public abstract class FlowingFluid extends Fluid {
+         VoxelShape voxelshape1 = fromState.getCollisionShape(world, fromPos);
+         boolean flag = !Shapes.mergedFaceOccludes(voxelshape, voxelshape1, face);
+ 
++        if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
++            // Vine start
++            if (!flag) {
++                if (state.is(BlockTags.LEAVES)) {
++                    // Let water flow from leaves (they fail above check ^^)
++                    flag = true;
++                } else if (tryToFlowDownIntoBlock(fromState)) {
++                    // Flow into waterlogged blocks if possible
++                    flag = true;
++                }
++            }
++
++            if (flag) {
++                // Don't merge into other water sources, flow over them instead
++                FluidState fluidState = fromState.getFluidState();
++                if (state.getFluidState().isSourceOfType(fluidState.getType())) {
++                    flag = false;
++                }
++            }
++            // Vine end
++        }
++
+         /*
+         if (object2bytelinkedopenhashmap != null) {
+             if (object2bytelinkedopenhashmap.size() == 200) {
+@@ -342,7 +368,14 @@ public abstract class FlowingFluid extends Fluid {
+     }
+     // Purpur end
+ 
++    // Vine start
++    protected boolean canConvertToSource(Level world, BlockPos pos) {
++        return canConvertToSource(world);
++    }
++    // Vine end
++
+     protected void spreadTo(LevelAccessor world, BlockPos pos, BlockState state, Direction direction, FluidState fluidState) {
++        if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics && flowTo(world, pos, state, direction)) return; // Kiterino
+         if (state.getBlock() instanceof LiquidBlockContainer) {
+             ((LiquidBlockContainer) state.getBlock()).placeLiquid(world, pos, state, fluidState);
+         } else {
+@@ -355,6 +388,172 @@ public abstract class FlowingFluid extends Fluid {
+ 
+     }
+ 
++    // Vine start
++    private boolean flowTo(LevelAccessor world, BlockPos pos, BlockState state, Direction direction) {
++        FluidState still = getSource(false);
++        BlockPos up = pos.above();
++        if (direction == Direction.DOWN || world.getFluidState(up).is(still.getType())) {
++            BlockState blockStateBelow = world.getBlockState(pos.below());
++
++            boolean isFlowingOntoPiston = blockStateBelow.getBlock() instanceof net.minecraft.world.level.block.piston.PistonBaseBlock && blockStateBelow.getValue(net.minecraft.world.level.block.DirectionalBlock.FACING) == Direction.UP;
++            if (isFlowingOntoPiston) return false;
++
++            java.util.Optional<BlockPos> sourcePos = findSource(world, up, still.getType());
++
++            if (sourcePos.isPresent()) {
++                BlockPos fromPos = sourcePos.get();
++                Block fromBlock = world.getBlockIfLoaded(fromPos);
++                if (fromBlock != null && isSame(Fluids.WATER)) {
++                    // Don't move water from undead corals, treat them as springs
++                    boolean isCoralSpring = fromBlock instanceof net.minecraft.world.level.block.CoralPlantBlock
++                            || fromBlock instanceof net.minecraft.world.level.block.CoralFanBlock
++                            || fromBlock instanceof net.minecraft.world.level.block.CoralWallFanBlock;
++                    if (isCoralSpring) return false;
++                } else if (fromBlock != null && isSame(Fluids.LAVA)) {
++                    // Treat lava sources nearby magma blocks as springs
++                    for (Direction relative : ALLOWED_SOURCE_DIRECTIONS) {
++                        Block relativeBlock = world.getBlockIfLoaded(fromPos.relative(relative));
++                        if (relativeBlock == Blocks.MAGMA_BLOCK)
++                            return false;
++                    }
++                }
++
++                moveSource(world, fromPos, pos, state, this, still);
++                return true; // Source manually moved
++            } else if (isSourceBlockOfThisType(state.getFluidState())) {
++                // No source was found and new pos already contains the fluid, no need for the default flow
++                return true;
++            }
++        }
++        return false;
++    }
++
++    private java.util.Optional<BlockPos> findSource(LevelAccessor world, BlockPos pos, Fluid fluid) {
++        return findSource(world, pos, world.getFluidState(pos), fluid, Direction.UP, new java.util.HashSet<>(), false, false, 255, 0);
++    }
++
++    private static final Direction[] HORIZONTAL_DIRECTIONS = new Direction[] {Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST};
++    public static final Direction[] ALLOWED_SOURCE_DIRECTIONS = new Direction[] {Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.UP};
++    public static java.util.Optional<BlockPos> findSource(
++            LevelAccessor world,
++            BlockPos blockPos,
++            FluidState fluidState,
++            Fluid fluid,
++            Direction direction,
++            java.util.Set<BlockPos> ignoreBlocks,
++            boolean ignoreFirst,
++            boolean ignoreLevel,
++            int maxIterations,
++            int iteration
++    ) {
++        if (iteration > maxIterations) return java.util.Optional.empty();
++        if (ignoreBlocks.size() > 4094) return java.util.Optional.empty();
++        if (!ignoreFirst && ignoreBlocks.contains(blockPos)) return java.util.Optional.empty();
++
++        ignoreBlocks.add(blockPos);
++
++        if (fluid.isEmpty()) return java.util.Optional.empty();
++        if (!fluid.isSame(fluidState.getType())) return java.util.Optional.empty();
++
++        if (direction != Direction.DOWN) {
++            BlockPos up = blockPos.above();
++            FluidState upFluidState = world.getFluidState(up);
++            if (!upFluidState.isEmpty() && fluid.isSame(upFluidState.getType())) {
++                java.util.Optional<BlockPos> sourcePos = findSource(world, up, upFluidState, fluid, Direction.UP, ignoreBlocks, false, false, maxIterations, iteration + 1);
++                if (sourcePos.isPresent()) return sourcePos;
++            }
++        }
++
++        Direction oppositeDirection = direction.getOpposite();
++
++        if (!ignoreFirst && fluidState.isSource()) {
++            boolean nextToSpring = false;
++            boolean water = fluid.isSame(Fluids.WATER);
++            boolean lava = !water && fluid.isSame(Fluids.LAVA);
++            if (water || lava) {
++                for (Direction relativeDirection : ALLOWED_SOURCE_DIRECTIONS) {
++                    BlockState relativeState = world.getBlockStateIfLoaded(blockPos.relative(relativeDirection));
++                    if (relativeState == null) continue;
++
++                    Block relativeBlock = relativeState.getBlock();
++                    if (water) {
++                        // Treat waterlogged undead corals as springs
++                        boolean isCoralSpring = relativeBlock instanceof net.minecraft.world.level.block.CoralPlantBlock
++                                || relativeBlock instanceof net.minecraft.world.level.block.CoralFanBlock
++                                || relativeBlock instanceof net.minecraft.world.level.block.CoralWallFanBlock;
++                        if (!isCoralSpring) continue;
++                        if (!relativeState.getValue(net.minecraft.world.level.block.CoralPlantBlock.WATERLOGGED)) continue;
++                    } else {
++                        // Treat lava sources nearby magma blocks as springs
++                        if (relativeBlock != Blocks.MAGMA_BLOCK) continue;
++                    }
++
++                    nextToSpring = true;
++                    break;
++                }
++            }
++
++            if (!nextToSpring) {
++                return java.util.Optional.of(blockPos);
++            }
++        }
++
++        boolean falling = fluidState.getValue(FlowingFluid.FALLING);
++
++        for (Direction nextDirection : Direction.Plane.HORIZONTAL) {
++            if (nextDirection == oppositeDirection) continue;
++
++            int level = fluidState.getAmount();
++            BlockPos nextBlockPos = blockPos.relative(nextDirection);
++            FluidState nextFluidState = world.getFluidIfLoaded(nextBlockPos);
++            if (nextFluidState == null) continue;
++            if (nextFluidState.isEmpty()) continue;
++
++            int nextLevel = nextFluidState.getAmount();
++            boolean nextFalling = nextFluidState.getValue(FlowingFluid.FALLING);
++            if (nextLevel > level || (falling && !nextFalling) || ignoreLevel) {
++                java.util.Optional<BlockPos> sourcePos = findSource(world, nextBlockPos, nextFluidState, fluid, nextDirection, ignoreBlocks, false, ignoreLevel, maxIterations, iteration + 1);
++                if (sourcePos.isPresent())
++                    return sourcePos;
++            }
++        }
++
++        return java.util.Optional.empty();
++    }
++
++    public static void moveSource(
++            LevelAccessor world,
++            BlockPos srcPos,
++            BlockPos dstPos,
++            BlockState dstState,
++            FlowingFluid fluid,
++            FluidState still
++    ) {
++        // Drain source block
++        BlockState srcState = world.getBlockState(srcPos);
++        if (srcState.getBlock() instanceof net.minecraft.world.level.block.BucketPickup bucketPickup && !(bucketPickup instanceof net.minecraft.world.level.block.LiquidBlock)) {
++            bucketPickup.pickupBlock(null, world, srcPos, srcState);
++        } else {
++            if (!srcState.isAir())
++                fluid.beforeDestroyingBlock(world, srcPos, srcState);
++
++            int newSourceLevel = still.getAmount() - 1;
++            FluidState newSourceFluidState = fluid.getFlowing(newSourceLevel, false);
++            world.setBlock(srcPos, newSourceFluidState.createLegacyBlock(), 3);
++        }
++
++        // Flow source block to new position
++        if (dstState.getBlock() instanceof LiquidBlockContainer liquidBlockContainer) {
++            liquidBlockContainer.placeLiquid(world, dstPos, dstState, still);
++        } else {
++            if (!dstState.isAir())
++                fluid.beforeDestroyingBlock(world, dstPos, dstState);
++
++            world.setBlock(dstPos, still.createLegacyBlock(), 3);
++        }
++    }
++    // Vine end
++
+     protected void beforeDestroyingBlock(LevelAccessor world, BlockPos pos, BlockState state, BlockPos source) { beforeDestroyingBlock(world, pos, state); } // Paper - Add BlockBreakBlockEvent
+     protected abstract void beforeDestroyingBlock(LevelAccessor world, BlockPos pos, BlockState state);
+ 
+@@ -512,9 +711,70 @@ public abstract class FlowingFluid extends Fluid {
+     }
+ 
+     protected boolean canSpreadTo(BlockGetter world, BlockPos fluidPos, BlockState fluidBlockState, Direction flowDirection, BlockPos flowTo, BlockState flowToBlockState, FluidState fluidState, Fluid fluid) {
++        if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics && canFlowTo(world, flowDirection, flowTo, flowToBlockState, fluidState)) return true; // Vine
+         return fluidState.canBeReplacedWith(world, flowTo, fluid, flowDirection) && this.canPassThroughWall(flowDirection, world, fluidPos, fluidBlockState, flowTo, flowToBlockState) && this.canHoldFluid(world, flowTo, flowToBlockState, fluid);
+     }
+ 
++    // Vine start
++    private boolean canFlowTo(
++            BlockGetter blockView,
++            Direction flowDirection,
++            BlockPos flowTo,
++            BlockState flowToBlockState,
++            FluidState fluidState
++    ) {
++        if (flowDirection != Direction.DOWN) return false;
++        if (!this.isSame(Fluids.WATER)) return false;
++
++        Fluid fluid = fluidState.getType();
++        if (fluid.isSame(this)) {
++            if (!fluidState.isSource()) return true;
++
++            boolean isUnfillableAtSeaLevel = false;
++            if (blockView instanceof LevelReader world) {
++                if (isUnfillableInBiome(fluid, world, flowTo))
++                    isUnfillableAtSeaLevel = flowTo.getY() == world.getSeaLevel() - 1;
++            }
++            return isUnfillableAtSeaLevel;
++        }
++
++        return tryToFlowDownIntoBlock(flowToBlockState);
++    }
++
++    protected boolean isUnfillableInBiome(Fluid fluid, LevelReader world, BlockPos flowTo) {
++        return false;
++    }
++
++    private boolean tryToFlowDownIntoBlock(BlockState state) {
++        if (!this.isSame(Fluids.WATER)) return false;
++        if (!(state.getBlock() instanceof net.minecraft.world.level.block.SimpleWaterloggedBlock)) return false;
++        if (state.getValue(BlockStateProperties.WATERLOGGED)) return false;
++
++        // Special cases
++        if (state.getBlock() instanceof net.minecraft.world.level.block.TrapDoorBlock)
++            return canFlowDownIntoTrapdoor(state);
++        if (state.getBlock() instanceof net.minecraft.world.level.block.SlabBlock)
++            return canFlowDownIntoSlab(state);
++        if (state.getBlock() instanceof net.minecraft.world.level.block.StairBlock)
++            return canFlowDownIntoStair(state);
++
++        return true;
++    }
++
++    private boolean canFlowDownIntoTrapdoor(BlockState state) {
++        return state.getValue(net.minecraft.world.level.block.TrapDoorBlock.HALF) == net.minecraft.world.level.block.state.properties.Half.BOTTOM
++                || state.getValue(net.minecraft.world.level.block.TrapDoorBlock.OPEN);
++    }
++
++    private boolean canFlowDownIntoSlab(BlockState state) {
++        return state.getValue(net.minecraft.world.level.block.SlabBlock.TYPE) == net.minecraft.world.level.block.state.properties.SlabType.BOTTOM;
++    }
++
++    private boolean canFlowDownIntoStair(BlockState state) {
++        return state.getValue(net.minecraft.world.level.block.StairBlock.HALF) == net.minecraft.world.level.block.state.properties.Half.BOTTOM;
++    }
++    // Vine end
++
+     protected abstract int getDropOff(LevelReader world);
+ 
+     protected int getSpreadDelay(Level world, BlockPos pos, FluidState oldState, FluidState newState) {
+diff --git a/src/main/java/net/minecraft/world/level/material/WaterFluid.java b/src/main/java/net/minecraft/world/level/material/WaterFluid.java
+index 9dcdb2f4001115db0c26fdbf86531dbe6098485d..4971cc45d95ae6b8aac8daad2888168e28941ea0 100644
+--- a/src/main/java/net/minecraft/world/level/material/WaterFluid.java
++++ b/src/main/java/net/minecraft/world/level/material/WaterFluid.java
+@@ -77,9 +77,32 @@ public abstract class WaterFluid extends FlowingFluid {
+ 
+     @Override
+     protected boolean canConvertToSource(Level world) {
+-        return world.getGameRules().getBoolean(GameRules.RULE_WATER_SOURCE_CONVERSION);
++        return !one.tranic.vine.config.VineConfig.Feature.liquidPhysics && world.getGameRules().getBoolean(GameRules.RULE_WATER_SOURCE_CONVERSION); // Vine - Kiterino - Don't convert to source
+     }
+ 
++    // Vine start
++    @Override
++    protected boolean canConvertToSource(Level world, BlockPos pos) {
++        return one.tranic.vine.config.VineConfig.Feature.liquidPhysics ? (isInInfiniteBiome(world, pos) || canConvertToSource(world)) : super.canConvertToSource(world, pos);
++    }
++
++    @Override
++    protected boolean isUnfillableInBiome(Fluid fluid, LevelReader world, BlockPos flowTo) {
++        return one.tranic.vine.config.VineConfig.Feature.liquidPhysics ? isInInfiniteBiome(world, flowTo) : super.isUnfillableInBiome(fluid, world, flowTo);
++    }
++
++    private boolean isInInfiniteBiome(LevelReader world, BlockPos pos) {
++        if (isInfiniteBiome(world.getBiome(pos))) return true;
++        if (true) return false; // ToDo: TPS killer, needs caching
++        if (!((world instanceof net.minecraft.server.level.ServerLevel level))) return false;
++        return level.findClosestBiome3d(this::isInfiniteBiome, pos, 18, 8, 8) != null;
++    }
++
++    private boolean isInfiniteBiome(net.minecraft.core.Holder<net.minecraft.world.level.biome.Biome> biome) {
++        return biome.is(net.minecraft.tags.BiomeTags.IS_OCEAN) || biome.is(net.minecraft.tags.BiomeTags.IS_RIVER);
++    }
++    // Vine end
++
+     // Purpur start
+     @Override
+     protected int getRequiredSources(Level level) {

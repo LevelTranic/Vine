@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..ebfeba8c009a70cba060a5daaa1c83c363e5f9a2
+index 0000000000000000000000000000000000000000..b30e1f918c808f0fa51cef1d4621246f30b84eea
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,103 @@
+@@ -0,0 +1,105 @@
 +package one.tranic.vine.config;
 +
 +import one.tranic.vine.region.Compression;
@@ -40,6 +40,8 @@ index 0000000000000000000000000000000000000000..ebfeba8c009a70cba060a5daaa1c83c3
 +        /**If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.*/
 +        public static boolean disableRespawnCeiling = false;
 +        public static boolean flattenTriangularDistribution = false;
++        /**The new liquid physics system may affect some mechanisms.*/
++        public static boolean liquidPhysics = false;
 +        /**
 +         * Switch to a 1024-bit secure seed to protect it from being cracked.
 +         * Destroy the ambitions of those cheaters.
