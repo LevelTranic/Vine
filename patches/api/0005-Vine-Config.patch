@@ -175,10 +175,10 @@ index 0000000000000000000000000000000000000000..6e8be5b0d3e9f4f37be23d1069a57501
 +}
 diff --git a/src/main/java/one/tranic/vine/region/Format.java b/src/main/java/one/tranic/vine/region/Format.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..cd4967fd8341c33ef88f987a13c1ab3a665408bc
+index 0000000000000000000000000000000000000000..aa1079bff2ba1de31c8aee773b348207a5c15b2a
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/region/Format.java
-@@ -0,0 +1,40 @@
+@@ -0,0 +1,48 @@
 +package one.tranic.vine.region;
 +
 +public enum Format {
@@ -206,6 +206,14 @@ index 0000000000000000000000000000000000000000..cd4967fd8341c33ef88f987a13c1ab3a
 +            case "LINEAR" -> LINEAR;
 +            case "SECTORFILE" -> SECTORFILE;
 +            default -> ANVIL;
++        };
++    }
++
++    public static String getExtensionName() {
++        return switch (now) {
++            case ANVIL -> ".mca";
++            case LINEAR -> ".linear";
++            default -> throw new IllegalStateException("Unexpected value: " + now);
 +        };
 +    }
 +
