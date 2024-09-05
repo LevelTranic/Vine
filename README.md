@@ -9,6 +9,10 @@
     <br /><br />
 </div>
 
+**The September test is about to end and merge everything to the main line. **
+
+**The main line is about to restore normal updates.**
+
 [READ IN OUR PAGE!!!](https://docs.tranic.one/vine)
 
 ## Contact Us
