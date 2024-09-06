@@ -171,6 +171,36 @@ index ff13358678c420c5bc1504deb5b83384bf449794..bdd6938b3102e7201cc6700ce1213209
  
      public final ChatDecorator improvedChatDecorator = new io.papermc.paper.adventure.ImprovedChatDecorator(this); // Paper - adventure
      public ChatDecorator getChatDecorator() {
+diff --git a/src/main/java/net/minecraft/server/chase/ChaseClient.java b/src/main/java/net/minecraft/server/chase/ChaseClient.java
+index 2ea987a115cca2240035e0bc80b85521811fc938..1a4df5a72384964512ea5c3bef27ea57d978cf34 100644
+--- a/src/main/java/net/minecraft/server/chase/ChaseClient.java
++++ b/src/main/java/net/minecraft/server/chase/ChaseClient.java
+@@ -51,7 +51,7 @@ public class ChaseClient {
+         }
+ 
+         this.wantsToRun = true;
+-        this.thread = new Thread(this::run, "chase-client");
++        this.thread = one.tranic.vine.util.AnyThread.getThread(this::run, "chase-client");
+         this.thread.setDaemon(true);
+         this.thread.start();
+     }
+diff --git a/src/main/java/net/minecraft/server/chase/ChaseServer.java b/src/main/java/net/minecraft/server/chase/ChaseServer.java
+index d6da342d3df9c05a596bda9930581ee4034e4e4a..5b59629dcac9006deeab524c2b741ccefea3166e 100644
+--- a/src/main/java/net/minecraft/server/chase/ChaseServer.java
++++ b/src/main/java/net/minecraft/server/chase/ChaseServer.java
+@@ -44,10 +44,10 @@ public class ChaseServer {
+         } else {
+             this.wantsToRun = true;
+             this.serverSocket = new ServerSocket(this.serverPort, 50, InetAddress.getByName(this.serverBindAddress));
+-            Thread thread = new Thread(this::runAcceptor, "chase-server-acceptor");
++            Thread thread = one.tranic.vine.util.AnyThread.getThread(this::runAcceptor, "chase-server-acceptor");
+             thread.setDaemon(true);
+             thread.start();
+-            Thread thread2 = new Thread(this::runSender, "chase-server-sender");
++            Thread thread2 = one.tranic.vine.util.AnyThread.getThread(this::runSender, "chase-server-sender");
+             thread2.setDaemon(true);
+             thread2.start();
+         }
 diff --git a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java b/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
 index 90728949052211a33e979fc7839f17f03bc0c523..54a67ef91a3b26f65173c98e4a02b357e642f9aa 100644
 --- a/src/main/java/net/minecraft/server/dedicated/DedicatedServer.java
@@ -337,6 +367,32 @@ index 8aff5129f85ab5729b3da2e465871be62d15bdf2..0c89c96deb4a4a02ed6cf0f7aa584bf4
      });
      final MinecraftServer server;
      public volatile boolean running;
+diff --git a/src/main/java/net/minecraft/server/network/TextFilterClient.java b/src/main/java/net/minecraft/server/network/TextFilterClient.java
+index 63eab023e11440cb0cb1af6861e2deb0676ae709..690a28558e91723a709694437ee951276f987cf1 100644
+--- a/src/main/java/net/minecraft/server/network/TextFilterClient.java
++++ b/src/main/java/net/minecraft/server/network/TextFilterClient.java
+@@ -38,7 +38,7 @@ public class TextFilterClient implements AutoCloseable {
+     private static final Logger LOGGER = LogUtils.getLogger();
+     private static final AtomicInteger WORKER_COUNT = new AtomicInteger(1);
+     private static final ThreadFactory THREAD_FACTORY = runnable -> {
+-        Thread thread = new Thread(runnable);
++        Thread thread = one.tranic.vine.util.AnyThread.getThread(runnable);
+         thread.setName("Chat-Filter-Worker-" + WORKER_COUNT.getAndIncrement());
+         return thread;
+     };
+diff --git a/src/main/java/net/minecraft/server/rcon/thread/GenericThread.java b/src/main/java/net/minecraft/server/rcon/thread/GenericThread.java
+index 3691e97e83e4f4883adc85ec2d8aa789812bd474..c32f9c0d0b1d304b6b43fd60a0b58d3c8faeedbb 100644
+--- a/src/main/java/net/minecraft/server/rcon/thread/GenericThread.java
++++ b/src/main/java/net/minecraft/server/rcon/thread/GenericThread.java
+@@ -24,7 +24,7 @@ public abstract class GenericThread implements Runnable {
+             return true;
+         } else {
+             this.running = true;
+-            this.thread = new Thread(this, this.name + " #" + UNIQUE_THREAD_ID.incrementAndGet());
++            this.thread = one.tranic.vine.util.AnyThread.getThread(this, this.name + " #" + UNIQUE_THREAD_ID.incrementAndGet());
+             this.thread.setUncaughtExceptionHandler(new DefaultUncaughtExceptionHandlerWithName(LOGGER));
+             this.thread.start();
+             LOGGER.info("Thread {} started", this.name);
 diff --git a/src/main/java/net/minecraft/util/datafix/DataFixers.java b/src/main/java/net/minecraft/util/datafix/DataFixers.java
 index fbf236adaee622887e4d34c74095e2b6154e28d0..c2a85dd7a376e3056f2f5720d1bdc5d421ea7b7d 100644
 --- a/src/main/java/net/minecraft/util/datafix/DataFixers.java
