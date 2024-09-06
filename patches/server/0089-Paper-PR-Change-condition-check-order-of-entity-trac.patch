@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Fri, 6 Sep 2024 23:13:46 +0800
+Subject: [PATCH] Paper PR: Change condition check order of entity tracking Y
+
+Source in https://github.com/PaperMC/Paper/pull/11348
+
+Change the order so that other condition checks are performed after the x, y coordinate condition check.
+
+Before: `x z check` -> `broadcastToPlayer check` -> `ChunkMap.this.isChunkTracked check` -> `y check` -> `canSee check`
+After: `x z check` -> `y check` -> `broadcastToPlayer check` -> `ChunkMap.this.isChunkTracked check` -> `canSee check`
+
+diff --git a/src/main/java/net/minecraft/server/level/ChunkMap.java b/src/main/java/net/minecraft/server/level/ChunkMap.java
+index d82e390b2014ccf94c921bf670cb8ac2080fe14d..eb8f44b96f3c61fd45b613f490d162bdba9bf891 100644
+--- a/src/main/java/net/minecraft/server/level/ChunkMap.java
++++ b/src/main/java/net/minecraft/server/level/ChunkMap.java
+@@ -1443,8 +1443,8 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+                 double d0 = (double) Math.min(this.getEffectiveRange(), i * 16);
+                 double d1 = vec3d_dx * vec3d_dx + vec3d_dz * vec3d_dz; // Paper
+                 double d2 = d0 * d0;
+-                boolean flag = d1 <= d2 && this.entity.broadcastToPlayer(player) && ChunkMap.this.isChunkTracked(player, this.entity.chunkPosition().x, this.entity.chunkPosition().z);
+                 // Paper start - Configurable entity tracking range by Y
++                boolean flag = d1 <= d2; // Paper - Change condition check order of entity tracking Y
+                 if (flag && level.paperConfig().entities.trackingRangeY.enabled) {
+                     double rangeY = level.paperConfig().entities.trackingRangeY.get(this.entity, -1);
+                     if (rangeY != -1) {
+@@ -1452,6 +1452,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+                         flag = vec3d_dy * vec3d_dy <= rangeY * rangeY;
+                     }
+                 }
++                flag = flag && this.entity.broadcastToPlayer(player) && ChunkMap.this.isChunkTracked(player, this.entity.chunkPosition().x, this.entity.chunkPosition().z); // Paper - Change condition check order of entity tracking Y
+                 // Paper end - Configurable entity tracking range by Y
+ 
+                 // CraftBukkit start - respect vanish API
