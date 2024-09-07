@@ -38,6 +38,8 @@ jobs:
         run: gradle createMojmapPaperclipJar
       - name: SetENV
         run: pwsh scripts/SetEnv.ps1
+      - name: Clear Build
+        run: pwsh scripts/clear_build.ps1
       - name: Upload to Mars API
         run: pwsh scripts/create_build.ps1 ${{ env.mcversion }} ${{ secrets.MARS_TOKEN }}
       - name: Upload Artifact
