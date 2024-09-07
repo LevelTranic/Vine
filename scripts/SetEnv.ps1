@@ -20,7 +20,7 @@ $commitid = git log --pretty='%h' -1
 $mcversion = Get-Property "mcVersion"
 $grdversion = Get-Property "version"
 $preVersion = Get-Property "preVersion"
-$release_tag = "$mcversion-$commitid-september-test"
+$release_tag = "$mcversion-$commitid"
 $jarName = "$project_id-paperclip-$mcversion.jar"
 #$jarName_bundler = "$project_id-bundler-$mcversion.jar"
 $jarName_dir = "build/libs/$jarName"
