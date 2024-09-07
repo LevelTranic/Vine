@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Fri, 9 Aug 2024 09:36:27 +0800
+Subject: [PATCH] Leaf: Don't save falling block entity
+
+You can find the original code on https://github.com/Winds-Studio/Leaf
+
+diff --git a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
+index 7b3f0766f51b15c43e6d1abf337be15f82db97e0..5f0dca5d88e10498b18c17ba30563b24636a103c 100644
+--- a/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
++++ b/src/main/java/net/minecraft/world/entity/item/FallingBlockEntity.java
+@@ -87,6 +87,13 @@ public class FallingBlockEntity extends Entity {
+         this.setStartPos(this.blockPosition());
+     }
+ 
++    // Leaf start - PMC - Don't save falling block entity
++    @Override
++    public boolean shouldBeSaved() {
++        return !one.tranic.vine.config.VineConfig.Feature.DSE.fallingBlock && super.shouldBeSaved();
++    }
++    // Leaf end - PMC - Don't save falling block entity
++
+     public static FallingBlockEntity fall(Level world, BlockPos pos, BlockState state) {
+         // CraftBukkit start
+         return FallingBlockEntity.fall(world, pos, state, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.DEFAULT);

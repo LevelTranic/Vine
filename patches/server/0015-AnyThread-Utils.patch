@@ -1,0 +1,138 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Thu, 15 Aug 2024 21:46:57 +0800
+Subject: [PATCH] AnyThread Utils
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/util/AnyThread.kt b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..33f9b39e6382f2ee9e573fd5fb7c1348852e9eca
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
+@@ -0,0 +1,106 @@
++package one.tranic.vine.util
++
++import kotlinx.coroutines.*
++import kotlinx.coroutines.Runnable
++import net.minecraft.server.MinecraftServer
++import one.tranic.vine.config.module.Locker
++import java.lang.reflect.InaccessibleObjectException
++import java.lang.reflect.Method
++import java.lang.reflect.ReflectPermission
++import java.util.concurrent.ThreadFactory
++
++object AnyThread {
++    private lateinit var method: Method
++    private var hasLangModule = false
++    init {
++        try {
++            val clazz: Class<*> = Class.forName("java.lang.Thread")
++            method = clazz.getDeclaredMethod("getAllThreads")
++            ReflectPermission("suppressAccessChecks")
++            method.isAccessible = true
++            hasLangModule = true
++        }catch (_: InaccessibleObjectException) {
++            hasLangModule = false
++            MinecraftServer.LOGGER.warn("--add-opens=java.base/java.lang=ALL-UNNAMED is not enabled.")
++        } catch (e: Exception) {
++            MinecraftServer.LOGGER.error("AnyThread java.lang.Thread.getAllThreads set failed", e)
++        }
++    }
++
++    private fun getThreads(): ArrayList<Thread>? {
++        try {
++            val l = method.invoke(null) as Array<*>
++            if (l.isArrayOf<Thread>()) {
++                val r = ArrayList<Thread>()
++                var i = 0
++                for (thread in l) {
++                    if (thread is Thread) {
++                        r.add(thread)
++                        i++
++                    }
++                }
++                if (r.isNotEmpty()) return r
++            }
++        } catch (e: Exception) {
++            MinecraftServer.LOGGER.error("getThreads invoke failed", e)
++        }
++        return null
++    }
++
++    @JvmStatic
++    fun getThreadsCount(): ThreadInfo {
++        if (!hasLangModule) return ThreadInfoUtil.emptyThreadInfo
++        val t = getThreads()
++        if (t.isNullOrEmpty()) return ThreadInfoUtil.emptyThreadInfo
++        val totalSize = t.size
++        var aliveSize = 0
++        for (thread in t) {
++            if (thread.isAlive) {
++                aliveSize++
++            }
++        }
++        return ThreadInfo(totalSize, aliveSize)
++    }
++
++    @JvmStatic
++    fun getFactory(): ThreadFactory {
++        if (Locker.virtualThread == true) return Thread.ofVirtual().factory()
++        return Thread.ofPlatform().factory()
++    }
++
++    @JvmStatic
++    fun getThread(): Thread {
++        if (Locker.virtualThread == true) return Thread.ofVirtual().unstarted(null)
++        return Thread()
++    }
++
++    @JvmStatic
++    fun getThread(name: String): Thread {
++        if (Locker.virtualThread == true) return Thread.ofVirtual().name(name).unstarted(null)
++        return Thread(name)
++    }
++
++    @JvmStatic
++    fun getThread(runnable: Runnable): Thread {
++        if (Locker.virtualThread == true) return Thread.ofVirtual().unstarted(runnable)
++        return Thread(runnable)
++    }
++
++    @JvmStatic
++    fun getThread(runnable: Runnable, name: String): Thread {
++        if (Locker.virtualThread == true) return Thread.ofVirtual().name(name).unstarted(runnable)
++        return Thread(runnable, name)
++    }
++
++    @OptIn(DelicateCoroutinesApi::class)
++    @JvmStatic
++    fun getCoroutine(block: suspend CoroutineScope.() -> Unit): Job {
++        return GlobalScope.launch(block = block)
++    }
++
++    @OptIn(DelicateCoroutinesApi::class)
++    @JvmStatic
++    fun getCoroutine(runnable: Runnable): Job {
++        return GlobalScope.launch { runnable.run() }
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt b/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..99cf792b4141120979c9b0821ef1040258e22bcd
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/ThreadInfo.kt
+@@ -0,0 +1,12 @@
++package one.tranic.vine.util
++
++/**count is only allowed to be assigned null if the content is completely empty*/
++data class ThreadInfo(val size: Int?, val alive: Int)
++
++object ThreadInfoUtil {
++    val emptyThreadInfo = ThreadInfo(null, 0)
++}
++
++fun ThreadInfo.empty() : Boolean {
++    return this.size == null
++}
+\ No newline at end of file

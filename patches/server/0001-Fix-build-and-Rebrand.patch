@@ -5,7 +5,7 @@ Subject: [PATCH] Fix build and Rebrand
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..124dd83b65ed62c851981065745d8762e952beee 100644
+index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..fdf0818484cf5ae4d79c43824a513c7c4e9cdd8c 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -4,6 +4,9 @@ import java.time.Instant
@@ -47,7 +47,7 @@ index a08fe5582edaa4ceed6bf4f803bed132b0fdf3ce..124dd83b65ed62c851981065745d8762
 +    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.5.2")
 +    implementation("org.jetbrains.kotlinx:atomicfu:0.24.0")
 +    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
-+// Vine end
++    // Vine end
 +
  }
  

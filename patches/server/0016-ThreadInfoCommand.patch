@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Fri, 16 Aug 2024 21:02:50 +0800
+Subject: [PATCH] ThreadInfoCommand
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/commands/module/ThreadInfoCommand.kt b/src/main/kotlin/one/tranic/vine/commands/module/ThreadInfoCommand.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..bd34eba01844dd33f311bec6be57c894c943cf1f
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/commands/module/ThreadInfoCommand.kt
+@@ -0,0 +1,66 @@
++package one.tranic.vine.commands.module
++
++import net.kyori.adventure.text.Component
++import net.kyori.adventure.text.format.NamedTextColor
++import net.kyori.adventure.text.format.TextColor
++import one.tranic.vine.util.AnyThread
++import one.tranic.vine.util.empty
++import org.bukkit.command.Command
++import org.bukkit.command.CommandSender
++
++class ThreadInfoCommand : Command("threads") {
++    init {
++        this.permission = "vine.commands.threads"
++        this.description = "Threads"
++    }
++
++    private val color = TextColor.color(0, 245, 255)
++
++    override fun execute(sender: CommandSender, commandLabel: String, args: Array<String>): Boolean {
++        if (!this.testPermission(sender)) {
++            sender.sendMessage(
++                Component
++                    .text("No permission to execute this command!")
++                    .color(NamedTextColor.RED)
++            )
++            return true
++        }
++
++        val run = Runnable {
++            val info = AnyThread.getThreadsCount()
++            if (info.empty()) {
++                sender.sendMessage(
++                    Component
++                        .text("No active thread was detected or an internal error occurred!")
++                        .color(color)
++                )
++            } else {
++                sender.sendMessage(
++                    Component.text("\n", NamedTextColor.WHITE)
++                        .append(Component.text("========", NamedTextColor.GREEN))
++                        .append(Component.text("Server Thread Info", color))
++                        .append(Component.text("========", NamedTextColor.GREEN))
++                        .append(Component.text("\n", NamedTextColor.WHITE))
++                        .append(Component.text("Thread Total: ", NamedTextColor.GOLD))
++                        .append(Component.text(info.size!!, NamedTextColor.LIGHT_PURPLE))
++                        .append(Component.text("\n", NamedTextColor.WHITE))
++                        .append(Component.text("Alive Thread Total: ", NamedTextColor.GOLD))
++                        .append(Component.text(info.alive, NamedTextColor.LIGHT_PURPLE))
++                        .append(Component.text("\n", NamedTextColor.WHITE))
++                        .append(Component.text("Inactive Threads Total: ", NamedTextColor.GOLD))
++                        .append(Component.text(info.size - info.alive, NamedTextColor.LIGHT_PURPLE))
++                        .append(Component.text("\n", NamedTextColor.WHITE))
++                )
++            }
++        }
++
++        AnyThread.getCoroutine {
++            run.run()
++        }
++        return true
++    }
++
++    override fun tabComplete(sender: CommandSender, alias: String, args: Array<String>): List<String> {
++        return emptyList()
++    }
++}
+\ No newline at end of file

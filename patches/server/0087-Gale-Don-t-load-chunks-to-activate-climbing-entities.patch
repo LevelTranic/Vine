@@ -1,0 +1,88 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martijn Muijsers <martijnmuijsers@live.nl>
+Date: Sun, 25 Dec 2022 19:39:38 +0100
+Subject: [PATCH] Gale: Don't load chunks to activate climbing entities
+
+License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+Gale - https://galemc.org
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 303d1a2e991babf10d4efa327863f48db1107ec3..31c6840e819eacb9fde4f3ea0e2314bd5c947852 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -4847,6 +4847,16 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+         return this.inBlockState;
+     }
+ 
++    // Gale start - don't load chunks to activate climbing entities
++    public @Nullable BlockState getInBlockStateIfLoaded() {
++        if (this.inBlockState == null) {
++            this.inBlockState = this.level.getBlockStateIfLoaded(this.blockPosition());
++        }
++
++        return this.inBlockState;
++    }
++    // Gale end - don't load chunks to activate climbing entities
++
+     public ChunkPos chunkPosition() {
+         return this.chunkPosition;
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/LivingEntity.java b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+index 5e14d1521b779cda13bf6b35422936f390caefff..dd164dff4a1eef0332c1ca48fb38597222925d17 100644
+--- a/src/main/java/net/minecraft/world/entity/LivingEntity.java
++++ b/src/main/java/net/minecraft/world/entity/LivingEntity.java
+@@ -141,7 +141,6 @@ import org.bukkit.entity.Player;
+ import org.bukkit.event.entity.ArrowBodyCountChangeEvent;
+ import org.bukkit.event.entity.EntityDamageEvent;
+ import org.bukkit.event.entity.EntityDamageEvent.DamageModifier;
+-import org.bukkit.event.entity.EntityKnockbackEvent;
+ import org.bukkit.event.entity.EntityPotionEffectEvent;
+ import org.bukkit.event.entity.EntityRegainHealthEvent;
+ import org.bukkit.event.entity.EntityRemoveEvent;
+@@ -2121,19 +2120,43 @@ public abstract class LivingEntity extends Entity implements Attackable {
+ 
+     public boolean onClimableCached() {
+         if (!this.blockPosition().equals(this.lastClimbingPosition)) {
+-            this.cachedOnClimable = this.onClimbable();
+-            this.lastClimbingPosition = this.blockPosition();
++            // Gale start - don't load chunks to activate climbing entities
++            Boolean onClimbableIfLoaded = this.onClimbable(one.tranic.vine.config.VineConfig.Optimize.loadChunks.activateClimbingEntities);
++            if (onClimbableIfLoaded != null) {
++                this.cachedOnClimable = onClimbableIfLoaded;
++                this.lastClimbingPosition = this.blockPosition();
++            } else {
++                this.cachedOnClimable = false;
++                this.lastClimbingPosition = null;
++            }
++            // Gale end - don't load chunks to activate climbing entities
+         }
+         return this.cachedOnClimable;
+     }
+     // Pufferfish end
+ 
+     public boolean onClimbable() {
++        // Gale start - don't load chunks to activate climbing entities
++        return onClimbable(true);
++    }
++
++    public Boolean onClimbable(boolean loadChunk) {
++        // Gale end - don't load chunks to activate climbing entities
+         if (this.isSpectator()) {
+             return false;
+         } else {
+             BlockPos blockposition = this.blockPosition();
+-            BlockState iblockdata = this.getInBlockState();
++            // Gale start - don't load chunks to activate climbing entities
++            BlockState iblockdata;
++            if (loadChunk) {
++                iblockdata = this.getInBlockState();
++            } else {
++                iblockdata = this.getInBlockStateIfLoaded();
++                if (iblockdata == null) {
++                    return null;
++                }
++            }
++            // Gale end - don't load chunks to activate climbing entities
+ 
+             if (iblockdata.is(BlockTags.CLIMBABLE)) {
+                 this.lastClimbablePos = Optional.of(blockposition);

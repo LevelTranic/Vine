@@ -1,0 +1,276 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sat, 7 Sep 2024 16:33:54 +0800
+Subject: [PATCH] Vine Config - Optimize
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..7e1e69647dd21abb5ed05cb5d06d8ccfbf4625ef
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt
+@@ -0,0 +1,20 @@
++package one.tranic.vine.config.module.optimize
++
++import one.tranic.vine.config.VineConfig.Optimize.loadChunks
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object LoadChunks: ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "optimize.load-chunks"
++    override fun default() {
++        addDefault(
++            "$BASEPATH.spawn-phantoms", true
++        )
++        addDefault("$BASEPATH.activate-climbing-entities", true)
++    }
++
++    override fun load() {
++        loadChunks.spawnPhantoms = getBoolean("$BASEPATH.spawn-phantoms")
++        loadChunks.activateClimbingEntities = getBoolean("$BASEPATH.activate-climbing-entities")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4080b6ae0000746dbc5923140eecb8d568da05d
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt
+@@ -0,0 +1,25 @@
++package one.tranic.vine.config.module.optimize
++
++import one.tranic.vine.config.VineConfig.Optimize.Minecart
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object Minecart : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "optimize.minecart"
++    override fun default() {
++        addDefault(
++            "$BASEPATH.enabled", true,
++            listOf(
++                "Enable this feature to handle large amount of stacked Minecart better.",
++                "By skipping tick collisions to reduce expense getting entities list",
++                "and bukkit event calls, useful for the anarchy server."
++            )
++        )
++        addDefault("$BASEPATH.skipTickCount", 30)
++    }
++
++    override fun load() {
++        Minecart.enabled = getBoolean("$BASEPATH.enabled")
++        Minecart.skipTickCount = getInt("$BASEPATH.skipTickCount")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..fd309464e0a2eb6e7beaf42b11950ab987f04c64
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt
+@@ -0,0 +1,29 @@
++package one.tranic.vine.config.module.optimize
++
++import one.tranic.vine.config.VineConfig.Optimize.TurtleEggSearch
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object TurtleEggSearch : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "optimize.zombie-search-and-destroy-turtle-egg"
++    override fun default() {
++        addDefault(
++            "$BASEPATH.enabled",
++            false,
++            "If true, optimizes the expensive searching done to find a turtle egg to crush, for zombies/husks, by default fully disabling it"
++        )
++        addDefault(
++            "$BASEPATH.percent-chance",
++            40,
++            "Percent chance to run for task: zombie seeking turtle eggs to destroy"
++        )
++    }
++
++    override fun load() {
++        TurtleEggSearch.enabled =
++            getBoolean("$BASEPATH.enabled")
++        TurtleEggSearch.percentChance =
++            getInt("$BASEPATH.percent-chance")
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..166b6ff925f8db5e67a42edb917f081e84121b74
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
+@@ -0,0 +1,41 @@
++package one.tranic.vine.config.module.optimize
++
++import one.tranic.vine.config.VineConfig.Optimize
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object Value : ConfigImpl, ConfigHelper() {
++    override fun default() {
++        addDefault("optimize.acquire-poi-for-stuck-entity", 60, "Reduce acquire POI for stuck entities")
++        addDefault(
++            "optimize.faster-structure-gen-future-sequencing",
++            false,
++            "May cause the inconsistent order of future compose tasks."
++        )
++        addDefault("optimize.floating-point-positive", false)
++        addDefault(
++            "optimize.mob-re-pathfinding",
++            true,
++            "If true, disables the frequent pathfinds done while already following a path"
++        )
++        addDefault("optimize.noise-generation", true)
++        addDefault(
++            "optimize.skip-self-raid-check",
++            false,
++            listOf(
++                "Whether to skip some raid checks.",
++                "Enabling this will significantly reduce the server's performance."
++            )
++        )
++    }
++
++    override fun load() {
++        Optimize.acquirePoiForStuckEntity = getInt("optimize.acquire-poi-for-stuck-entity")
++        Optimize.fasterStructureGenFutureSequencing = getBoolean("optimize.faster-structure-gen-future-sequencing")
++        Optimize.floatingPointPositive = getBoolean("optimize.floating-point-positive")
++        Optimize.mobRePathfinding = getBoolean("optimize.mob-re-pathfinding")
++        Optimize.noiseGeneration = getBoolean("optimize.noise-generation")
++        Optimize.skipSelfRaidCheck = getBoolean("optimize.skip-self-raid-check")
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/Value.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..429be85566b1b9d1fb4d8ed43fecb55119bb7797
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/Value.kt
+@@ -0,0 +1,16 @@
++package one.tranic.vine.config.module.optimize.entitygoal
++
++import one.tranic.vine.config.VineConfig.Optimize.entityGoal
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object Value : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "optimize.entity-goal"
++    override fun default() {
++        addDefault("$BASEPATH.max-entities-to-reduce-pathfinding-rates", 2)
++    }
++
++    override fun load() {
++        entityGoal.maxEntitiesToReducePathfindingRates = getInt("$BASEPATH.max-entities-to-reduce-pathfinding-rates")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/Value.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..46915d92e061542c3820f0bf0bcec2d638024373
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/Value.kt
+@@ -0,0 +1,16 @@
++package one.tranic.vine.config.module.optimize.entitygoal.mob
++
++import one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object Value: ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "optimize.entity-goal.mob"
++    override fun default() {
++        addDefault("$BASEPATH.enemy-targeting-reduced-rate-percent-chance", 10)
++    }
++
++    override fun load() {
++        mob.enemyTargetingReducedRatePercentChance = getInt("$BASEPATH.enemy-targeting-reduced-rate-percent-chance")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/Wandering.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/Wandering.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..18f0f672f1c312c4c702210556f68c6efa0e6060
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/Wandering.kt
+@@ -0,0 +1,22 @@
++package one.tranic.vine.config.module.optimize.entitygoal.mob
++
++import one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.wandering
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object Wandering : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "optimize.entity-goal.mob.wandering"
++    override fun default() {
++        addDefault("$BASEPATH.delay", 100)
++        addDefault("$BASEPATH.optimize", true)
++        addDefault("$BASEPATH.percent-chance", 100)
++        addDefault("$BASEPATH.reduce-rate-multiplier", 6)
++    }
++
++    override fun load() {
++        wandering.delay = getInt("$BASEPATH.delay")
++        wandering.optimize = getBoolean("$BASEPATH.optimize")
++        wandering.percentChance = getInt("$BASEPATH.percent-chance")
++        wandering.reducedRateMultiplier = getInt("$BASEPATH.reduce-rate-multiplier")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/zombievillage/Raid.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/zombievillage/Raid.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..abdd72014480f0fabce21060b2e5c47096225926
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/mob/zombievillage/Raid.kt
+@@ -0,0 +1,18 @@
++package one.tranic.vine.config.module.optimize.entitygoal.mob.zombievillage
++
++import one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.zombieVillage.raid
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object Raid : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "optimize.entity-goal.mob.zombie-village.raid"
++    override fun default() {
++        addDefault("$BASEPATH.optimize", true)
++        addDefault("$BASEPATH.chance", 33)
++    }
++
++    override fun load() {
++        raid.optimize = getBoolean("$BASEPATH.optimize")
++        raid.chance = getInt("$BASEPATH.chance")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/player/ProximityRateReduce.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/player/ProximityRateReduce.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..2353ed83365f37fd1c74ce550c9c16cac8ac4ff5
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/entitygoal/player/ProximityRateReduce.kt
+@@ -0,0 +1,20 @@
++package one.tranic.vine.config.module.optimize.entitygoal.player
++
++import one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object ProximityRateReduce: ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "optimize.entity-goal.player.proximity-rate-reduce"
++    override fun default() {
++        addDefault("$BASEPATH.enabled", true)
++        addDefault("$BASEPATH.scan-rate", 40)
++        addDefault("$BASEPATH.cutoff", 12)
++    }
++
++    override fun load() {
++        proximityRateReduce.enabled = getBoolean("$BASEPATH.enabled")
++        proximityRateReduce.scanRate = getInt("$BASEPATH.scan-rate")
++        proximityRateReduce.cutoff = getInt("$BASEPATH.cutoff")
++    }
++}
+\ No newline at end of file

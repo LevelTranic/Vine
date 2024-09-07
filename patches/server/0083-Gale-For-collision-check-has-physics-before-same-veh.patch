@@ -1,0 +1,32 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Martijn Muijsers <martijnmuijsers@live.nl>
+Date: Tue, 29 Nov 2022 00:30:17 +0100
+Subject: [PATCH] Gale: For collision check has physics before same vehicle
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+Gale - https://galemc.org
+
+This patch is based on the following patch:
+"Swaps the predicate order of collision"
+By: ㄗㄠˋ ㄑㄧˊ <tsao-chi@the-lingo.org>
+As part of: Akarin (https://github.com/Akarin-project/Akarin)
+Licensed under: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index d3733a573497443f83ab26367cd5552131366254..b543423d8d4b6a2a41f2769bb39a68f96cccaa90 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -2260,8 +2260,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     public void playerTouch(Player player) {}
+ 
+     public void push(Entity entity) {
+-        if (!this.isPassengerOfSameVehicle(entity)) {
+-            if (!entity.noPhysics && !this.noPhysics) {
++        if (!entity.noPhysics && !this.noPhysics) { // Gale - Akarin - collision physics check before vehicle check
++            if (!this.isPassengerOfSameVehicle(entity)) {
+                 if (this.level.paperConfig().collisions.onlyPlayersCollide && !(entity instanceof ServerPlayer || this instanceof ServerPlayer)) return; // Paper - Collision option for requiring a player participant
+                 double d0 = entity.getX() - this.getX();
+                 double d1 = entity.getZ() - this.getZ();

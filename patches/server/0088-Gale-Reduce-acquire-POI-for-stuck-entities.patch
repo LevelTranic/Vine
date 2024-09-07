@@ -1,0 +1,67 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 1 Sep 2024 10:13:26 +0800
+Subject: [PATCH] Gale: Reduce acquire POI for stuck entities
+
+License: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+Gale - https://galemc.org
+
+This patch is based on the following patch:
+"Skip POI finding if stuck in vehicle"
+By: Paul Sauve <paul@technove.co>
+As part of: Airplane (https://github.com/TECHNOVE/Airplane)
+Licensed under: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+
+* Airplane copyright *
+
+Airplane
+Copyright (C) 2020 Technove LLC
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
+index 6499e3fe49e453db11e51eaf717ca8b3b682056b..afd6282ad0ac41ba8d5d120ae82c63b856a73852 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
++++ b/src/main/java/net/minecraft/world/entity/ai/behavior/AcquirePoi.java
+@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
+ import net.minecraft.core.GlobalPos;
+ import net.minecraft.core.Holder;
+ import net.minecraft.network.protocol.game.DebugPackets;
++import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.util.RandomSource;
+ import net.minecraft.world.entity.Mob;
+ import net.minecraft.world.entity.PathfinderMob;
+@@ -26,6 +27,13 @@ import org.apache.commons.lang3.mutable.MutableLong;
+ public class AcquirePoi {
+     public static final int SCAN_RANGE = 48;
+ 
++    // Gale start - Airplane - reduce acquire POI for stuck entities
++    public static void addAdditionalTimeToMutableLongIfEntityIsStuck(MutableLong mutableLong, PathfinderMob entity) {
++        long stuckEntityAdditionalWaitTime = one.tranic.vine.config.VineConfig.Optimize.acquirePoiForStuckEntity;
++        mutableLong.add(stuckEntityAdditionalWaitTime <= 0L ? 0L : entity.getNavigation().isStuck() ? stuckEntityAdditionalWaitTime : 0L);
++    }
++    // Gale end - Airplane - reduce acquire POI for stuck entities
++
+     public static BehaviorControl<PathfinderMob> create(
+         Predicate<Holder<PoiType>> poiPredicate, MemoryModuleType<GlobalPos> poiPosModule, boolean onlyRunIfChild, Optional<Byte> entityStatus
+     ) {
+@@ -51,7 +59,7 @@ public class AcquirePoi {
+                                 if (onlyRunIfChild && entity.isBaby()) {
+                                     return false;
+                                 } else if (mutableLong.getValue() == 0L) {
+-                                    mutableLong.setValue(world.getGameTime() + (long)world.random.nextInt(20));
++                                    addAdditionalTimeToMutableLongIfEntityIsStuck(mutableLong, entity); // Paper - Perf: Wait an additional 10s to check again if they're stuck // Gale - Airplane - reduce acquire POI for stuck entities
+                                     return false;
+                                 } else if (world.getGameTime() < mutableLong.getValue()) {
+                                     return false;

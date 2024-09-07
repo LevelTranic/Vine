@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Mon, 12 Aug 2024 08:49:13 +0800
+Subject: [PATCH] Divine: Fix MC-167242
+
+See https://bugs.mojang.com/browse/MC-167242
+
+diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+index 680b4b889f04afa604baa3513de5338f402b56b4..d2169c7ea32fcb3e2e183692df49dc86f572b69b 100644
+--- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
++++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+@@ -995,6 +995,11 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+                 world.addFreshEntityWithPassengers(entitywitch, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.LIGHTNING);
+                 // CraftBukkit end
+                 this.releaseAllPois();
++
++                if (this.isSleeping()) {
++                    this.stopSleeping();
++                }
++
+                 this.discard(EntityRemoveEvent.Cause.TRANSFORMATION); // CraftBukkit - add Bukkit remove cause
+             } else {
+                 super.thunderHit(world, lightning);

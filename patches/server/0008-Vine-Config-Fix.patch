@@ -1,0 +1,93 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sat, 7 Sep 2024 16:33:14 +0800
+Subject: [PATCH] Vine Config - Fix
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt b/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..927f3cfa8916dbe91c18bf619826588bf8e57911
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt
+@@ -0,0 +1,30 @@
++package one.tranic.vine.config.module.fix
++
++import one.tranic.vine.config.VineConfig.Fix
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object AnvilDrop : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "fix.anvil-drop"
++    override fun default() {
++        addDefault(
++            "$BASEPATH.enabled",
++            true,
++            listOf(
++                "This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ",
++                "it may cause some unexpected effects but should be harmless."
++            )
++        )
++        addDefault(
++            "$BASEPATH.debug", false,
++            "Whether to print detailed information to the console when this issue is triggered"
++        )
++    }
++
++    override fun load() {
++        Fix.AnvilDrop.enabled = getBoolean("$BASEPATH.enabled")
++        Fix.AnvilDrop.debug = getBoolean("$BASEPATH.debug")
++
++    }
++
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..10b3cffdfc28bc77a3e3b4deace76743f7eb62a5
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt
+@@ -0,0 +1,43 @@
++package one.tranic.vine.config.module.fix
++
++import one.tranic.vine.config.VineConfig.Fix
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object Value : ConfigImpl, ConfigHelper() {
++    override fun default() {
++        addDefault(
++            "fix.explosion-breaks-item-frame-in-water",
++            false,
++            listOf(
++                "Fixes Explosions being able to destroy item frames in water",
++                "Fixes: https://bugs.mojang.com/browse/MC-3697"
++            )
++        )
++        addDefault(
++            "fix.incorrect-bounce-logic",
++            false,
++            listOf(
++                "Fixes some entities not bouncing on slime blocks and getting stuck",
++                "Fixes: https://bugs.mojang.com/browse/MC-216985"
++            )
++        )
++        addDefault(
++            "fix.nether-portal",
++            false,
++            "Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer."
++        )
++        addDefault(
++            "fix.villagers-dont-release-memory",
++            false,
++        )
++    }
++
++    override fun load() {
++        Fix.explosionBreaksItemFrameInWater = getBoolean("fix.explosion-breaks-item-frame-in-water")
++        Fix.incorrectBounceLogic = getBoolean("fix.incorrect-bounce-logic")
++        Fix.netherPortal = getBoolean("fix.nether-portal")
++        Fix.villagersDontReleaseMemory = getBoolean("fix.villagers-dont-release-memory")
++    }
++
++}
+\ No newline at end of file

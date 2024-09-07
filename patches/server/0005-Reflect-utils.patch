@@ -1,0 +1,56 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 1 Sep 2024 17:14:34 +0800
+Subject: [PATCH] Reflect utils
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/util/Reflect.kt b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d727c617cadd3e06f4bd74df3a7ffa08c68bafe
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
+@@ -0,0 +1,43 @@
++package one.tranic.vine.util
++
++import com.google.common.reflect.ClassPath
++import java.io.IOException
++import kotlin.reflect.full.createInstance
++import kotlin.reflect.full.isSubclassOf
++
++
++object Reflect {
++    @Throws(IOException::class)
++    inline fun <reified T> findObjectClass(packageName: String): Set<T> {
++        return findClass<T>(packageName, true)
++    }
++
++    @Throws(IOException::class)
++    inline fun <reified T> findClass(packageName: String): Set<T> {
++        return findClass<T>(packageName, false)
++    }
++
++    @Throws(IOException::class)
++    inline fun <reified T> findClass(packageName: String, isObject: Boolean): Set<T> {
++        val implSet = mutableSetOf<T>()
++        val classs = ClassPath.from(Thread.currentThread().contextClassLoader)
++        val classes = classs.getTopLevelClasses(packageName)
++        for (classInfo in classes) {
++            val clazz = Class.forName(classInfo.name).kotlin
++            runCatching {
++                if (!clazz.isSubclassOf(T::class)) return@runCatching
++                val objInstance: T? = if (isObject && clazz.objectInstance != null) {
++                    clazz.objectInstance as T
++                } else if (!clazz.isData && !clazz.isFun && !clazz.isValue) {
++                    clazz.createInstance() as T
++                } else {
++                    null
++                }
++                if (objInstance != null) {
++                    implSet.add(objInstance)
++                }
++            }.getOrElse {}
++        }
++        return implSet
++    }
++}
+\ No newline at end of file
