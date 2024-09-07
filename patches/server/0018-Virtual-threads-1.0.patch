@@ -1,9 +1,34 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: 404Setup <153366651+404Setup@users.noreply.github.com>
 Date: Thu, 15 Aug 2024 21:42:18 +0800
-Subject: [PATCH] Try Virtual threads
+Subject: [PATCH] Virtual threads 1.0
 
 
+diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
+index 22c9c5ef26229c57fb27776b5a49cc77dcdbe545..d6ae8b61dd33da919fd81a11032bfe187d8caa6c 100644
+--- a/src/main/java/com/destroystokyo/paper/Metrics.java
++++ b/src/main/java/com/destroystokyo/paper/Metrics.java
+@@ -35,7 +35,7 @@ public class Metrics {
+ 
+     // Executor service for requests
+     // We use an executor service because the Bukkit scheduler is affected by server lags
+-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
++    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, one.tranic.vine.util.AnyThread.getFactory());
+ 
+     // The version of this bStats class
+     public static final int B_STATS_VERSION = 1;
+diff --git a/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilServicesKeyInfo.java b/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilServicesKeyInfo.java
+index 5dbaf7689363719501d9b41f9537ebd4677e32a6..370c98f9f74876ad62c1b412a79cf986f9adb441 100644
+--- a/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilServicesKeyInfo.java
++++ b/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilServicesKeyInfo.java
+@@ -35,6 +35,7 @@ public class YggdrasilServicesKeyInfo implements ServicesKeyInfo {
+ 
+     private static final ScheduledExecutorService FETCHER_EXECUTOR = Executors.newScheduledThreadPool(1, new ThreadFactoryBuilder()
+         .setNameFormat("Yggdrasil Key Fetcher")
++        .setThreadFactory(one.tranic.vine.util.AnyThread.getFactory())
+         .setDaemon(true)
+         .build()
+     );
 diff --git a/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java b/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
 index 57cf697b0916a3b0ac0232422a5a4ba423427dc3..fe7f87fefcc99867c24f59dd66cb2971e7a414dd 100644
 --- a/src/main/java/gg/pufferfish/pufferfish/flare/ProfilingManager.java
@@ -437,6 +462,19 @@ index 954d468459fe167ede0e7fca5b9f99da565d59e1..5b60a7fc75d0e2beafb8787fbe0708e0
      private static final String NEW_DIRECTORY_PREFIX = "new_";
      static final MutableComponent STATUS_UPGRADING_POI = Component.translatable("optimizeWorld.stage.upgrading.poi");
      static final MutableComponent STATUS_FINISHED_POI = Component.translatable("optimizeWorld.stage.finished.poi");
+diff --git a/src/main/java/net/minecraft/world/level/storage/DimensionDataStorage.java b/src/main/java/net/minecraft/world/level/storage/DimensionDataStorage.java
+index 3fdbec5ab625e5d1e9c7cbad2377a8e673a64765..c88e687f4667086d640f515026fe9ac3b4dd8674 100644
+--- a/src/main/java/net/minecraft/world/level/storage/DimensionDataStorage.java
++++ b/src/main/java/net/minecraft/world/level/storage/DimensionDataStorage.java
+@@ -35,7 +35,7 @@ public class DimensionDataStorage implements java.io.Closeable { // Paper - Writ
+         this.fixerUpper = dataFixer;
+         this.dataFolder = directory;
+         this.registries = registryLookup;
+-        this.ioExecutor = java.util.concurrent.Executors.newSingleThreadExecutor(new com.google.common.util.concurrent.ThreadFactoryBuilder().setNameFormat("DimensionDataIO - " + dataFolder.getParent() + " - %d").setDaemon(true).build()); // Paper - Write SavedData IO async
++        this.ioExecutor = java.util.concurrent.Executors.newSingleThreadExecutor(new com.google.common.util.concurrent.ThreadFactoryBuilder().setThreadFactory(one.tranic.vine.util.AnyThread.getFactory()).setNameFormat("DimensionDataIO - " + dataFolder.getParent() + " - %d").setDaemon(true).build()); // Paper - Write SavedData IO async
+     }
+ 
+     private File getDataFile(String id) {
 diff --git a/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java b/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
 index 8a4f95049c63afb28bef6719c77b7a7092e75aae..dcbe2cea667bf78b58c4312e65cd14cc96b1f359 100644
 --- a/src/main/java/org/bukkit/craftbukkit/bootstrap/Main.java
