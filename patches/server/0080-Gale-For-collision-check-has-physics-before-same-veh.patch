@@ -16,10 +16,10 @@ As part of: Akarin (https://github.com/Akarin-project/Akarin)
 Licensed under: GPL-3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
 
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 11a283dad82f98fd33f83b69ff77ee037b8cef42..de786caaaabcfce02d93e519ba9051cdfee23758 100644
+index d3733a573497443f83ab26367cd5552131366254..b543423d8d4b6a2a41f2769bb39a68f96cccaa90 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -2229,8 +2229,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -2260,8 +2260,8 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      public void playerTouch(Player player) {}
  
      public void push(Entity entity) {

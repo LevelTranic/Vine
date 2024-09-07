@@ -1,0 +1,64 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Dueris <jedimastertoothless@hotmail.com>
+Date: Wed, 19 Jun 2024 20:25:17 -0700
+Subject: [PATCH] Canvas: Optimize Entity Pathfinding
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/PathfinderMob.java b/src/main/java/net/minecraft/world/entity/PathfinderMob.java
+index 645414720db0231a19c88f681608eb08200b8782..ea9c578520288badd98edb2ec4e3320ffbdc56ee 100644
+--- a/src/main/java/net/minecraft/world/entity/PathfinderMob.java
++++ b/src/main/java/net/minecraft/world/entity/PathfinderMob.java
+@@ -117,5 +117,12 @@ public abstract class PathfinderMob extends Mob {
+         return 1.0D;
+     }
+ 
++    // Canvas start
++    public boolean canTickRandomStroll() {
++        java.util.List<Entity> entityList = this.level().getEntities(this, this.getBoundingBox(), entity -> !entity.isRemoved() && entity != this);
++        return entityList.isEmpty() || entityList.toArray().length < one.tranic.vine.config.VineConfig.Optimize.entityGoal.maxEntitiesToReducePathfindingRates;
++    }
++    // Canvas end
++
+     protected void onLeashDistance(float leashLength) {}
+ }
+diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/MoveToBlockGoal.java b/src/main/java/net/minecraft/world/entity/ai/goal/MoveToBlockGoal.java
+index 89e9ea999d2fbd81a1d74382ef3fcd675fc8b94e..e09c09a22ed31e47e7a90935cac9c470ebb3c7b0 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/goal/MoveToBlockGoal.java
++++ b/src/main/java/net/minecraft/world/entity/ai/goal/MoveToBlockGoal.java
+@@ -1,6 +1,7 @@
+ package net.minecraft.world.entity.ai.goal;
+ 
+ import java.util.EnumSet;
++import java.util.concurrent.ThreadLocalRandom;
+ import net.minecraft.core.BlockPos;
+ import net.minecraft.world.entity.PathfinderMob;
+ import net.minecraft.world.level.LevelReader;
+@@ -43,6 +44,13 @@ public abstract class MoveToBlockGoal extends Goal {
+ 
+     @Override
+     public boolean canUse() {
++        // Canvas start
++        boolean chance = ThreadLocalRandom.current().nextDouble(100) >= 10;
++        boolean canWander = this.mob.canTickRandomStroll();
++        if(!canWander && chance){
++            return false;
++        }
++        // Canvas end
+         if (this.nextStartTick > 0) {
+             this.nextStartTick--;
+             return false;
+diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/RandomStrollGoal.java b/src/main/java/net/minecraft/world/entity/ai/goal/RandomStrollGoal.java
+index 76897c2ff586b4c161e0e021241c1d1a6bf29600..d1e0c034b17893b6d9ff0951a3226421b8340dcf 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/goal/RandomStrollGoal.java
++++ b/src/main/java/net/minecraft/world/entity/ai/goal/RandomStrollGoal.java
+@@ -74,7 +74,9 @@ public class RandomStrollGoal extends Goal {
+ 
+     @Override
+     public boolean canUse() {
+-        if(!this.canWander(this.mob)) return false; // Canvas - optimize entity goals
++        boolean chance = java.util.concurrent.ThreadLocalRandom.current().nextDouble(100) >= 10;
++        boolean canWander = this.mob.canTickRandomStroll();
++        if (!this.canWander(this.mob) || (!canWander && chance)) return false; // Canvas - optimize entity goals
+         if (this.mob.hasControllingPassenger()) {
+             return false;
+         } else {

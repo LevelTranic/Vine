@@ -1,0 +1,194 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: dueris <jedimastertoothless@hotmail.com>
+Date: Thu, 15 Aug 2024 17:50:20 -0700
+Subject: [PATCH] Canvas: Entity Goal Optimizations
+
+
+diff --git a/src/main/java/net/minecraft/Util.java b/src/main/java/net/minecraft/Util.java
+index 61e245561dbf79d284adc618970b865c405471e0..93cb868e8e618c21f82ee776cbc0a605e8fef720 100644
+--- a/src/main/java/net/minecraft/Util.java
++++ b/src/main/java/net/minecraft/Util.java
+@@ -587,6 +587,13 @@ public class Util {
+         return list.isEmpty() ? Optional.empty() : Optional.of(getRandom(list, random));
+     }
+ 
++    // Canvas start
++    public static boolean rollPercentChance(float perc){
++        if(perc == 0) return false;
++        return java.util.concurrent.ThreadLocalRandom.current().nextFloat() <= (perc/100f);
++    }
++    // Canvas end
++
+     private static BooleanSupplier createRenamer(Path src, Path dest) {
+         return new BooleanSupplier() {
+             @Override
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 11a283dad82f98fd33f83b69ff77ee037b8cef42..d3733a573497443f83ab26367cd5552131366254 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -438,6 +438,11 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     public final BlockPos.MutableBlockPos cachedBlockPos = new BlockPos.MutableBlockPos(); // Pufferfish - reduce entity allocations
+     private CompoundTag vineStorage = new CompoundTag(); // Vine - Vine data bundler
+     private CompoundTag leavesData = new CompoundTag(); // Leaves - Leaves ex data
++    // Canvas start - optimize entity goals
++    private long lastWanderTime;
++    private long lastPlayerScanTime;
++    private boolean playerInRange;
++    // Canvas end
+ 
+     public void setOrigin(@javax.annotation.Nonnull Location location) {
+         this.origin = location.toVector();
+@@ -707,6 +712,32 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+         this.id = id;
+     }
+ 
++    // Canvas start - optimize entity goals
++    public long getLastWanderTime(){
++        return this.lastWanderTime;
++    }
++
++    public void setLastWanderTime(long wanderTime){
++        this.lastWanderTime = wanderTime;
++    }
++
++    public long getLastPlayerScanTime(){
++        return this.lastPlayerScanTime;
++    }
++
++    public void setLastPlayerScanTime(long scanTime){
++        this.lastPlayerScanTime = scanTime;
++    }
++
++    public boolean isPlayerInRange(){
++        return this.playerInRange;
++    }
++
++    public void setPlayerInRange(boolean inRange){
++        this.playerInRange = inRange;
++    }
++    // Canvas end
++
+     public Set<String> getTags() {
+         return this.tags;
+     }
+diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/MoveThroughVillageGoal.java b/src/main/java/net/minecraft/world/entity/ai/goal/MoveThroughVillageGoal.java
+index 708dce6a2a951c6ffb780a02146361b18a6aecf2..334eb587cd0459ee9103f6a0f449232547ee60a1 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/goal/MoveThroughVillageGoal.java
++++ b/src/main/java/net/minecraft/world/entity/ai/goal/MoveThroughVillageGoal.java
+@@ -44,8 +44,18 @@ public class MoveThroughVillageGoal extends Goal {
+         }
+     }
+ 
++    // Canvas start
++    public boolean canVillageRaid(){
++        if(one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.zombieVillage.raid.optimize){
++            return net.minecraft.Util.rollPercentChance(one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.zombieVillage.raid.chance);
++        }
++        return true;
++    }
++    // Canvas end
++
+     @Override
+     public boolean canUse() {
++        if(!this.canVillageRaid()) return false; // Canvas
+         if (!GoalUtils.hasGroundPathNavigation(this.mob)) {
+             return false;
+         } else {
+diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/RandomStrollGoal.java b/src/main/java/net/minecraft/world/entity/ai/goal/RandomStrollGoal.java
+index 676e1580849e8942eb41c7a3a80f464138b22764..76897c2ff586b4c161e0e021241c1d1a6bf29600 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/goal/RandomStrollGoal.java
++++ b/src/main/java/net/minecraft/world/entity/ai/goal/RandomStrollGoal.java
+@@ -33,8 +33,48 @@ public class RandomStrollGoal extends Goal {
+         this.setFlags(EnumSet.of(Goal.Flag.MOVE));
+     }
+ 
++    // Canvas start - optimize entity goals
++    public boolean canWander(PathfinderMob mob){
++        if(one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.wandering.optimize){
++            if(net.minecraft.Util.rollPercentChance(one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.wandering.percentChance)) return false;
++
++            boolean useReducedRates = false;
++            if(one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce.enabled){
++                long lastPlayerScan = this.mob.getLastPlayerScanTime();
++                if(lastPlayerScan + one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce.scanRate > this.mob.level().getGameTime()){
++                    useReducedRates = this.mob.isPlayerInRange();
++                } else {
++                    boolean playerInRangeBool = false;
++                    for(net.minecraft.world.entity.player.Player player : this.mob.level().players()){
++                        if(player.distanceToSqr(this.mob) < one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce.cutoff * one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce.cutoff){
++                            playerInRangeBool = true;
++                            break;
++                        }
++                    }
++
++                    if(playerInRangeBool){
++                        this.mob.setPlayerInRange(playerInRangeBool);
++                        this.mob.setLastPlayerScanTime(this.mob.level().getGameTime());
++                        useReducedRates = !playerInRangeBool;
++                    }
++                }
++            }
++
++            float multiplier = useReducedRates ? one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.wandering.reducedRateMultiplier : 1;
++            long lastWander = this.mob.getLastWanderTime();
++
++            if(lastWander + one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.wandering.delay * multiplier > this.mob.level().getGameTime())
++                return false;
++            this.mob.setLastWanderTime(mob.level().getGameTime());
++            return true;
++        }
++        return true;
++    }
++    // Canvas end
++
+     @Override
+     public boolean canUse() {
++        if(!this.canWander(this.mob)) return false; // Canvas - optimize entity goals
+         if (this.mob.hasControllingPassenger()) {
+             return false;
+         } else {
+diff --git a/src/main/java/net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal.java b/src/main/java/net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal.java
+index 175ba1184fc997f562f0834b172e17dc1b5b3027..caff07ba39495ba658cea2fad11479acf8e59d58 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal.java
++++ b/src/main/java/net/minecraft/world/entity/ai/goal/target/NearestAttackableTargetGoal.java
+@@ -41,8 +41,40 @@ public class NearestAttackableTargetGoal<T extends LivingEntity> extends TargetG
+         if (mob.level().paperConfig().entities.entitiesTargetWithFollowRange) this.targetConditions.useFollowRange(); // Paper - Fix MC-145656
+     }
+ 
++    // Canvas start
++    public boolean canTarget(Mob mob){
++        boolean useReducedRates = false;
++        if(one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce.enabled){
++            long lastPlayerScan = this.mob.getLastPlayerScanTime();
++            if(lastPlayerScan + one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce.scanRate > this.mob.level().getGameTime()){
++                useReducedRates = this.mob.isPlayerInRange();
++            } else {
++                boolean playerInRangeBool = false;
++                for(net.minecraft.world.entity.player.Player player : this.mob.level().players()){
++                    if(player.distanceToSqr(this.mob) < one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce.cutoff * one.tranic.vine.config.VineConfig.Optimize.entityGoal.player.proximityRateReduce.cutoff){
++                        playerInRangeBool = true;
++                        break;
++                    }
++                }
++
++                if(playerInRangeBool){
++                    this.mob.setPlayerInRange(playerInRangeBool);
++                    this.mob.setLastPlayerScanTime(this.mob.level().getGameTime());
++                    useReducedRates = !playerInRangeBool;
++                }
++            }
++        }
++
++        if(useReducedRates){
++            return net.minecraft.Util.rollPercentChance(one.tranic.vine.config.VineConfig.Optimize.entityGoal.mob.enemyTargetingReducedRatePercentChance);
++        }
++        return true;
++    }
++    // Canvas end
++
+     @Override
+     public boolean canUse() {
++        if(!this.canTarget(this.mob)) return false; // Canvas - optimize entity goals
+         if (this.randomInterval > 0 && this.mob.getRandom().nextInt(this.randomInterval) != 0) {
+             return false;
+         } else {

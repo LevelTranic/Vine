@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..874fd7434033c38dc453cae9b4b62e68da5bd590
+index 0000000000000000000000000000000000000000..a0bf42995faa0cd0776305e3b3e1aa62427c2b4c
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,171 @@
 +package one.tranic.vine.config;
 +
 +import one.tranic.vine.region.Compression;
@@ -17,13 +17,20 @@ index 0000000000000000000000000000000000000000..874fd7434033c38dc453cae9b4b62e68
 +
 +public class VineConfig {
 +    public static class Fix {
-+        /**Fixed the bug that the display frame in water was destroyed by TNT.*/
++        /**
++         * Fixed the bug that the display frame in water was destroyed by TNT.
++         */
 +        public static boolean explosionBreaksItemFrameInWater = false;
-+        /**Fixes some entities not bouncing on slime blocks and getting stuck*/
++        /**
++         * Fixes some entities not bouncing on slime blocks and getting stuck
++         */
 +        public static boolean incorrectBounceLogic = false;
-+        /**Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.*/
++        /**
++         * Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.
++         */
 +        public static boolean netherPortal = false;
 +        public static boolean villagersDontReleaseMemory = false;
++
 +        /**
 +         * Fixed a bug in Paper where anvils could become drops at y=0 or y=-1.
 +         * This may not be useful as the implementation is crude, you can install the fix plugin to fix it additionally if you can.
@@ -35,12 +42,18 @@ index 0000000000000000000000000000000000000000..874fd7434033c38dc453cae9b4b62e68
 +    }
 +
 +    public static class Feature {
-+        /**This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.*/
++        /**
++         * This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.
++         */
 +        public static boolean disableSpark = true;
-+        /**If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.*/
++        /**
++         * If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.
++         */
 +        public static boolean disableRespawnCeiling = false;
 +        public static boolean flattenTriangularDistribution = false;
-+        /**The new liquid physics system may affect some mechanisms.*/
++        /**
++         * The new liquid physics system may affect some mechanisms.
++         */
 +        public static boolean liquidPhysics = false;
 +        /**
 +         * Switch to a 1024-bit secure seed to protect it from being cracked.
@@ -55,56 +68,108 @@ index 0000000000000000000000000000000000000000..874fd7434033c38dc453cae9b4b62e68
 +         */
 +        public static boolean tryVirtualThreads = false;
 +        public static boolean vanillaHopper = false;
-+        /**zero tick plants is back now*/
++        /**
++         * zero tick plants is back now
++         */
 +        public static boolean zeroTickPlants = false;
 +
 +        public static class cachePlayerProfileResult {
 +            public static boolean enabled = true;
 +            public static int timeout = 1440;
 +        }
++
 +        /**
 +         * This can prevent some devices that utilize vanilla abilities from being
 +         * damaged when the server crashes or shuts down suddenly, but it is not a
 +         * panacea, so take precautions.
 +         */
 +        public static class DSE {
-+            /**Do not save tnt entities*/
++            /**
++             * Do not save tnt entities
++             */
 +            public static boolean primedTNT = false;
-+            /** Do not save falling blocks*/
++            /**
++             * Do not save falling blocks
++             */
 +            public static boolean fallingBlock = false;
 +        }
 +
 +        public static class Region {
-+            /**Support: ANVIL (Vanilla), LINEAR, SECTORFILE*/
++            /**
++             * Support: ANVIL (Vanilla), LINEAR, SECTORFILE
++             */
 +            public static Format format = Format.ANVIL;
-+            /**Only SECTORFILE | Support: GZIP, ZLIB, LZ4, BROTLI (Only Tranic Server), SNAPPY (Only Tranic Server), ZSTD*/
++            /**
++             * Only SECTORFILE | Support: GZIP, ZLIB, LZ4, BROTLI (Only Tranic Server), SNAPPY (Only Tranic Server), ZSTD
++             */
 +            public static Compression compressionFormat = Compression.ZSTD;
-+            /**Only LINEAR | 1-15*/
++            /**
++             * Only LINEAR | 1-15
++             */
 +            public static int compressionLevel = 1;
-+            /**Only LINEAR | flush second*/
++            /**
++             * Only LINEAR | flush second
++             */
 +            public static int flushFrequency = 5;
 +        }
 +    }
 +
 +    public static class Optimize {
 +        public static int acquirePoiForStuckEntity = 60;
-+        /**May cause the inconsistent order of future compose tasks.*/
++        /**
++         * May cause the inconsistent order of future compose tasks.
++         */
 +        public static boolean fasterStructureGenFutureSequencing = false;
 +        public static boolean floatingPointPositive = false;
-+        public static int maxEntitiesToReducePathfindingRates = 2;
 +        /**
 +         * Entity re-pathing optimization
 +         * If the entity has already determined the path, it will not search the path as frequently.
 +         */
 +        public static boolean mobRePathfinding = true;
-+        /**As the name suggests, it can slightly improve world generation performance, maybe.*/
++        /**
++         * As the name suggests, it can slightly improve world generation performance, maybe.
++         */
 +        public static boolean noiseGeneration = true;
 +        public static boolean skipSelfRaidCheck = false;
++
 +        public static class loadChunks {
 +            public static boolean spawnPhantoms = true;
 +            public static boolean activateClimbingEntities = true;
 +        }
-+        /**Optimize stacked minecarts*/
++
++        public static class entityGoal {
++            public static int maxEntitiesToReducePathfindingRates = 2;
++
++            public static class mob {
++                public static int enemyTargetingReducedRatePercentChance = 10;
++
++                public static class wandering {
++                    public static int delay = 100;
++                    public static boolean optimize = true;
++                    public static int percentChance = 100;
++                    public static int reducedRateMultiplier = 6;
++                }
++
++                public static class zombieVillage {
++                    public static class raid {
++                        public static boolean optimize = true;
++                        public static int chance = 33;
++                    }
++                }
++            }
++
++            public static class player {
++                public static class proximityRateReduce {
++                    public static boolean enabled = true;
++                    public static int scanRate = 40;
++                    public static int cutoff = 12;
++                }
++            }
++        }
++
++        /**
++         * Optimize stacked minecarts
++         */
 +        public static class Minecart {
 +            public static boolean enabled = true;
 +            public static int skipTickCount = 30;

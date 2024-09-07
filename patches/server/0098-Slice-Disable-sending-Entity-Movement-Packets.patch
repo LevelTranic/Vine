@@ -36,13 +36,13 @@ index 035a40836a6986a2740f02712276d5a261f2aa3c..0682e8b10ff65d5a63bcf4768473ec1f
                              flag5 = true;
                          }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 620aa4e8004e75db38641ed7c69f6ef108e2a093..558001dba5793dc2ea6cdfdd7d57202949c4d8db 100644
+index 6eade6f119c48687a62d13926831b20ff301eec2..ad87599640d36fc06fee7a212c7aa5d82dc2df7e 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -438,6 +438,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
-     public final BlockPos.MutableBlockPos cachedBlockPos = new BlockPos.MutableBlockPos(); // Pufferfish - reduce entity allocations
-     private CompoundTag vineStorage = new CompoundTag(); // Vine - Vine data bundler
-     private CompoundTag leavesData = new CompoundTag(); // Leaves - Leaves ex data
+@@ -443,6 +443,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     private long lastPlayerScanTime;
+     private boolean playerInRange;
+     // Canvas end
 +    public boolean sendMovementPackets = true; // Vine - Slice Disable sending Entity Movement Packets
  
      public void setOrigin(@javax.annotation.Nonnull Location location) {

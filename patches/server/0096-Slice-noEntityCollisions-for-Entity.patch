@@ -18,10 +18,10 @@ index ee8e9c0e3690e78f3cc621ddfca89ea4256d4803..0466b04f24830539f2c927481c1c7995
          }
  
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index f547b7ed867ddc8064a250522ab19ab524656f48..620aa4e8004e75db38641ed7c69f6ef108e2a093 100644
+index 31c6840e819eacb9fde4f3ea0e2314bd5c947852..6eade6f119c48687a62d13926831b20ff301eec2 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -542,6 +542,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -547,6 +547,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
       * Overriding this field will cause memory leaks.
       */
      private final boolean hardCollides;
