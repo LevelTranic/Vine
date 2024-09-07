@@ -1,0 +1,257 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sat, 7 Sep 2024 16:33:38 +0800
+Subject: [PATCH] Vine Config - Feature
+
+
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9d7053f0d68b82ac5830881ede2cb5f99470c6ae
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
+@@ -0,0 +1,24 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object DontSaveEntity : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "feature.dont-save-entity"
++    override fun default() {
++        addDefault(
++            "$BASEPATH.primed-tnt", false, listOf(
++                "Disable save primed tnt on chunk unloads.",
++                "Useful for redstone server, can prevent machine be exploded by TNT,",
++                "when player disconnected caused by Internet issue."
++            )
++        )
++        addDefault("$BASEPATH.falling-block", false)
++    }
++
++    override fun load() {
++        Feature.DSE.primedTNT = getBoolean("$BASEPATH.primed-tnt")
++        Feature.DSE.fallingBlock = getBoolean("$BASEPATH.falling-block")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4c9654fd67f8b68a30af044b0886e146412cf34b
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
+@@ -0,0 +1,25 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.util.ConfigHelper
++
++object PlayerProfile: ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "feature.cache-player-profile-result"
++    override fun default() {
++        addDefault(
++            "$BASEPATH.enabled",
++            true,
++            listOf(
++                "Cache the player profile result on they first join.",
++                "It's useful if Mojang's verification server is down."
++            )
++        )
++        addDefault("$BASEPATH.timeout", 1440, "The timeout of the cache. Unit: Minutes.")
++    }
++
++    override fun load() {
++        Feature.cachePlayerProfileResult.enabled = getBoolean("$BASEPATH.enabled")
++        Feature.cachePlayerProfileResult.timeout = getInt("$BASEPATH.timeout")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..25e58745122872a473fe5614979f061e4f0dddf7
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
+@@ -0,0 +1,86 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.module.Locker
++import one.tranic.vine.config.util.ConfigHelper
++import one.tranic.vine.region.Compression
++import one.tranic.vine.region.Format
++import one.tranic.vine.util.VineLogger
++
++object Region : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "feature.region"
++    override fun default() {
++        addDefault(
++            "$BASEPATH.format",
++            "ANVIL",
++            listOf(
++                "Region Format: ANVIL (Default), LINEAR, SECTORFILE",
++                "LINEAR: https://github.com/xymb-endcrystalme/LinearRegionFileFormatTools",
++                "SECTORFILE: https://github.com/PaperMC/SectorTool/blob/master/SPECIFICATION.MD",
++                "If you are not worried about disk capacity, please do not use Linear, it is still",
++                "experimental and may cause data corruption."
++            )
++        )
++        addDefault(
++            "$BASEPATH.compression-format", "ZSTD", listOf(
++                "Only applicable to SECTORFILE, support list:",
++                "\"GZIP, ZLIB, NONE, LZ4, BROTLI, SNAPPY, ZSTD\"",
++                "Brotli is only available on TranicServer for Vine.",
++                "There is currently no tool to convert it back to ANVIL. Enable with caution!"
++            )
++        )
++        addDefault(
++            "$BASEPATH.compression-level",
++            1,
++            listOf(
++                "Only applicable to Linear, this is the compression level provided by ZSTD.",
++                "The available range is 1-22. When the compression level exceeds 14, ",
++                "the CPU pressure, chunk refresh time and memory usage will increase significantly, ",
++                "and high compression levels have the risk of losing chunk data, ",
++                "so we will limit it to the range of 1-15 to avoid some simple problems."
++            )
++        )
++        addDefault(
++            "$BASEPATH.flush-frequency",
++            5,
++            "Only applicable to Linear, chunk refresh interval, default is 5 (seconds)"
++        )
++    }
++
++    override fun load() {
++        getString("$BASEPATH.format") {
++            val b = Format.getFormat(it)
++            if (Locker.regionFormat == null) {
++                Locker.regionFormat = b
++                Format.setNow(b)
++            } else if (!b.equals(Locker.regionFormat)) {
++                VineLogger.error("Forbidden to modify the parameter \"$BASEPATH.format\" during runtime!!!")
++            }
++        }
++        getString("$BASEPATH.compression-format") {
++            val b = Compression.getCompression(it)
++            if (Locker.compressionFormat == null) {
++                Locker.compressionFormat = b
++                Compression.setNow(b)
++            } else if (!b.equals(Locker.compressionFormat)) {
++                VineLogger.error("Forbidden to modify the parameter \"$BASEPATH.compression-format\" during runtime!!!")
++            }
++        }
++        getInt("$BASEPATH.compression-level") {
++            if (Locker.regionCompressionLevel == null) {
++                Locker.regionCompressionLevel = if (it < 1) {
++                    1
++                } else if (it > 15) {
++                    15
++                } else {
++                    it
++                }
++                Feature.Region.compressionLevel = Locker.regionCompressionLevel!!
++            } else if (Locker.regionCompressionLevel != it) {
++                VineLogger.error("Forbidden to modify the parameter \"$BASEPATH.compression-level\" during runtime!!!")
++            }
++        }
++        Feature.Region.flushFrequency = getInt("$BASEPATH.flush-frequency")
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..fda5396e1e05a550859c80c0753678d61fc0eec5
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
+@@ -0,0 +1,89 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.module.Locker
++import one.tranic.vine.config.util.ConfigHelper
++import one.tranic.vine.util.VineLogger
++
++object Value : ConfigImpl, ConfigHelper() {
++    override fun default() {
++        addDefault("feature.disable-spark", true)
++        addDefault(
++            "feature.disable-respawn-ceiling",
++            false,
++            listOf(
++                "If the player is blocked on the top of the player's head, he will not try to rebirth ",
++                "the player on the ceiling.",
++                "This is suitable for those servers with ceilings."
++            )
++        )
++        addDefault(
++            "feature.flatten-triangular-distribution",
++            false,
++            listOf(
++                "Change all triangle distribution in Minecraft randomizers into uniform distribution",
++                "With that edge cases are more likely to happen"
++            )
++        )
++        addDefault("feature.liquid-physics", false, "The new liquid physics system may affect some mechanisms.")
++        addDefault(
++            "feature.secure-seed", false, listOf(
++                "Changes the seed from 64bit to 1024bit, this will strictly secure your seed,",
++                "making it almost impossible to crack.",
++                "Warning: You must delete existing maps to switch the state of the secure seed,",
++                "and do not modify it during hot loading, otherwise the server will crash and",
++                "cannot continue to load maps."
++            )
++        )
++        addDefault(
++            "feature.try-virtual-threads",
++            false,
++            listOf(
++                "Try virtual threads. Once enabled, all explicit platform threads will ",
++                "be replaced with virtual threads as much as possible, which may have ",
++                "some adverse consequences. Please enable it with caution."
++            )
++        )
++        addDefault("feature.vanilla-hopper", false)
++        addDefault("feature.zero-tick-plants", false)
++    }
++
++    override fun load() {
++        Feature.disableSpark = getBoolean("feature.disable-spark")
++        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
++        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
++        Feature.liquidPhysics = getBoolean("feature.liquid-physics")
++        getBoolean("feature.secure-seed") {
++            if (Locker.secureSeed == null) {
++                Feature.secureSeed = it
++                Locker.secureSeed = it
++                if (it) VineLogger.warn("** SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
++            } else if (Locker.secureSeed != it) {
++                VineLogger.get().error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
++            }
++        }
++        getBoolean("feature.try-virtual-threads") {
++            if (Locker.virtualThread == null) {
++                if (it) {
++                    VineLogger.warn(
++                        listOf(
++                            "********",
++                            "Virtual threads enabled.",
++                            "Will try to offload threads other than ShreddedPaper and ChunkThread to dummy threads",
++                            "This feature is very experimental and may have some undesirable consequences",
++                            "********"
++                        )
++                    )
++                }
++                Feature.tryVirtualThreads = it
++                Locker.virtualThread = it
++            } else if (it != Locker.virtualThread) {
++                VineLogger.get()
++                    .error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
++            }
++        }
++        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
++        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
++    }
++}
