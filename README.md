@@ -9,7 +9,6 @@
     <br /><br />
 </div>
 
-<center>
 <p> 
 <a href="https://tranic.one/software/vine">HomePage</a> | 
 <a href="#download" >Download</a> | 
@@ -17,7 +16,6 @@
 <a href="https://docs.tranic.one/vine">Docs</a> |
 <a href="https://discord.gg/dBbSbv2Vuz">Discord</a>
 </p>
-</center>
 
 ---
 > **It is still unstable at present, please choose carefully.**
@@ -42,11 +40,16 @@
 - Sub-regional multi-threading introduced by ShreddedPaper can better withstand a large number of dense players.
 - Builtin and the latest Kotlin dependency library.
 - Various performance optimization.
+- Support virtual threads
 - Implement secure seeds to avoid cracking.
+- Some interesting features, of course they are all turned off by default.
 - Implemented SectorFile and Linear region formats to save a lot of storage space.
 - Expanded options allow restoring more vanilla abilities.
 - And some fixes from various places.
 <br />
+
+## Benchmark
+I don't know
 
 ## Download
 ### Confirmable downloads
