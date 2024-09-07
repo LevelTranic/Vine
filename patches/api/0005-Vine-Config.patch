@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..b30e1f918c808f0fa51cef1d4621246f30b84eea
+index 0000000000000000000000000000000000000000..874fd7434033c38dc453cae9b4b62e68da5bd590
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,105 @@
+@@ -0,0 +1,106 @@
 +package one.tranic.vine.config;
 +
 +import one.tranic.vine.region.Compression;
@@ -91,6 +91,7 @@ index 0000000000000000000000000000000000000000..b30e1f918c808f0fa51cef1d4621246f
 +        /**May cause the inconsistent order of future compose tasks.*/
 +        public static boolean fasterStructureGenFutureSequencing = false;
 +        public static boolean floatingPointPositive = false;
++        public static int maxEntitiesToReducePathfindingRates = 2;
 +        /**
 +         * Entity re-pathing optimization
 +         * If the entity has already determined the path, it will not search the path as frequently.

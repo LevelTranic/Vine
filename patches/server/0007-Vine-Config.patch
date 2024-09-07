@@ -36,10 +36,10 @@ index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..c254d0422fd7d901c643ccb2fa030c34ede4090a
+index 0000000000000000000000000000000000000000..9d8671f2902cfce4ce1f69c808907500069d27ba
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,154 @@
+@@ -0,0 +1,86 @@
 +package one.tranic.vine.config
 +
 +import com.aayushatharva.brotli4j.Brotli4jLoader
@@ -51,6 +51,10 @@ index 0000000000000000000000000000000000000000..c254d0422fd7d901c643ccb2fa030c34
 +
 +object ConfigUtil {
 +    private lateinit var configuration: YamlConfiguration
++
++    fun getConfiguration() : YamlConfiguration {
++        return configuration
++    }
 +
 +    /**
 +     * Load the configuration file.
@@ -121,78 +125,6 @@ index 0000000000000000000000000000000000000000..c254d0422fd7d901c643ccb2fa030c34
 +        configuration.options().copyDefaults(true)
 +        configuration.save(configFile)
 +    }
-+
-+    // Vine start - Configuration file tools
-+    fun addDefault(path: String, value: Any) {
-+        configuration.addDefault(path, value)
-+    }
-+
-+    fun addDefault(path: String, value: Any, comment: String) {
-+        configuration.addDefault(path, value)
-+        configuration.setComments(path, listOf(comment))
-+    }
-+
-+    fun addComment(path: String, comment: String) {
-+        configuration.setComments(path, listOf(comment))
-+    }
-+
-+    fun addComment(path: String, comment: List<String>) {
-+        configuration.setComments(path, comment)
-+    }
-+
-+    fun addDefault(path: String, value: Any, comment: List<String>) {
-+        configuration.addDefault(path, value)
-+        configuration.setComments(path, comment)
-+    }
-+
-+    fun getBoolean(path: String): Boolean {
-+        return configuration.getBoolean(path)
-+    }
-+
-+    fun getBoolean(path: String, function: (it: Boolean) -> Unit) {
-+        function(getBoolean(path))
-+    }
-+
-+    fun getDouble(path: String): Double {
-+        return configuration.getDouble(path)
-+    }
-+
-+    fun getDouble(path: String, function: (it: Double) -> Unit) {
-+        function(getDouble(path))
-+    }
-+
-+    fun getInt(path: String): Int {
-+        return configuration.getInt(path)
-+    }
-+
-+    fun getInt(path: String, function: (it: Int) -> Unit) {
-+        function(getInt(path))
-+    }
-+
-+    fun getString(path: String): String? {
-+        return configuration.getString(path)
-+    }
-+
-+    fun getString(path: String, function: (it: String?) -> Unit) {
-+        function(getString(path))
-+    }
-+
-+    fun getList(path: String): MutableList<*>? {
-+        return configuration.getList(path)
-+    }
-+
-+    fun getStringList(path: String): MutableList<String> {
-+        return configuration.getStringList(path)
-+    }
-+
-+    fun getStringList(path: String, function: (it: MutableList<String>) -> Unit) {
-+        function(getStringList(path))
-+    }
-+
-+    fun getMapList(path: String): MutableList<MutableMap<*, *>> {
-+        return configuration.getMapList(path)
-+    }
-+    // Vine end - Configuration file tools
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/impl/ConfigImpl.kt b/src/main/kotlin/one/tranic/vine/config/impl/ConfigImpl.kt
@@ -266,18 +198,17 @@ index 0000000000000000000000000000000000000000..b3b73d63002001de4b1cce5a58a2ab1a
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..1e4bb9d815da61d29b2faf0fe66e0e5abb302da3
+index 0000000000000000000000000000000000000000..4ef2c93051d7baa4ba78dd7b83dfffc424178539
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,23 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Feature
 +import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
 +
-+object DontSaveEntity : ConfigImpl {
++object DontSaveEntity : ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault(
 +            "feature.dont-save-entity.primed-tnt", false, listOf(
@@ -297,19 +228,17 @@ index 0000000000000000000000000000000000000000..1e4bb9d815da61d29b2faf0fe66e0e5a
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..1912152e305c4aa92e23335990b847b6000a5e61
+index 0000000000000000000000000000000000000000..080c59fc6f0d0d3fc405e121e5b04255a8be8d63
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,24 @@
 +package one.tranic.vine.config.module.feature
 +
 +import one.tranic.vine.config.impl.ConfigImpl
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
-+import one.tranic.vine.config.ConfigUtil.getInt
 +import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.util.ConfigHelper
 +
-+object PlayerProfile: ConfigImpl {
++object PlayerProfile: ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault(
 +            "feature.cache-player-profile-result.enabled",
@@ -330,23 +259,21 @@ index 0000000000000000000000000000000000000000..1912152e305c4aa92e23335990b847b6
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..d1def2cda6471013ce28558caf2ae74ff8aac25f
+index 0000000000000000000000000000000000000000..3d2428afd9fc055e0d63165268951edfa1a36d44
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
-@@ -0,0 +1,87 @@
+@@ -0,0 +1,85 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getInt
-+import one.tranic.vine.config.ConfigUtil.getString
 +import one.tranic.vine.config.VineConfig.Feature
 +import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.module.Locker
++import one.tranic.vine.config.util.ConfigHelper
 +import one.tranic.vine.region.Compression
 +import one.tranic.vine.region.Format
 +import one.tranic.vine.util.VineLogger
 +
-+object Region : ConfigImpl {
++object Region : ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault(
 +            "feature.region.format",
@@ -424,20 +351,19 @@ index 0000000000000000000000000000000000000000..d1def2cda6471013ce28558caf2ae74f
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..c0b39d79d8fd8d3fb0bb22e879281711775eb7e0
+index 0000000000000000000000000000000000000000..fda5396e1e05a550859c80c0753678d61fc0eec5
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
-@@ -0,0 +1,90 @@
+@@ -0,0 +1,89 @@
 +package one.tranic.vine.config.module.feature
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Feature
 +import one.tranic.vine.config.impl.ConfigImpl
 +import one.tranic.vine.config.module.Locker
++import one.tranic.vine.config.util.ConfigHelper
 +import one.tranic.vine.util.VineLogger
 +
-+object Value : ConfigImpl {
++object Value : ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault("feature.disable-spark", true)
 +        addDefault(
@@ -520,18 +446,17 @@ index 0000000000000000000000000000000000000000..c0b39d79d8fd8d3fb0bb22e879281711
 +}
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt b/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..d584e3ca8e1bc70cee2bcb2a209f32d345c69b9a
+index 0000000000000000000000000000000000000000..4492e818c6eb255b066f12864d4ac7726d1b5e67
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/fix/AnvilDrop.kt
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,29 @@
 +package one.tranic.vine.config.module.fix
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Fix
 +import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
 +
-+object AnvilDrop : ConfigImpl {
++object AnvilDrop : ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault(
 +            "fix.anvil-drop.enabled",
@@ -557,18 +482,17 @@ index 0000000000000000000000000000000000000000..d584e3ca8e1bc70cee2bcb2a209f32d3
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..c221e08aa8e2702fe1041f97781ef899faaef32c
+index 0000000000000000000000000000000000000000..10b3cffdfc28bc77a3e3b4deace76743f7eb62a5
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/fix/Value.kt
-@@ -0,0 +1,44 @@
+@@ -0,0 +1,43 @@
 +package one.tranic.vine.config.module.fix
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Fix
 +import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
 +
-+object Value : ConfigImpl {
++object Value : ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault(
 +            "fix.explosion-breaks-item-frame-in-water",
@@ -608,18 +532,17 @@ index 0000000000000000000000000000000000000000..c221e08aa8e2702fe1041f97781ef899
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..109c90f68d16f49855256afc48f49d7797627d8c
+index 0000000000000000000000000000000000000000..d6bef73328f6aafb202967ddf29b8b3e579c906c
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/LoadChunks.kt
-@@ -0,0 +1,20 @@
+@@ -0,0 +1,19 @@
 +package one.tranic.vine.config.module.optimize
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
 +import one.tranic.vine.config.VineConfig.Optimize
 +import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
 +
-+object LoadChunks: ConfigImpl {
++object LoadChunks: ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault(
 +            "optimize.load-chunks.spawn-phantoms", true
@@ -635,19 +558,17 @@ index 0000000000000000000000000000000000000000..109c90f68d16f49855256afc48f49d77
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..39c71a02a91c91a0d14c0021a781237f28fda74d
+index 0000000000000000000000000000000000000000..964842b453dea3af7465eaa5d6a4d228d72e9ddd
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/Minecart.kt
-@@ -0,0 +1,26 @@
+@@ -0,0 +1,24 @@
 +package one.tranic.vine.config.module.optimize
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
-+import one.tranic.vine.config.ConfigUtil.getInt
 +import one.tranic.vine.config.VineConfig.Optimize
 +import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
 +
-+object Minecart : ConfigImpl {
++object Minecart : ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault(
 +            "optimize.minecart.enabled", true,
@@ -668,19 +589,17 @@ index 0000000000000000000000000000000000000000..39c71a02a91c91a0d14c0021a781237f
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..913870c77ccb6f399d46c76e0408798cee690548
+index 0000000000000000000000000000000000000000..8e238362542bd30201eb1919b7b75fdc0fc4518c
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/TurtleEggSearch.kt
-@@ -0,0 +1,30 @@
+@@ -0,0 +1,28 @@
 +package one.tranic.vine.config.module.optimize
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
-+import one.tranic.vine.config.ConfigUtil.getInt
 +import one.tranic.vine.config.VineConfig.Optimize
 +import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
 +
-+object TurtleEggSearch : ConfigImpl {
++object TurtleEggSearch : ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault(
 +            "optimize.zombie-search-and-destroy-turtle-egg.enabled",
@@ -705,19 +624,17 @@ index 0000000000000000000000000000000000000000..913870c77ccb6f399d46c76e0408798c
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..f196e07de9f610a2604145d3268ee002e24adf59
+index 0000000000000000000000000000000000000000..77e6d65fb0c92d0d32f0563ef3cbe8482dd5efe3
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/optimize/Value.kt
 @@ -0,0 +1,43 @@
 +package one.tranic.vine.config.module.optimize
 +
-+import one.tranic.vine.config.ConfigUtil.addDefault
-+import one.tranic.vine.config.ConfigUtil.getBoolean
-+import one.tranic.vine.config.ConfigUtil.getInt
 +import one.tranic.vine.config.VineConfig.Optimize
 +import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
 +
-+object Value : ConfigImpl {
++object Value : ConfigImpl, ConfigHelper() {
 +    override fun default() {
 +        addDefault("optimize.acquire-poi-for-stuck-entity", 60, "Reduce acquire POI for stuck entities")
 +        addDefault(
@@ -726,6 +643,7 @@ index 0000000000000000000000000000000000000000..f196e07de9f610a2604145d3268ee002
 +            "May cause the inconsistent order of future compose tasks."
 +        )
 +        addDefault("optimize.floating-point-positive", false)
++        addDefault("optimize.max-entities-to-reduce-pathfinding-rates", 2)
 +        addDefault(
 +            "optimize.mob-re-pathfinding",
 +            true,
@@ -746,10 +664,95 @@ index 0000000000000000000000000000000000000000..f196e07de9f610a2604145d3268ee002
 +        Optimize.acquirePoiForStuckEntity = getInt("optimize.acquire-poi-for-stuck-entity")
 +        Optimize.fasterStructureGenFutureSequencing = getBoolean("optimize.faster-structure-gen-future-sequencing")
 +        Optimize.floatingPointPositive = getBoolean("optimize.floating-point-positive")
++        Optimize.maxEntitiesToReducePathfindingRates = getInt("optimize.max-entities-to-reduce-pathfinding-rates")
 +        Optimize.mobRePathfinding = getBoolean("optimize.mob-re-pathfinding")
 +        Optimize.noiseGeneration = getBoolean("optimize.noise-generation")
 +        Optimize.skipSelfRaidCheck = getBoolean("optimize.skip-self-raid-check")
 +    }
 +
++}
+\ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/util/ConfigHelper.kt b/src/main/kotlin/one/tranic/vine/config/util/ConfigHelper.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ba49e9075843cacf74b43da8da84dbbe0fc725c7
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/util/ConfigHelper.kt
+@@ -0,0 +1,77 @@
++package one.tranic.vine.config.util
++
++import one.tranic.vine.config.ConfigUtil
++
++open class ConfigHelper {
++    // Vine start - Configuration file tools
++    fun addDefault(path: String, value: Any) {
++        ConfigUtil.getConfiguration().addDefault(path, value)
++    }
++
++    fun addDefault(path: String, value: Any, comment: String) {
++        ConfigUtil.getConfiguration().addDefault(path, value)
++        ConfigUtil.getConfiguration().setComments(path, listOf(comment))
++    }
++
++    fun addComment(path: String, comment: String) {
++        ConfigUtil.getConfiguration().setComments(path, listOf(comment))
++    }
++
++    fun addComment(path: String, comment: List<String>) {
++        ConfigUtil.getConfiguration().setComments(path, comment)
++    }
++
++    fun addDefault(path: String, value: Any, comment: List<String>) {
++        ConfigUtil.getConfiguration().addDefault(path, value)
++        ConfigUtil.getConfiguration().setComments(path, comment)
++    }
++
++    fun getBoolean(path: String): Boolean {
++        return ConfigUtil.getConfiguration().getBoolean(path)
++    }
++
++    fun getBoolean(path: String, function: (it: Boolean) -> Unit) {
++        function(getBoolean(path))
++    }
++
++    fun getDouble(path: String): Double {
++        return ConfigUtil.getConfiguration().getDouble(path)
++    }
++
++    fun getDouble(path: String, function: (it: Double) -> Unit) {
++        function(getDouble(path))
++    }
++
++    fun getInt(path: String): Int {
++        return ConfigUtil.getConfiguration().getInt(path)
++    }
++
++    fun getInt(path: String, function: (it: Int) -> Unit) {
++        function(getInt(path))
++    }
++
++    fun getString(path: String): String? {
++        return ConfigUtil.getConfiguration().getString(path)
++    }
++
++    fun getString(path: String, function: (it: String?) -> Unit) {
++        function(getString(path))
++    }
++
++    fun getList(path: String): MutableList<*>? {
++        return ConfigUtil.getConfiguration().getList(path)
++    }
++
++    fun getStringList(path: String): MutableList<String> {
++        return ConfigUtil.getConfiguration().getStringList(path)
++    }
++
++    fun getStringList(path: String, function: (it: MutableList<String>) -> Unit) {
++        function(getStringList(path))
++    }
++
++    fun getMapList(path: String): MutableList<MutableMap<*, *>> {
++        return ConfigUtil.getConfiguration().getMapList(path)
++    }
++    // Vine end - Configuration file tools
 +}
 \ No newline at end of file
