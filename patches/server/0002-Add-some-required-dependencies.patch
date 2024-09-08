@@ -5,11 +5,11 @@ Subject: [PATCH] Add some required dependencies
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index fdf0818484cf5ae4d79c43824a513c7c4e9cdd8c..abd320434647bf901ed79e6a1bf2fa50908c437c 100644
+index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..0dfe4f14099d5e3ff4da943d32bd14a1e788d903 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -85,6 +85,27 @@ dependencies {
-     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
      // Vine end
  
 +    // Vine start
