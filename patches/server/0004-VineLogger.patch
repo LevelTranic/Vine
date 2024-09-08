@@ -6,16 +6,16 @@ Subject: [PATCH] VineLogger
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/VineLogger.kt b/src/main/kotlin/one/tranic/vine/util/VineLogger.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..d52aa9ff91ca8669d89f4698059e9ca041513ed5
+index 0000000000000000000000000000000000000000..817eb350fc7cce5bed9b7afffc681b7f42d92e2f
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/VineLogger.kt
 @@ -0,0 +1,53 @@
 +package one.tranic.vine.util
 +
-+import com.mojang.logging.LogUtils
++import net.minecraft.server.MinecraftServer
 +
 +object VineLogger {
-+    private val logger: org.slf4j.Logger = LogUtils.getLogger()
++    private val logger: org.slf4j.Logger = MinecraftServer.LOGGER
 +
 +    fun get(): org.slf4j.Logger {
 +        return logger
