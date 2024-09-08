@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Sun, 8 Sep 2024 21:38:31 +0800
+Subject: [PATCH] EventManager
+
+
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 4d9438c2c351058eba536fc05d84f1751226754c..8368aeaf37fe5b89e92fcde429a5ed778aab9af6 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -1145,6 +1145,7 @@ public final class CraftServer implements Server {
+         this.enablePlugins(PluginLoadOrder.STARTUP);
+         this.enablePlugins(PluginLoadOrder.POSTWORLD);
+         if (io.papermc.paper.plugin.PluginInitializerManager.instance().pluginRemapper != null) io.papermc.paper.plugin.PluginInitializerManager.instance().pluginRemapper.pluginsEnabled(); // Paper - Remap plugins
++        one.tranic.vine.event.EventManager.INSTANCE.register(); // Vine
+         // Paper start - brigadier command API
+         io.papermc.paper.command.brigadier.PaperCommands.INSTANCE.setValid(); // to clear invalid state for event fire below
+         io.papermc.paper.plugin.lifecycle.event.LifecycleEventRunner.INSTANCE.callReloadableRegistrarEvent(io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents.COMMANDS, io.papermc.paper.command.brigadier.PaperCommands.INSTANCE, org.bukkit.plugin.Plugin.class, io.papermc.paper.plugin.lifecycle.event.registrar.ReloadableRegistrarEvent.Cause.RELOAD); // call commands event for regular plugins
+diff --git a/src/main/kotlin/one/tranic/vine/event/EventManager.kt b/src/main/kotlin/one/tranic/vine/event/EventManager.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..30072eb1bf44aafd95ea7397916aa6dfe0c96d76
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/event/EventManager.kt
+@@ -0,0 +1,14 @@
++package one.tranic.vine.event
++
++import one.tranic.vine.util.Reflect
++import org.bukkit.Bukkit
++import org.bukkit.craftbukkit.scheduler.MinecraftInternalPlugin
++import org.bukkit.event.Listener
++
++object EventManager {
++    fun register() {
++        Reflect.findAllClass<Listener>("one.tranic.event.module").forEach {
++            Bukkit.getPluginManager().registerEvents(it, MinecraftInternalPlugin())
++        }
++    }
++}
+\ No newline at end of file

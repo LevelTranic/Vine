@@ -535,7 +535,7 @@ index 70dbf7267b43357578c07fcd46618f656410a8e2..1a76d356c07262344a5d2dffe0d41e3e
          Rotation rotation = Rotation.getRandom(worldgenRandom);
          StructureTemplatePool structureTemplatePool = structurePool.unwrapKey()
 diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
-index 4d9438c2c351058eba536fc05d84f1751226754c..da26299242edc71b210bc146793f7db69cbd636f 100644
+index 0aa23076acd87ae5d9b5c079831ce2619c1acb6f..4a7ae711b21e8095f7ae2b92f6e9a506fbd7d9e8 100644
 --- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 +++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
 @@ -268,6 +268,9 @@ import io.multipaper.shreddedpaper.region.ShreddedPaperRegionSchedulerApiImpl;
@@ -548,7 +548,7 @@ index 4d9438c2c351058eba536fc05d84f1751226754c..da26299242edc71b210bc146793f7db6
  public final class CraftServer implements Server {
      private final String serverName = io.papermc.paper.ServerBuildInfo.buildInfo().brandName(); // Paper
      private final String serverVersion;
-@@ -1387,7 +1390,7 @@ public final class CraftServer implements Server {
+@@ -1389,7 +1392,7 @@ public final class CraftServer implements Server {
              iregistrycustom_dimension = leveldataanddimensions.dimensions().dimensionsRegistryAccess();
          } else {
              LevelSettings worldsettings;
