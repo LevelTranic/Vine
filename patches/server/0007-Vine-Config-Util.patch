@@ -36,10 +36,10 @@ index 0000000000000000000000000000000000000000..45f4c24cc689252513752e7b1cfa6736
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..2f4afece99a273baf515d02a52a8ed7299f02e1a
+index 0000000000000000000000000000000000000000..d215f4aba1eb673d0b5e4395e56dbea47887e513
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/ConfigUtil.kt
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,77 @@
 +package one.tranic.vine.config
 +
 +import com.aayushatharva.brotli4j.Brotli4jLoader
@@ -84,17 +84,20 @@ index 0000000000000000000000000000000000000000..2f4afece99a273baf515d02a52a8ed72
 +                    "****************************",
 +                    "Brotli in SectorFile currently faces poor performance issues,",
 +                    "it is recommended to choose ZSTD instead of Brotli",
-+                    "****************************"
++                    "****************************",
++                    ""
 +                )
 +            )
 +        }
 +        VineLogger.warn(
 +            listOf(
-+                "******************************************",
-+                "Since Vine is compatible with multiple region formats, it is not possible to automatically convert between them. ",
++                "***********************************",
++                "Since Vine is compatible with multiple region formats, ",
++                "it is not possible to automatically convert between them. ",
 +                "Currently, it only supports conversion between ANVIL and SectorFile.",
 +                "If you have relevant needs, please download the relevant tools to convert region formats.",
-+                "******************************************"
++                "************************************",
++                ""
 +            )
 +        )
 +    }

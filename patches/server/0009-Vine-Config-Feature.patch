@@ -69,10 +69,10 @@ index 0000000000000000000000000000000000000000..4c9654fd67f8b68a30af044b0886e146
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..25e58745122872a473fe5614979f061e4f0dddf7
+index 0000000000000000000000000000000000000000..0beda6c4679b93cdde58c58cd5b69e8659380e08
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Region.kt
-@@ -0,0 +1,86 @@
+@@ -0,0 +1,83 @@
 +package one.tranic.vine.config.module.feature
 +
 +import one.tranic.vine.config.VineConfig.Feature
@@ -129,18 +129,16 @@ index 0000000000000000000000000000000000000000..25e58745122872a473fe5614979f061e
 +            if (Locker.regionFormat == null) {
 +                Locker.regionFormat = b
 +                Format.setNow(b)
-+            } else if (!b.equals(Locker.regionFormat)) {
++            } else if (!b.equals(Locker.regionFormat))
 +                VineLogger.error("Forbidden to modify the parameter \"$BASEPATH.format\" during runtime!!!")
-+            }
 +        }
 +        getString("$BASEPATH.compression-format") {
 +            val b = Compression.getCompression(it)
 +            if (Locker.compressionFormat == null) {
 +                Locker.compressionFormat = b
 +                Compression.setNow(b)
-+            } else if (!b.equals(Locker.compressionFormat)) {
++            } else if (!b.equals(Locker.compressionFormat))
 +                VineLogger.error("Forbidden to modify the parameter \"$BASEPATH.compression-format\" during runtime!!!")
-+            }
 +        }
 +        getInt("$BASEPATH.compression-level") {
 +            if (Locker.regionCompressionLevel == null) {
@@ -152,9 +150,8 @@ index 0000000000000000000000000000000000000000..25e58745122872a473fe5614979f061e
 +                    it
 +                }
 +                Feature.Region.compressionLevel = Locker.regionCompressionLevel!!
-+            } else if (Locker.regionCompressionLevel != it) {
++            } else if (Locker.regionCompressionLevel != it)
 +                VineLogger.error("Forbidden to modify the parameter \"$BASEPATH.compression-level\" during runtime!!!")
-+            }
 +        }
 +        Feature.Region.flushFrequency = getInt("$BASEPATH.flush-frequency")
 +    }
@@ -162,10 +159,10 @@ index 0000000000000000000000000000000000000000..25e58745122872a473fe5614979f061e
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..e141b9f557d0ff9eacfb3eaf5a58497c3be3a20a
+index 0000000000000000000000000000000000000000..782e236848d0d684750f152b28df1ef145227b54
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,59 @@
 +package one.tranic.vine.config.module.feature
 +
 +import one.tranic.vine.config.VineConfig.Feature
@@ -218,9 +215,8 @@ index 0000000000000000000000000000000000000000..e141b9f557d0ff9eacfb3eaf5a58497c
 +                Feature.secureSeed = it
 +                Locker.secureSeed = it
 +                if (it) VineLogger.warn("** SecureSeed has been enabled, and this value cannot be modified before deleting the map.")
-+            } else if (Locker.secureSeed != it) {
++            } else if (Locker.secureSeed != it)
 +                VineLogger.get().error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
-+            }
 +        }
 +        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
@@ -228,10 +224,10 @@ index 0000000000000000000000000000000000000000..e141b9f557d0ff9eacfb3eaf5a58497c
 +}
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/VirtualThread.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/VirtualThread.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..03bd7fef8c861b568410359cd66bbfa13be7ffdf
+index 0000000000000000000000000000000000000000..8282045ea13e299b02a57920a95d3bf7a48af786
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/VirtualThread.kt
-@@ -0,0 +1,68 @@
+@@ -0,0 +1,62 @@
 +package one.tranic.vine.config.module.feature
 +
 +import one.tranic.vine.config.VineConfig.Feature
@@ -259,44 +255,38 @@ index 0000000000000000000000000000000000000000..03bd7fef8c861b568410359cd66bbfa1
 +                if (it) {
 +                    VineLogger.warn(
 +                        listOf(
-+                            "",
-+                            "********",
++                            "****************************",
 +                            "Virtual threads enabled.",
 +                            "Will try to offload threads other than ShreddedPaper and ChunkThread to dummy threads",
 +                            "This feature is very experimental and may have some undesirable consequences",
-+                            "********",
++                            "****************************",
 +                            ""
 +                        )
 +                    )
 +                }
 +                Feature.VirtualThread.enabled = it
 +                Locker.virtualThread = it
-+            } else if (it != Locker.virtualThread) {
-+                VineLogger.get()
-+                    .error("Forbidden to modify the parameter \"$BASEPATH.enabled\" during runtime!!!")
-+            }
++            } else if (it != Locker.virtualThread)
++                VineLogger.error("Forbidden to modify the parameter \"$BASEPATH.enabled\" during runtime!!!")
 +        }
 +        getBoolean("$BASEPATH.vt2") {
 +            if (Locker.virtualThread2 == null) {
 +                if (it) {
 +                    VineLogger.warn(
 +                        listOf(
-+                            "",
-+                            "********",
++                            "****************************",
 +                            "Virtual Threads 2.0 is being enabled. This content is very experimental ",
 +                            "and may seriously affect stability. You should not enable it in a production ",
 +                            "environment. If you need more VT2.0 content, please switch to the virtual-thread fork download.",
-+                            "********",
++                            "****************************",
 +                            ""
 +                        )
 +                    )
 +                }
 +                Feature.VirtualThread.vt2= it
 +                Locker.virtualThread2 = it
-+            } else if (it != Locker.virtualThread2) {
-+                VineLogger.get()
-+                    .error("Forbidden to modify the parameter \"$BASEPATH.vt2\" during runtime!!!")
-+            }
++            } else if (it != Locker.virtualThread2)
++                VineLogger.error("Forbidden to modify the parameter \"$BASEPATH.vt2\" during runtime!!!")
 +        }
 +    }
 +}
