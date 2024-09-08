@@ -6,20 +6,22 @@ Subject: [PATCH] AnyThread Utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/AnyThread.kt b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..33f9b39e6382f2ee9e573fd5fb7c1348852e9eca
+index 0000000000000000000000000000000000000000..aa29cb55e2ebb04d4fc8f7a5082b165c9c8d29de
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/AnyThread.kt
-@@ -0,0 +1,106 @@
+@@ -0,0 +1,144 @@
 +package one.tranic.vine.util
 +
 +import kotlinx.coroutines.*
 +import kotlinx.coroutines.Runnable
 +import net.minecraft.server.MinecraftServer
 +import one.tranic.vine.config.module.Locker
++import org.jetbrains.annotations.NotNull
 +import java.lang.reflect.InaccessibleObjectException
 +import java.lang.reflect.Method
 +import java.lang.reflect.ReflectPermission
 +import java.util.concurrent.ThreadFactory
++import javax.annotation.Nullable
 +
 +object AnyThread {
 +    private lateinit var method: Method
@@ -102,6 +104,42 @@ index 0000000000000000000000000000000000000000..33f9b39e6382f2ee9e573fd5fb7c1348
 +    fun getThread(runnable: Runnable, name: String): Thread {
 +        if (Locker.virtualThread == true) return Thread.ofVirtual().name(name).unstarted(runnable)
 +        return Thread(runnable, name)
++    }
++
++    @JvmStatic
++    fun getThread(@Nullable group: ThreadGroup, task: Runnable, @NotNull name: String, stackSize: Long): Thread {
++        if (Locker.virtualThread == true) return Thread.ofVirtual().name(name).unstarted(task)
++        return Thread(group, task, name, stackSize)
++    }
++
++    @JvmStatic
++    fun getThread2(): Thread {
++        if (Locker.virtualThread2 == true) return Thread.ofVirtual().unstarted(null)
++        return Thread()
++    }
++
++    @JvmStatic
++    fun getThread2(name: String): Thread {
++        if (Locker.virtualThread2 == true) return Thread.ofVirtual().name(name).unstarted(null)
++        return Thread(name)
++    }
++
++    @JvmStatic
++    fun getThread2(runnable: Runnable): Thread {
++        if (Locker.virtualThread2 == true) return Thread.ofVirtual().unstarted(runnable)
++        return Thread(runnable)
++    }
++
++    @JvmStatic
++    fun getThread2(runnable: Runnable, name: String): Thread {
++        if (Locker.virtualThread2 == true) return Thread.ofVirtual().name(name).unstarted(runnable)
++        return Thread(runnable, name)
++    }
++
++    @JvmStatic
++    fun getThread2(@Nullable group: ThreadGroup, task: Runnable, @NotNull name: String, stackSize: Long): Thread {
++        if (Locker.virtualThread2 == true) return Thread.ofVirtual().name(name).unstarted(task)
++        return Thread(group, task, name, stackSize)
 +    }
 +
 +    @OptIn(DelicateCoroutinesApi::class)

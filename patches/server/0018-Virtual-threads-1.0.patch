@@ -432,20 +432,15 @@ index fbf236adaee622887e4d34c74095e2b6154e28d0..c2a85dd7a376e3056f2f5720d1bdc5d4
              return datafixerbuilder.buildOptimized(requiredTypes, executorservice);
          }
 diff --git a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java b/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
-index 04460b81d6351f63103199a980e463070c233300..01d3ab53bdf12146b372dea464a4298325b682ed 100644
+index 04460b81d6351f63103199a980e463070c233300..61a53c724b0370f877550744da428cbeb610e101 100644
 --- a/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
 +++ b/src/main/java/net/minecraft/util/thread/NamedThreadFactory.java
-@@ -19,7 +19,12 @@ public class NamedThreadFactory implements ThreadFactory {
+@@ -19,7 +19,7 @@ public class NamedThreadFactory implements ThreadFactory {
  
      @Override
      public Thread newThread(Runnable runnable) {
 -        Thread thread = new Thread(this.group, runnable, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
-+        Thread thread;
-+        if (one.tranic.vine.config.VineConfig.Feature.tryVirtualThreads) {
-+            thread = Thread.ofVirtual().name(this.namePrefix + this.threadNumber.getAndIncrement()).unstarted(runnable);
-+        } else {
-+            thread = new Thread(this.group, runnable, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
-+        }
++        Thread thread = one.tranic.vine.util.AnyThread.getThread(this.group, runnable, this.namePrefix + this.threadNumber.getAndIncrement(), 0L);
          thread.setUncaughtExceptionHandler((threadx, throwable) -> {
              LOGGER.error("Caught exception in thread {} from {}", threadx, runnable);
              LOGGER.error("", throwable);

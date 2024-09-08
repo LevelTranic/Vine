@@ -162,10 +162,10 @@ index 0000000000000000000000000000000000000000..25e58745122872a473fe5614979f061e
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..fda5396e1e05a550859c80c0753678d61fc0eec5
+index 0000000000000000000000000000000000000000..e141b9f557d0ff9eacfb3eaf5a58497c3be3a20a
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
-@@ -0,0 +1,89 @@
+@@ -0,0 +1,60 @@
 +package one.tranic.vine.config.module.feature
 +
 +import one.tranic.vine.config.VineConfig.Feature
@@ -204,15 +204,6 @@ index 0000000000000000000000000000000000000000..fda5396e1e05a550859c80c0753678d6
 +                "cannot continue to load maps."
 +            )
 +        )
-+        addDefault(
-+            "feature.try-virtual-threads",
-+            false,
-+            listOf(
-+                "Try virtual threads. Once enabled, all explicit platform threads will ",
-+                "be replaced with virtual threads as much as possible, which may have ",
-+                "some adverse consequences. Please enable it with caution."
-+            )
-+        )
 +        addDefault("feature.vanilla-hopper", false)
 +        addDefault("feature.zero-tick-plants", false)
 +    }
@@ -231,27 +222,82 @@ index 0000000000000000000000000000000000000000..fda5396e1e05a550859c80c0753678d6
 +                VineLogger.get().error("Forbidden to modify the parameter \"feature.secure-seed\" during runtime!!!")
 +            }
 +        }
-+        getBoolean("feature.try-virtual-threads") {
-+            if (Locker.virtualThread == null) {
-+                if (it) {
-+                    VineLogger.warn(
-+                        listOf(
-+                            "********",
-+                            "Virtual threads enabled.",
-+                            "Will try to offload threads other than ShreddedPaper and ChunkThread to dummy threads",
-+                            "This feature is very experimental and may have some undesirable consequences",
-+                            "********"
-+                        )
-+                    )
-+                }
-+                Feature.tryVirtualThreads = it
-+                Locker.virtualThread = it
-+            } else if (it != Locker.virtualThread) {
-+                VineLogger.get()
-+                    .error("Forbidden to modify the parameter \"feature.try-virtual-threads\" during runtime!!!")
-+            }
-+        }
 +        Feature.vanillaHopper = getBoolean("feature.vanilla-hopper")
 +        Feature.zeroTickPlants = getBoolean("feature.zero-tick-plants")
 +    }
 +}
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/VirtualThread.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/VirtualThread.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..03bd7fef8c861b568410359cd66bbfa13be7ffdf
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/VirtualThread.kt
+@@ -0,0 +1,68 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.module.Locker
++import one.tranic.vine.config.util.ConfigHelper
++import one.tranic.vine.util.VineLogger
++
++object VirtualThread : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "feature.virtual-thread"
++    override fun default() {
++        addDefault("$BASEPATH.enabled", false)
++        addDefault("$BASEPATH.vt2", false)
++
++        addComment(BASEPATH, listOf(
++            "Try virtual threads. Once enabled, all explicit platform threads will ",
++            "be replaced with virtual threads as much as possible, which may have ",
++            "some adverse consequences. Please enable it with caution."
++        ))
++    }
++
++    override fun load() {
++        getBoolean("$BASEPATH.enabled") {
++            if (Locker.virtualThread == null) {
++                if (it) {
++                    VineLogger.warn(
++                        listOf(
++                            "",
++                            "********",
++                            "Virtual threads enabled.",
++                            "Will try to offload threads other than ShreddedPaper and ChunkThread to dummy threads",
++                            "This feature is very experimental and may have some undesirable consequences",
++                            "********",
++                            ""
++                        )
++                    )
++                }
++                Feature.VirtualThread.enabled = it
++                Locker.virtualThread = it
++            } else if (it != Locker.virtualThread) {
++                VineLogger.get()
++                    .error("Forbidden to modify the parameter \"$BASEPATH.enabled\" during runtime!!!")
++            }
++        }
++        getBoolean("$BASEPATH.vt2") {
++            if (Locker.virtualThread2 == null) {
++                if (it) {
++                    VineLogger.warn(
++                        listOf(
++                            "",
++                            "********",
++                            "Virtual Threads 2.0 is being enabled. This content is very experimental ",
++                            "and may seriously affect stability. You should not enable it in a production ",
++                            "environment. If you need more VT2.0 content, please switch to the virtual-thread fork download.",
++                            "********",
++                            ""
++                        )
++                    )
++                }
++                Feature.VirtualThread.vt2= it
++                Locker.virtualThread2 = it
++            } else if (it != Locker.virtualThread2) {
++                VineLogger.get()
++                    .error("Forbidden to modify the parameter \"$BASEPATH.vt2\" during runtime!!!")
++            }
++        }
++    }
++}
+\ No newline at end of file

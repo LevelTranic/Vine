@@ -130,10 +130,10 @@ index 0000000000000000000000000000000000000000..173945a287f4d66ffc0373d0e0db9ba5
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Locker.kt b/src/main/kotlin/one/tranic/vine/config/module/Locker.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..d336332ccdd0fb8d78da01004981fea5716fa29e
+index 0000000000000000000000000000000000000000..c13bc77ea1ce8015d5c8df69a21e5799a7b2b7c8
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Locker.kt
-@@ -0,0 +1,12 @@
+@@ -0,0 +1,13 @@
 +package one.tranic.vine.config.module
 +
 +import one.tranic.vine.region.Compression
@@ -145,6 +145,7 @@ index 0000000000000000000000000000000000000000..d336332ccdd0fb8d78da01004981fea5
 +    var regionCompressionLevel: Int? = null
 +    var secureSeed: Boolean? = null
 +    var virtualThread: Boolean? = null
++    var virtualThread2: Boolean? = null
 +}
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Module.kt b/src/main/kotlin/one/tranic/vine/config/module/Module.kt
