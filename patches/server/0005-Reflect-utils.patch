@@ -6,10 +6,10 @@ Subject: [PATCH] Reflect utils
 
 diff --git a/src/main/kotlin/one/tranic/vine/util/Reflect.kt b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..1d727c617cadd3e06f4bd74df3a7ffa08c68bafe
+index 0000000000000000000000000000000000000000..3098e065dce949090c578f7f891ffa93d97cd51c
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/util/Reflect.kt
-@@ -0,0 +1,43 @@
+@@ -0,0 +1,57 @@
 +package one.tranic.vine.util
 +
 +import com.google.common.reflect.ClassPath
@@ -21,19 +21,33 @@ index 0000000000000000000000000000000000000000..1d727c617cadd3e06f4bd74df3a7ffa0
 +object Reflect {
 +    @Throws(IOException::class)
 +    inline fun <reified T> findObjectClass(packageName: String): Set<T> {
-+        return findClass<T>(packageName, true)
++        return findClass<T>(packageName, isObject = true, allClass = false)
++    }
++
++    @Throws(IOException::class)
++    inline fun <reified T> findAllObjectClass(packageName: String): Set<T> {
++        return findClass<T>(packageName, isObject = true, allClass = true)
 +    }
 +
 +    @Throws(IOException::class)
 +    inline fun <reified T> findClass(packageName: String): Set<T> {
-+        return findClass<T>(packageName, false)
++        return findClass<T>(packageName, isObject = false, allClass = false)
 +    }
 +
 +    @Throws(IOException::class)
-+    inline fun <reified T> findClass(packageName: String, isObject: Boolean): Set<T> {
++    inline fun <reified T> findAllClass(packageName: String): Set<T> {
++        return findClass<T>(packageName, isObject = false, allClass = true)
++    }
++
++    @Throws(IOException::class)
++    inline fun <reified T> findClass(packageName: String, isObject: Boolean, allClass: Boolean): Set<T> {
 +        val implSet = mutableSetOf<T>()
 +        val classs = ClassPath.from(Thread.currentThread().contextClassLoader)
-+        val classes = classs.getTopLevelClasses(packageName)
++        val classes = if (allClass) {
++            classs.getTopLevelClassesRecursive(packageName)
++        } else {
++            classs.getTopLevelClasses(packageName)
++        }
 +        for (classInfo in classes) {
 +            val clazz = Class.forName(classInfo.name).kotlin
 +            runCatching {

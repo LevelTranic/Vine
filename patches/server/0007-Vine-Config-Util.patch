@@ -153,10 +153,10 @@ index 0000000000000000000000000000000000000000..c13bc77ea1ce8015d5c8df69a21e5799
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/Module.kt b/src/main/kotlin/one/tranic/vine/config/module/Module.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..3ccd0ab0e830c91575702bc23d706b4f17e5f821
+index 0000000000000000000000000000000000000000..36a44f18f17c7c4e545020fbe0ed8208e67b50c0
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/Module.kt
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,30 @@
 +package one.tranic.vine.config.module
 +
 +import one.tranic.vine.config.impl.ConfigImpl
@@ -165,18 +165,14 @@ index 0000000000000000000000000000000000000000..3ccd0ab0e830c91575702bc23d706b4f
 +object Module : ConfigImpl {
 +    private val clazz: ArrayList<ConfigImpl> = ArrayList()
 +
-+    private fun ArrayList<ConfigImpl>.addImpl(packageName: String) {
-+        this.addAll(Reflect.findObjectClass(packageName))
++    private fun ArrayList<ConfigImpl>.addAllImpl(packageName: String) {
++        this.addAll(Reflect.findAllObjectClass(packageName))
 +    }
 +
 +    init {
-+        clazz.addImpl("one.tranic.vine.config.module.feature")
-+        clazz.addImpl("one.tranic.vine.config.module.fix")
-+        clazz.addImpl("one.tranic.vine.config.module.optimize")
-+        clazz.addImpl("one.tranic.vine.config.module.optimize.entitygoal")
-+        clazz.addImpl("one.tranic.vine.config.module.optimize.entitygoal.player")
-+        clazz.addImpl("one.tranic.vine.config.module.optimize.entitygoal.mob")
-+        clazz.addImpl("one.tranic.vine.config.module.optimize.entitygoal.mob.zombievillage")
++        clazz.addAllImpl("one.tranic.vine.config.module.feature")
++        clazz.addAllImpl("one.tranic.vine.config.module.fix")
++        clazz.addAllImpl("one.tranic.vine.config.module.optimize")
 +    }
 +
 +    override fun default() {
