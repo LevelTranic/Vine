@@ -5,7 +5,7 @@ Subject: [PATCH] Slice: Allow inventory clicks in Spectator
 
 
 diff --git a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
-index 9a4f53ebee1c7be2b61ddb203a4d36e138886a52..044ca6ca21e10d43665e20eaaf0af1634f036840 100644
+index 9a4f53ebee1c7be2b61ddb203a4d36e138886a52..9d6ba28a4dc49e82b2fba88a43abfff06c0fe9fa 100644
 --- a/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 +++ b/src/main/java/net/minecraft/server/network/ServerGamePacketListenerImpl.java
 @@ -3026,7 +3026,7 @@ public class ServerGamePacketListenerImpl extends ServerCommonPacketListenerImpl
@@ -13,7 +13,7 @@ index 9a4f53ebee1c7be2b61ddb203a4d36e138886a52..044ca6ca21e10d43665e20eaaf0af163
          this.player.resetLastActionTime();
          if (this.player.containerMenu.containerId == packet.getContainerId() && this.player.containerMenu.stillValid(this.player)) { // CraftBukkit
 -            boolean cancelled = this.player.isSpectator(); // CraftBukkit - see below if
-+            boolean cancelled = false; // Slice - allow spectator inv management this.player.isSpectator(); // CraftBukkit - see below if
++            boolean cancelled = !this.player.getBukkitEntity().hasPermission("vine.fun.spectatorinv") && this.player.isSpectator(); // Vine - add permission // Slice - allow spectator inv management this.player.isSpectator(); // CraftBukkit - see below if
              if (false/*this.player.isSpectator()*/) { // CraftBukkit
                  this.player.containerMenu.sendAllDataToRemote();
              } else if (!this.player.containerMenu.stillValid(this.player)) {

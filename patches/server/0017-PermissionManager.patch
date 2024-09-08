@@ -27,10 +27,10 @@ index 8368aeaf37fe5b89e92fcde429a5ed778aab9af6..0aa23076acd87ae5d9b5c079831ce261
      @Override
 diff --git a/src/main/kotlin/one/tranic/vine/permission/PermissionManager.kt b/src/main/kotlin/one/tranic/vine/permission/PermissionManager.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..c714ed520954fd4f16b3a57dfd43946ecabd8ea4
+index 0000000000000000000000000000000000000000..bf9eb445e7365fde315cb718474118585b865781
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/permission/PermissionManager.kt
-@@ -0,0 +1,45 @@
+@@ -0,0 +1,52 @@
 +package one.tranic.vine.permission
 +
 +import org.bukkit.permissions.Permission
@@ -54,6 +54,13 @@ index 0000000000000000000000000000000000000000..c714ed520954fd4f16b3a57dfd43946e
 +            "vine",
 +            "Gives the user the ability to use all Vine commands",
 +            parent
++        )
++
++        setPermission(
++            "fun.spectatorinv",
++            "allow spectator inv management",
++            PermissionDefault.OP,
++            commands
 +        )
 +
 +        setPermission(
