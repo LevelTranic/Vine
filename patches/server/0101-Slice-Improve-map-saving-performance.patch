@@ -7,10 +7,10 @@ Original code by Cryptite
 You can find the original code on https://github.com/Cryptite/Slice
 
 diff --git a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
-index 9644a433c4844c5aa003a835a7862c5d15ad0839..a1c54c1aba91783aa2799a509d56e9abd3de340d 100644
+index 6fd0c8b12aef37e25d4a6bab553411fa790d79a6..e4160eb08dd5e9ce2ab29dbff8af9cfbdb9ac2bd 100644
 --- a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 +++ b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
-@@ -363,8 +363,8 @@ public class MapItemSavedData extends SavedData {
+@@ -364,8 +364,8 @@ public class MapItemSavedData extends SavedData {
              --this.trackedDecorationCount;
          }
  

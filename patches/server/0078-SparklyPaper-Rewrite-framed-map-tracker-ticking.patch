@@ -111,7 +111,7 @@ index d8b4402a10f9a7886b42fa1998d6aa0e412a56e7..659ef756223dcbd61bfd06626c2a5879
                  this.gameEvent(GameEvent.BLOCK_CHANGE, source.getEntity());
                  this.playSound(this.getRemoveItemSound(), 1.0F, 1.0F);
 diff --git a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
-index 5d01e9c124047ab89be5727ec4ecd044f76c202e..9644a433c4844c5aa003a835a7862c5d15ad0839 100644
+index 744d439e2c3e2c9d0e5daff777f622863a58a3aa..6fd0c8b12aef37e25d4a6bab553411fa790d79a6 100644
 --- a/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 +++ b/src/main/java/net/minecraft/world/level/saveddata/maps/MapItemSavedData.java
 @@ -82,6 +82,16 @@ public class MapItemSavedData extends SavedData {
@@ -131,7 +131,7 @@ index 5d01e9c124047ab89be5727ec4ecd044f76c202e..9644a433c4844c5aa003a835a7862c5d
  
      // CraftBukkit start
      public final CraftMapView mapView;
-@@ -354,6 +364,9 @@ public class MapItemSavedData extends SavedData {
+@@ -355,6 +365,9 @@ public class MapItemSavedData extends SavedData {
          }
  
          this.setDecorationsDirty();
@@ -141,7 +141,7 @@ index 5d01e9c124047ab89be5727ec4ecd044f76c202e..9644a433c4844c5aa003a835a7862c5d
      }
  
      public static void addTargetDecoration(ItemStack stack, BlockPos pos, String id, Holder<MapDecorationType> decorationType) {
-@@ -435,6 +448,7 @@ public class MapItemSavedData extends SavedData {
+@@ -436,6 +449,7 @@ public class MapItemSavedData extends SavedData {
              }
  
              this.setDecorationsDirty();
@@ -149,7 +149,7 @@ index 5d01e9c124047ab89be5727ec4ecd044f76c202e..9644a433c4844c5aa003a835a7862c5d
          }
  
      }
-@@ -448,6 +462,20 @@ public class MapItemSavedData extends SavedData {
+@@ -449,6 +463,20 @@ public class MapItemSavedData extends SavedData {
  
      public void setColorsDirty(int x, int z) {
          this.setDirty();
@@ -170,7 +170,7 @@ index 5d01e9c124047ab89be5727ec4ecd044f76c202e..9644a433c4844c5aa003a835a7862c5d
          Iterator iterator = this.carriedBy.iterator();
  
          while (iterator.hasNext()) {
-@@ -530,6 +558,7 @@ public class MapItemSavedData extends SavedData {
+@@ -531,6 +559,7 @@ public class MapItemSavedData extends SavedData {
      public void removedFromFrame(BlockPos pos, int id) {
          this.removeDecoration("frame-" + id);
          this.frameMarkers.remove(MapFrame.frameId(pos));
@@ -178,7 +178,7 @@ index 5d01e9c124047ab89be5727ec4ecd044f76c202e..9644a433c4844c5aa003a835a7862c5d
      }
  
      public boolean updateColor(int x, int z, byte color) {
-@@ -587,6 +616,93 @@ public class MapItemSavedData extends SavedData {
+@@ -588,6 +617,93 @@ public class MapItemSavedData extends SavedData {
          return this.trackedDecorationCount >= decorationCount;
      }
  
