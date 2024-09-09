@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Mon, 9 Sep 2024 12:35:16 +0800
+Subject: [PATCH] lithium: ai.raid
+
+This patch is based on the following mixin:
+"me/jellysquid/mods/lithium/mixin/ai/raid/RaidMixin.java"
+By: Angeline <jellysquid3@users.noreply.github.com>
+As part of: Lithium (https://github.com/CaffeineMC/lithium-fabric)
+Licensed under: LGPL-3.0 (https://www.gnu.org/licenses/lgpl-3.0.html)
+
+diff --git a/src/main/java/net/minecraft/world/entity/raid/Raid.java b/src/main/java/net/minecraft/world/entity/raid/Raid.java
+index 71a442d218b7e7e7ebb57d9a1559289bda04c4d5..784143babf1569a131db0c511ec749cf22e1cafd 100644
+--- a/src/main/java/net/minecraft/world/entity/raid/Raid.java
++++ b/src/main/java/net/minecraft/world/entity/raid/Raid.java
+@@ -112,6 +112,7 @@ public class Raid {
+     private Raid.RaidStatus status;
+     private int celebrationTicks;
+     private Optional<BlockPos> waveSpawnPos;
++    private boolean isBarDirty; // lithium - ai.raid
+     // Paper start
+     private static final String PDC_NBT_KEY = "BukkitValues";
+     private static final org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry PDC_TYPE_REGISTRY = new org.bukkit.craftbukkit.persistence.CraftPersistentDataTypeRegistry();
+@@ -297,6 +298,12 @@ public class Raid {
+ 
+     public void tick() {
+         if (!this.isStopped()) {
++            // lithium start - ai.raid
++            if (this.isBarDirty) {
++                this.updateBossbarInternal();
++                this.isBarDirty = false;
++            }
++            // lithium end
+             if (this.status == Raid.RaidStatus.ONGOING) {
+                 boolean flag = this.active;
+ 
+@@ -668,9 +675,15 @@ public class Raid {
+ 
+     }
+ 
++    // lithium start - ai.raid
+     public void updateBossbar() {
++        this.isBarDirty = true;
++    }
++
++    private void updateBossbarInternal() {
+         this.raidEvent.setProgress(Mth.clamp(this.getHealthOfLivingRaiders() / this.totalHealth, 0.0F, 1.0F));
+     }
++    // lithium end
+ 
+     public float getHealthOfLivingRaiders() {
+         float f = 0.0F;
