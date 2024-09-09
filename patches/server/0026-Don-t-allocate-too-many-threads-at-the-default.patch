@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Mon, 9 Sep 2024 13:07:24 +0800
+Subject: [PATCH] Don't allocate too many threads at the default
+
+
+diff --git a/src/main/java/io/multipaper/shreddedpaper/threading/ShreddedPaperTickThread.java b/src/main/java/io/multipaper/shreddedpaper/threading/ShreddedPaperTickThread.java
+index 3949e39afcf36c4c5012e157ce95fd4d873126b5..2d84223ee93f3f856afba7fd94b7cfa794763893 100644
+--- a/src/main/java/io/multipaper/shreddedpaper/threading/ShreddedPaperTickThread.java
++++ b/src/main/java/io/multipaper/shreddedpaper/threading/ShreddedPaperTickThread.java
+@@ -21,7 +21,12 @@ public class ShreddedPaperTickThread extends TickThread {
+         int threadCount = ShreddedPaperConfiguration.get().multithreading.threadCount;
+ 
+         if (threadCount <= 0) {
+-            threadCount = Math.max(Runtime.getRuntime().availableProcessors() - 1, 1);
++            int processors = Runtime.getRuntime().availableProcessors();
++            if (processors < 3) {
++                threadCount = 1;
++            } else {
++                threadCount = Math.max(processors / 3, 1);
++            }
+         }
+ 
+         executor = new ScheduledThreadPoolExecutor(threadCount, r -> new ShreddedPaperTickThread(r, "ShreddedPaperTickThread-%d"));
