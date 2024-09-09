@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..4dfa90e779bc6c6415dd6c587445bf33d48cd67b
+index 0000000000000000000000000000000000000000..fb5b6306efe79a7f7d5ba2fc8e4200997fd09621
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,178 @@
+@@ -0,0 +1,149 @@
 +package one.tranic.vine.config;
 +
 +import one.tranic.vine.region.Compression;
@@ -42,18 +42,11 @@ index 0000000000000000000000000000000000000000..4dfa90e779bc6c6415dd6c587445bf33
 +    }
 +
 +    public static class Feature {
-+        /**
-+         * This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.
-+         */
++        // This just removes spark from being loaded by default, if you disable it, or install spark yourself, it will still be loaded.
 +        public static boolean disableSpark = true;
-+        /**
-+         * If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.
-+         */
++        // If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.
 +        public static boolean disableRespawnCeiling = false;
 +        public static boolean flattenTriangularDistribution = false;
-+        /**
-+         * The new liquid physics system may affect some mechanisms.
-+         */
 +        public static boolean liquidPhysics = false;
 +        /**
 +         * Switch to a 1024-bit secure seed to protect it from being cracked.
@@ -62,9 +55,6 @@ index 0000000000000000000000000000000000000000..4dfa90e779bc6c6415dd6c587445bf33
 +         */
 +        public static boolean secureSeed = false;
 +        public static boolean vanillaHopper = false;
-+        /**
-+         * zero tick plants is back now
-+         */
 +        public static boolean zeroTickPlants = false;
 +
 +        public static class cachePlayerProfileResult {
@@ -78,32 +68,19 @@ index 0000000000000000000000000000000000000000..4dfa90e779bc6c6415dd6c587445bf33
 +         * panacea, so take precautions.
 +         */
 +        public static class DSE {
-+            /**
-+             * Do not save tnt entities
-+             */
 +            public static boolean primedTNT = false;
-+            /**
-+             * Do not save falling blocks
-+             */
 +            public static boolean fallingBlock = false;
++            public static boolean fireworks = false;
 +        }
 +
 +        public static class Region {
-+            /**
-+             * Support: ANVIL (Vanilla), LINEAR, SECTORFILE
-+             */
++            // Support: ANVIL (Vanilla), LINEAR, SECTORFILE
 +            public static Format format = Format.ANVIL;
-+            /**
-+             * Only SECTORFILE | Support: GZIP, ZLIB, LZ4, BROTLI (Only Tranic Server), SNAPPY (Only Tranic Server), ZSTD
-+             */
++            // Only SECTORFILE | Support: GZIP, ZLIB, LZ4, BROTLI (Only Tranic Server), SNAPPY (Only Tranic Server), ZSTD
 +            public static Compression compressionFormat = Compression.ZSTD;
-+            /**
-+             * Only LINEAR | 1-15
-+             */
++            // Only LINEAR | 1-15
 +            public static int compressionLevel = 1;
-+            /**
-+             * Only LINEAR | flush second
-+             */
++            // Only LINEAR | flush second
 +            public static int flushFrequency = 5;
 +        }
 +
@@ -113,19 +90,17 @@ index 0000000000000000000000000000000000000000..4dfa90e779bc6c6415dd6c587445bf33
 +         * may have some adverse consequences. Please enable it with caution.
 +         */
 +        public static class VirtualThread {
-+            /**Virtual Thread 1.0*/
++            // Virtual Thread 1.0
 +            public static boolean enabled = false;
 +
-+            /**Virtual Thread 2.0 (Alpha)*/
++            // Virtual Thread 2.0 (Alpha)
 +            public static boolean vt2 = false;
 +        }
 +    }
 +
 +    public static class Optimize {
 +        public static int acquirePoiForStuckEntity = 60;
-+        /**
-+         * May cause the inconsistent order of future compose tasks.
-+         */
++        // May cause the inconsistent order of future compose tasks.
 +        public static boolean fasterStructureGenFutureSequencing = false;
 +        public static boolean floatingPointPositive = false;
 +        /**
@@ -133,9 +108,7 @@ index 0000000000000000000000000000000000000000..4dfa90e779bc6c6415dd6c587445bf33
 +         * If the entity has already determined the path, it will not search the path as frequently.
 +         */
 +        public static boolean mobRePathfinding = true;
-+        /**
-+         * As the name suggests, it can slightly improve world generation performance, maybe.
-+         */
++        // As the name suggests, it can slightly improve world generation performance, maybe.
 +        public static boolean noiseGeneration = true;
 +        public static boolean skipSelfRaidCheck = false;
 +
@@ -174,9 +147,7 @@ index 0000000000000000000000000000000000000000..4dfa90e779bc6c6415dd6c587445bf33
 +            }
 +        }
 +
-+        /**
-+         * Optimize stacked minecarts
-+         */
++        // Optimize stacked minecarts
 +        public static class Minecart {
 +            public static boolean enabled = true;
 +            public static int skipTickCount = 30;

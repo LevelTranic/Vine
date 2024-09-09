@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Mon, 9 Sep 2024 09:38:22 +0800
+Subject: [PATCH] Don't save FireworkRocket Entity
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/projectile/FireworkRocketEntity.java b/src/main/java/net/minecraft/world/entity/projectile/FireworkRocketEntity.java
+index 4671f34ba2796c1284af5bd9b2d2edfe37869ad6..259606755e7d3af7c31820500354a08c5923e44b 100644
+--- a/src/main/java/net/minecraft/world/entity/projectile/FireworkRocketEntity.java
++++ b/src/main/java/net/minecraft/world/entity/projectile/FireworkRocketEntity.java
+@@ -354,6 +354,11 @@ public class FireworkRocketEntity extends Projectile implements ItemSupplier {
+         return false;
+     }
+ 
++    @Override
++    public boolean shouldBeSaved() {
++        return !one.tranic.vine.config.VineConfig.Feature.DSE.fireworks;
++    }
++
+     public static ItemStack getDefaultItem() {
+         return new ItemStack(Items.FIREWORK_ROCKET);
+     }

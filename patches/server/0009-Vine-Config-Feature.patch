@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config - Feature
 
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..9d7053f0d68b82ac5830881ede2cb5f99470c6ae
+index 0000000000000000000000000000000000000000..657642f146baea146e6b2274052eb76afa8dae18
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/DontSaveEntity.kt
-@@ -0,0 +1,24 @@
+@@ -0,0 +1,26 @@
 +package one.tranic.vine.config.module.feature
 +
 +import one.tranic.vine.config.VineConfig.Feature
@@ -27,11 +27,13 @@ index 0000000000000000000000000000000000000000..9d7053f0d68b82ac5830881ede2cb5f9
 +            )
 +        )
 +        addDefault("$BASEPATH.falling-block", false)
++        addDefault("$BASEPATH.fireworks", false)
 +    }
 +
 +    override fun load() {
 +        Feature.DSE.primedTNT = getBoolean("$BASEPATH.primed-tnt")
 +        Feature.DSE.fallingBlock = getBoolean("$BASEPATH.falling-block")
++        Feature.DSE.fireworks = getBoolean("$BASEPATH.fireworks")
 +    }
 +}
 \ No newline at end of file
