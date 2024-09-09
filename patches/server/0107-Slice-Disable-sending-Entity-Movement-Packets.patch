@@ -36,10 +36,10 @@ index 035a40836a6986a2740f02712276d5a261f2aa3c..0682e8b10ff65d5a63bcf4768473ec1f
                              flag5 = true;
                          }
 diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
-index 6eade6f119c48687a62d13926831b20ff301eec2..ad87599640d36fc06fee7a212c7aa5d82dc2df7e 100644
+index f83c55a65ce97f9944049d7e7a9cf763ea957054..7f60b07f12d0f209bcec9c78ff5837fc74259e41 100644
 --- a/src/main/java/net/minecraft/world/entity/Entity.java
 +++ b/src/main/java/net/minecraft/world/entity/Entity.java
-@@ -443,6 +443,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -444,6 +444,7 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      private long lastPlayerScanTime;
      private boolean playerInRange;
      // Canvas end
