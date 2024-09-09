@@ -1,14 +1,40 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: 404Setup <153366651+404Setup@users.noreply.github.com>
 Date: Wed, 21 Aug 2024 21:26:00 +0800
-Subject: [PATCH] Add some required dependencies
+Subject: [PATCH] Add some required dependencies and bump
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..0dfe4f14099d5e3ff4da943d32bd14a1e788d903 100644
+index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..e4c65e034f363e840c4277056fb0ea76ecc4ff5c 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -85,6 +85,27 @@ dependencies {
+@@ -27,13 +27,13 @@ dependencies {
+           all its classes to check if they are plugins.
+           Scanning takes about 1-2 seconds so adding this speeds up the server start.
+      */
+-    implementation("org.apache.logging.log4j:log4j-core:2.19.0") // Paper - implementation
+-    log4jPlugins.annotationProcessorConfigurationName("org.apache.logging.log4j:log4j-core:2.19.0") // Paper - Needed to generate meta for our Log4j plugins
++    implementation("org.apache.logging.log4j:log4j-core:2.23.1") // Paper - implementation
++    log4jPlugins.annotationProcessorConfigurationName("org.apache.logging.log4j:log4j-core:2.23.1") // Paper - Needed to generate meta for our Log4j plugins
+     runtimeOnly(log4jPlugins.output)
+     alsoShade(log4jPlugins.output)
+     implementation("io.netty:netty-codec-haproxy:4.1.97.Final") // Paper - Add support for proxy protocol
+     // Paper end
+-    implementation("org.apache.logging.log4j:log4j-iostreams:2.22.1") // Paper - remove exclusion
++    implementation("org.apache.logging.log4j:log4j-iostreams:2.23.1") // Paper - remove exclusion
+     implementation("org.ow2.asm:asm-commons:9.7")
+     implementation("org.spongepowered:configurate-yaml:4.2.0-SNAPSHOT") // Paper - config files
+     implementation("commons-lang:commons-lang:2.6")
+@@ -55,7 +55,7 @@ dependencies {
+     implementation("dev.omega24:upnp4j:1.0") // Purpur
+ 
+     // Pufferfish start
+-    implementation("org.yaml:snakeyaml:2.2")
++    implementation("org.yaml:snakeyaml:2.3")
+     implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
+         exclude(group="org.yaml", module="snakeyaml")
+     }
+@@ -85,6 +85,26 @@ dependencies {
      implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
      // Vine end
  
@@ -18,7 +44,6 @@ index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..0dfe4f14099d5e3ff4da943d32bd14a1
 +    implementation("org.lz4:lz4-java:1.8.0")
 +
 +    implementation("org.reflections:reflections:0.10.2")
-+    implementation("org.simdjson:simdjson-java:0.3.0")
 +
 +    val brotli4jVersion = "1.16.0"
 +    implementation ( group = "com.aayushatharva.brotli4j", name = "brotli4j", version = brotli4jVersion )

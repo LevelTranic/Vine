@@ -5,10 +5,10 @@ Subject: [PATCH] Leaf: Cache player profileResult
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 0dfe4f14099d5e3ff4da943d32bd14a1e788d903..4777451dc9378f1bed1c5f663cf444dabe42ff4e 100644
+index e4c65e034f363e840c4277056fb0ea76ecc4ff5c..b93eb251d0c37840239381d8d0078a92b898ec1e 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
-@@ -106,6 +106,7 @@ dependencies {
+@@ -105,6 +105,7 @@ dependencies {
      runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-osx-x86_64", version = brotli4jVersion )
      runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-osx-aarch64", version = brotli4jVersion )
      // Vine end
