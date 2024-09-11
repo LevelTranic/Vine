@@ -18,7 +18,7 @@
 </p>
 
 ---
-> **It is still unstable at present, please choose carefully.**
+> **Upstream has started preparing 1.21.1, I will follow up when it compiles and runs normally.**
 >
 > ----
 >
