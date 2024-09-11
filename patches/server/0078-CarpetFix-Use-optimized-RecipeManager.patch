@@ -1,0 +1,69 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Wed, 11 Sep 2024 20:51:24 +0800
+Subject: [PATCH] CarpetFix: Use optimized RecipeManager
+
+This patch is based on the following mixin:
+"carpetfixes/mixins/optimizations/RecipeManager_fasterMixin.java"
+By: fxmorin <28154542+fxmorin@users.noreply.github.com>
+
+Original license: MIT
+Original project: https://github.com/fxmorin/carpet-fixes
+
+Optimized the RecipeManager getFirstMatch call to be up to 3x faster
+This is a fully vanilla optimization. Improves: [Blast]Furnace/Campfire/Smoker/Stonecutter/Crafting/Sheep Color Choosing
+This was mostly made for the auto crafting table, since the performance boost is much more visible while using that mod
+
+diff --git a/src/main/java/net/minecraft/world/item/crafting/RecipeManager.java b/src/main/java/net/minecraft/world/item/crafting/RecipeManager.java
+index 9d0ac3fb52a76a97bf954fbc5175cea90d385d8c..eda0aa5588731f77492da35124f66892aac9d181 100644
+--- a/src/main/java/net/minecraft/world/item/crafting/RecipeManager.java
++++ b/src/main/java/net/minecraft/world/item/crafting/RecipeManager.java
+@@ -132,16 +132,23 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
+     }
+ 
+     public <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> getAllRecipesFor(RecipeType<T> type) {
+-        return List.copyOf(this.byType(type));
++        return new java.util.ArrayList<>(this.byType(type)); // CarpetFix
+     }
+ 
++    // Leaf start - Remove streams to be faster
+     public <C extends Container, T extends Recipe<C>> List<RecipeHolder<T>> getRecipesFor(RecipeType<T> type, C inventory, Level world) {
+-        return (List) this.byType(type).stream().filter((recipeholder) -> {
+-            return recipeholder.value().matches(inventory, world);
+-        }).sorted(Comparator.comparing((recipeholder) -> {
+-            return recipeholder.value().getResultItem(world.registryAccess()).getDescriptionId();
+-        })).collect(Collectors.toList());
+-    }
++        List<RecipeHolder<T>> list = new java.util.ArrayList<>();
++
++        for (RecipeHolder<T> recipeholder : this.byType(type)) {
++            if (recipeholder.value().matches(inventory, world)) {
++                list.add(recipeholder);
++            }
++        }
++
++        list.sort(Comparator.comparing((recipeholder) -> recipeholder.value().getResultItem(world.registryAccess()).getDescriptionId()));
++
++        return list;
++    }// Leaf end - Remove streams to be faster
+ 
+     private <C extends Container, T extends Recipe<C>> Collection<RecipeHolder<T>> byType(RecipeType<T> type) {
+         return (Collection) this.byType.get(type); // CraftBukkit - decompile error
+@@ -174,7 +181,7 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
+ 
+     @Nullable
+     private <T extends Recipe<?>> RecipeHolder<T> byKeyTyped(RecipeType<T> type, ResourceLocation id) {
+-        RecipeHolder<?> recipeholder = (RecipeHolder) this.byName.get(id);
++        RecipeHolder<?> recipeholder = this.byName.get(id);
+ 
+         return recipeholder != null && recipeholder.value().getType().equals(type) ? (RecipeHolder) recipeholder : null; // CraftBukkit - decompile error
+     }
+@@ -193,7 +200,7 @@ public class RecipeManager extends SimpleJsonResourceReloadListener {
+ 
+     @VisibleForTesting
+     protected static RecipeHolder<?> fromJson(ResourceLocation id, JsonObject json, HolderLookup.Provider registryLookup) {
+-        Recipe<?> irecipe = (Recipe) Recipe.CODEC.parse(registryLookup.createSerializationContext(JsonOps.INSTANCE), json).getOrThrow(JsonParseException::new);
++        Recipe<?> irecipe = Recipe.CODEC.parse(registryLookup.createSerializationContext(JsonOps.INSTANCE), json).getOrThrow(JsonParseException::new);
+ 
+         return new RecipeHolder<>(id, irecipe);
+     }

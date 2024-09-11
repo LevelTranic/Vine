@@ -6,7 +6,7 @@ Subject: [PATCH] Paper PR Update Velocity natives
 Source in https://github.com/PaperMC/Paper/pull/11347
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index b93eb251d0c37840239381d8d0078a92b898ec1e..cd75c11712bc2c7b03d5e4d2537d0c23815ea5a2 100644
+index 68f55f9b542eafebd973bf1117393e5117e7a91c..e0aada5b3872989466d9b01bca39cfe68d4aff0f 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -41,7 +41,7 @@ dependencies {
