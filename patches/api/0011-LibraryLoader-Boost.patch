@@ -1,0 +1,207 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Thu, 12 Sep 2024 18:42:37 +0800
+Subject: [PATCH] LibraryLoader Boost
+
+
+diff --git a/src/main/java/io/papermc/paper/plugin/loader/library/impl/MavenLibraryResolver.java b/src/main/java/io/papermc/paper/plugin/loader/library/impl/MavenLibraryResolver.java
+index 70f352630de71f575d1aea5a3126da19a94791ab..66f29766eee1d35aa1b9bd5743dc6ea540e99a9f 100644
+--- a/src/main/java/io/papermc/paper/plugin/loader/library/impl/MavenLibraryResolver.java
++++ b/src/main/java/io/papermc/paper/plugin/loader/library/impl/MavenLibraryResolver.java
+@@ -105,7 +105,7 @@ public class MavenLibraryResolver implements ClassPathLibrary {
+      *                         dependencies from
+      */
+     public void addRepository(@NotNull RemoteRepository remoteRepository) {
+-        this.repositories.add(remoteRepository);
++        this.repositories.add(one.tranic.vine.maven.Maven.get(remoteRepository));
+     }
+ 
+     /**
+diff --git a/src/main/java/one/tranic/vine/maven/Maven.java b/src/main/java/one/tranic/vine/maven/Maven.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c0a3629f8bc3916fc07396f502473c6e822acbf5
+--- /dev/null
++++ b/src/main/java/one/tranic/vine/maven/Maven.java
+@@ -0,0 +1,155 @@
++package one.tranic.vine.maven;
++
++import it.unimi.dsi.fastutil.objects.Object2ReferenceArrayMap;
++import it.unimi.dsi.fastutil.objects.ObjectArrayList;
++import org.eclipse.aether.repository.RemoteRepository;
++import org.slf4j.LoggerFactory;
++
++import java.io.IOException;
++import java.net.HttpURLConnection;
++import java.net.URI;
++import java.net.URL;
++import java.util.List;
++import java.util.Map;
++import java.util.Objects;
++import java.util.concurrent.*;
++
++public class Maven {
++    private static final Map<String, String> mirrors = new Object2ReferenceArrayMap<>();
++    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("VineMavenBoost");
++    private static final String central = "https://repo.maven.apache.org/maven2";
++    private static final URI centralUri = URI.create(central);
++    private static String maven = "";
++
++    public static boolean isCentral(String str) {
++        try {
++            return Objects.equals(URI.create(str).getHost(), centralUri.getHost());
++        } catch (Exception e) {
++            return false;
++        }
++    }
++
++    public static boolean isCentral(RemoteRepository remoteRepository) {
++        return isCentral(remoteRepository.getUrl());
++    }
++
++    public static RemoteRepository get() {
++        if (maven.isEmpty()) {
++            ping();
++        }
++        return new RemoteRepository.Builder("central", "default", maven).build();
++    }
++
++    public static RemoteRepository get(RemoteRepository remoteRepository) {
++        if (isCentral(remoteRepository)) {
++            return new RemoteRepository.Builder("central", "default", maven).build();
++        }
++        return remoteRepository;
++    }
++
++    public static void ping() {
++        mirrors();
++        String s = System.getProperty("Maven.select");
++        if (s != null) {
++            String p = mirrors.get(s);
++            if (p != null) {
++                maven = p;
++                logger.info("The mirror {} ({}) has been selected", s, p);
++                return;
++            }
++        }
++        selectMirror();
++    }
++
++    public static String replace(String str) {
++        return Objects.equals(str, central) ? maven : str;
++    }
++
++    private static void mirrors() {
++        if (!mirrors.isEmpty()) return;
++        mirrors.put("central", "https://repo.maven.apache.org/maven2");
++        mirrors.put("google-asia", "https://maven-central-asia.storage-download.googleapis.com/maven2/");
++        mirrors.put("google-eu", "https://maven-central-eu.storage-download.googleapis.com/maven2/");
++        mirrors.put("google-us", "https://maven-central.storage-download.googleapis.com/maven2/");
++        String r = System.getProperty("Maven.central");
++        if (r != null && !r.isEmpty()) {
++            try {
++                new URI(r);
++            } catch (Exception e) {
++                return;
++            }
++            mirrors.put("user-custom-mirror", r);
++        }
++    }
++
++    private static void selectMirror() {
++        ExecutorService executor = Executors.newCachedThreadPool(Thread.ofVirtual().factory());
++        List<Future<MirrorResult>> futures = new ObjectArrayList<>();
++
++        for (Map.Entry<String, String> entry : mirrors.entrySet()) {
++            futures.add(executor.submit(() -> testMirror(entry.getKey(), entry.getValue())));
++        }
++
++        long bestTime = Long.MAX_VALUE;
++        String bestMirror = central;
++
++        if (futures.isEmpty()) {
++            executor.shutdown();
++            return;
++        }
++
++        for (Future<MirrorResult> future : futures) {
++            try {
++                MirrorResult result = future.get(4, TimeUnit.SECONDS);
++                if (result.time < bestTime) {
++                    bestTime = result.time;
++                    bestMirror = result.url;
++                }
++            } catch (TimeoutException | InterruptedException | ExecutionException e) {
++                logger.warn("Error testing mirror: {}", e.getMessage());
++            }
++        }
++
++        maven = bestMirror;
++        logger.info("The fastest mirror is selected: {} ({} ms)", bestMirror, bestTime);
++
++        executor.shutdown();
++    }
++
++    private static MirrorResult testMirror(String name, String url) {
++        long start = System.currentTimeMillis();
++        HttpURLConnection connection = null;
++        try {
++            connection = (HttpURLConnection) new URL(url).openConnection();
++            connection.setRequestMethod("GET");
++            connection.setConnectTimeout(3000);
++            connection.setReadTimeout(3000);
++            connection.connect();
++            int responseCode = connection.getResponseCode();
++            if (responseCode == 200 || responseCode == 404 || responseCode == 302 || responseCode == 301) {
++                long time = System.currentTimeMillis() - start;
++                logger.info("Mirror {} responded in {} ms", name, time);
++                return new MirrorResult(url, time);
++            } else {
++                logger.warn("Mirror {} failed with response code: {}", name, responseCode);
++            }
++        } catch (IOException e) {
++            logger.warn("Mirror {} failed to connect: {}", name, e.getMessage());
++        } finally {
++            if (connection != null) {
++                connection.disconnect();
++            }
++        }
++        return new MirrorResult(url, Long.MAX_VALUE);
++    }
++
++    private static class MirrorResult {
++        String url;
++        long time;
++
++        MirrorResult(String url, long time) {
++            this.url = url;
++            this.time = time;
++        }
++    }
++}
+diff --git a/src/main/java/org/bukkit/plugin/java/LibraryLoader.java b/src/main/java/org/bukkit/plugin/java/LibraryLoader.java
+index 97f580fccd06a8db5f592a53c8b95a7a6159adac..d161a13e2918ea22ff60d9a6363ebd1f54b443d2 100644
+--- a/src/main/java/org/bukkit/plugin/java/LibraryLoader.java
++++ b/src/main/java/org/bukkit/plugin/java/LibraryLoader.java
+@@ -6,10 +6,12 @@ import java.net.MalformedURLException;
+ import java.net.URL;
+ import java.net.URLClassLoader;
+ import java.util.ArrayList;
+-import java.util.Arrays;
++import java.util.Collections;
+ import java.util.List;
+ import java.util.logging.Level;
+ import java.util.logging.Logger;
++
++import one.tranic.vine.maven.Maven;
+ import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
+ import org.bukkit.plugin.PluginDescriptionFile;
+ import org.eclipse.aether.DefaultRepositorySystemSession;
+@@ -79,7 +81,7 @@ public class LibraryLoader
+         session.setSystemProperties( System.getProperties() );
+         session.setReadOnly();
+ 
+-        this.repositories = repository.newResolutionRepositories( session, Arrays.asList( new RemoteRepository.Builder( "central", "default", "https://repo.maven.apache.org/maven2" ).build() ) );
++        this.repositories = repository.newResolutionRepositories( session, Collections.singletonList(Maven.get()));
+     }
+ 
+     @Nullable
