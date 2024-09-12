@@ -19,10 +19,10 @@ index 70f352630de71f575d1aea5a3126da19a94791ab..66f29766eee1d35aa1b9bd5743dc6ea5
      /**
 diff --git a/src/main/java/one/tranic/vine/maven/Maven.java b/src/main/java/one/tranic/vine/maven/Maven.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..c0a3629f8bc3916fc07396f502473c6e822acbf5
+index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32f5fda8bc
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/maven/Maven.java
-@@ -0,0 +1,155 @@
+@@ -0,0 +1,160 @@
 +package one.tranic.vine.maven;
 +
 +import it.unimi.dsi.fastutil.objects.Object2ReferenceArrayMap;
@@ -43,12 +43,15 @@ index 0000000000000000000000000000000000000000..c0a3629f8bc3916fc07396f502473c6e
 +    private static final Map<String, String> mirrors = new Object2ReferenceArrayMap<>();
 +    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("VineMavenBoost");
 +    private static final String central = "https://repo.maven.apache.org/maven2";
++    private static final String central2 = "https://repo1.maven.org/maven2";
 +    private static final URI centralUri = URI.create(central);
++    private static final URI central2Uri = URI.create(central2);
 +    private static String maven = "";
 +
 +    public static boolean isCentral(String str) {
 +        try {
-+            return Objects.equals(URI.create(str).getHost(), centralUri.getHost());
++            String s = URI.create(str).getHost();
++            return Objects.equals(s, centralUri.getHost()) || Objects.equals(s, central2Uri.getHost());
 +        } catch (Exception e) {
 +            return false;
 +        }
@@ -93,6 +96,8 @@ index 0000000000000000000000000000000000000000..c0a3629f8bc3916fc07396f502473c6e
 +    private static void mirrors() {
 +        if (!mirrors.isEmpty()) return;
 +        mirrors.put("central", "https://repo.maven.apache.org/maven2");
++        mirrors.put("central1", "https://repo1.maven.org/maven2");
++        mirrors.put("redhat", "https://repository.jboss.org/nexus/content/groups/public");
 +        mirrors.put("google-asia", "https://maven-central-asia.storage-download.googleapis.com/maven2/");
 +        mirrors.put("google-eu", "https://maven-central-eu.storage-download.googleapis.com/maven2/");
 +        mirrors.put("google-us", "https://maven-central.storage-download.googleapis.com/maven2/");
