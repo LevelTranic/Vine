@@ -39,6 +39,7 @@
 ## Feature
 - Sub-regional multi-threading introduced by ShreddedPaper can better withstand a large number of dense players.
 - Builtin and the latest Kotlin dependency library.
+- MavenLibraryLoader Boost
 - Various performance optimization.
 - Support virtual threads
 - Implement secure seeds to avoid cracking.
