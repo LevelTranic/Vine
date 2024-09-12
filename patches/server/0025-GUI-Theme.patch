@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Wed, 11 Sep 2024 23:32:42 +0800
+Subject: [PATCH] GUI Theme
+
+
+diff --git a/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java b/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
+index 27d692e370e02ba4e7ba6262195ba01988918673..385129fce24ee8a567e9d24258cd6a4e2f48da59 100644
+--- a/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
++++ b/src/main/java/net/minecraft/server/gui/MinecraftServerGui.java
+@@ -91,6 +91,8 @@ public class MinecraftServerGui extends JComponent {
+ 
+     private MinecraftServerGui(DedicatedServer server) {
+         this.server = server;
++        com.github.weisj.darklaf.LafManager.setTheme(new com.github.weisj.darklaf.theme.IntelliJTheme());
++        com.github.weisj.darklaf.LafManager.install();
+         this.setPreferredSize(new Dimension(854, 480));
+         this.setLayout(new BorderLayout());
+ 
