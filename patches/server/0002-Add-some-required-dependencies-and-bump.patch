@@ -5,7 +5,7 @@ Subject: [PATCH] Add some required dependencies and bump
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..c2df91845197547f48b9c1b60c555ca772c08324 100644
+index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..cf9707dcf1bfcd9377cba28c6c8e4a2d7cf5fccc 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -27,13 +27,13 @@ dependencies {
@@ -34,7 +34,7 @@ index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..c2df91845197547f48b9c1b60c555ca7
      implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
          exclude(group="org.yaml", module="snakeyaml")
      }
-@@ -85,6 +85,25 @@ dependencies {
+@@ -85,6 +85,23 @@ dependencies {
      implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
      // Vine end
  
@@ -51,9 +51,7 @@ index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..c2df91845197547f48b9c1b60c555ca7
 +    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-windows-aarch64", version = brotli4jVersion )
 +    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-x86_64", version = brotli4jVersion )
 +    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-aarch64", version = brotli4jVersion )
-+    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-ppc64le", version = brotli4jVersion )
 +    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-riscv64", version = brotli4jVersion )
-+    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-linux-s390x", version = brotli4jVersion )
 +    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-osx-x86_64", version = brotli4jVersion )
 +    runtimeOnly ( group = "com.aayushatharva.brotli4j", name = "native-osx-aarch64", version = brotli4jVersion )
 +    // Vine end
