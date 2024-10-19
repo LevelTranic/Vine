@@ -1,0 +1,34 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: froobynooby <froobynooby@froobworld.com>
+Date: Sat, 19 Oct 2024 19:43:41 +0800
+Subject: [PATCH] PaperPR: Skip AI during inactive ticks for non-aware mobs
+
+Source in https://github.com/PaperMC/Paper/pull/10990
+
+diff --git a/src/main/java/net/minecraft/world/entity/Mob.java b/src/main/java/net/minecraft/world/entity/Mob.java
+index 36224e76d4ad4ed820ea49078a3171a0522df843..99a3f58763b353c081267890d38089024b384dfb 100644
+--- a/src/main/java/net/minecraft/world/entity/Mob.java
++++ b/src/main/java/net/minecraft/world/entity/Mob.java
+@@ -243,6 +243,9 @@ public abstract class Mob extends LivingEntity implements EquipmentUser, Targeti
+     @Override
+     public void inactiveTick() {
+         super.inactiveTick();
++        if (!(this.isEffectiveAi() && this.aware)) { // Paper: Skip AI during inactive ticks for non-aware mobs
++            return;
++        }
+         boolean isThrottled = gg.pufferfish.pufferfish.PufferfishConfig.throttleInactiveGoalSelectorTick && _pufferfish_inactiveTickDisableCounter++ % 20 != 0; // Pufferfish - throttle inactive goal selector ticking
+         if (this.goalSelector.inactiveTick(this.activatedPriority, true) && !isThrottled) { // Pufferfish - pass activated priroity // Pufferfish - throttle inactive goal selector ticking
+             this.goalSelector.tick();
+diff --git a/src/main/java/net/minecraft/world/entity/npc/Villager.java b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+index d2169c7ea32fcb3e2e183692df49dc86f572b69b..8e1a18673389d95692a8e47722a4ec4ea2219068 100644
+--- a/src/main/java/net/minecraft/world/entity/npc/Villager.java
++++ b/src/main/java/net/minecraft/world/entity/npc/Villager.java
+@@ -321,7 +321,7 @@ public class Villager extends AbstractVillager implements ReputationEventHandler
+         if (this.getUnhappyCounter() > 0) {
+             this.setUnhappyCounter(this.getUnhappyCounter() - 1);
+         }
+-        if (this.isEffectiveAi()) {
++        if (this.isEffectiveAi() && this.aware) { // Paper: Skip AI during inactive ticks for non-aware mobs
+             if (this.level().spigotConfig.tickInactiveVillagers) {
+                 this.customServerAiStep();
+             } else {
