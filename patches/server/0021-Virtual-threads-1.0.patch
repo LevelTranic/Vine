@@ -4,19 +4,6 @@ Date: Thu, 15 Aug 2024 21:42:18 +0800
 Subject: [PATCH] Virtual threads 1.0
 
 
-diff --git a/src/main/java/com/destroystokyo/paper/Metrics.java b/src/main/java/com/destroystokyo/paper/Metrics.java
-index 22c9c5ef26229c57fb27776b5a49cc77dcdbe545..d6ae8b61dd33da919fd81a11032bfe187d8caa6c 100644
---- a/src/main/java/com/destroystokyo/paper/Metrics.java
-+++ b/src/main/java/com/destroystokyo/paper/Metrics.java
-@@ -35,7 +35,7 @@ public class Metrics {
- 
-     // Executor service for requests
-     // We use an executor service because the Bukkit scheduler is affected by server lags
--    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, one.tranic.vine.util.AnyThread.getFactory());
- 
-     // The version of this bStats class
-     public static final int B_STATS_VERSION = 1;
 diff --git a/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilServicesKeyInfo.java b/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilServicesKeyInfo.java
 index 5dbaf7689363719501d9b41f9537ebd4677e32a6..370c98f9f74876ad62c1b412a79cf986f9adb441 100644
 --- a/src/main/java/com/mojang/authlib/yggdrasil/YggdrasilServicesKeyInfo.java
