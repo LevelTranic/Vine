@@ -19,15 +19,16 @@ index 70f352630de71f575d1aea5a3126da19a94791ab..66f29766eee1d35aa1b9bd5743dc6ea5
      /**
 diff --git a/src/main/java/one/tranic/vine/maven/Maven.java b/src/main/java/one/tranic/vine/maven/Maven.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32f5fda8bc
+index 0000000000000000000000000000000000000000..ecb57edc35c38a545e88e066520e3550bb103e7f
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/maven/Maven.java
-@@ -0,0 +1,160 @@
+@@ -0,0 +1,223 @@
 +package one.tranic.vine.maven;
 +
 +import it.unimi.dsi.fastutil.objects.Object2ReferenceArrayMap;
 +import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 +import org.eclipse.aether.repository.RemoteRepository;
++import org.jetbrains.annotations.NotNull;
 +import org.slf4j.LoggerFactory;
 +
 +import java.io.IOException;
@@ -39,41 +40,22 @@ index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32
 +import java.util.Objects;
 +import java.util.concurrent.*;
 +
++/**
++ * The {@code Maven} class is responsible for selecting the fastest available Maven repository mirror.
++ * It provides utility methods for determining if a repository is a central Maven repository, retrieving
++ * repository configurations, and replacing repository URLs with the selected mirror URL.
++ * <p>
++ * On initialization, it tests multiple predefined mirrors and selects the fastest one, which is then
++ * used as the default Maven repository for dependency resolution.
++ */
 +public class Maven {
-+    private static final Map<String, String> mirrors = new Object2ReferenceArrayMap<>();
-+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("VineMavenBoost");
++    private static final Object2ReferenceArrayMap<String, String> mirrors = new Object2ReferenceArrayMap<>();
++    private static final org.slf4j.Logger logger = LoggerFactory.getLogger("LibraryResolverBoost");
 +    private static final String central = "https://repo.maven.apache.org/maven2";
 +    private static final String central2 = "https://repo1.maven.org/maven2";
 +    private static final URI centralUri = URI.create(central);
 +    private static final URI central2Uri = URI.create(central2);
 +    private static String maven = "";
-+
-+    public static boolean isCentral(String str) {
-+        try {
-+            String s = URI.create(str).getHost();
-+            return Objects.equals(s, centralUri.getHost()) || Objects.equals(s, central2Uri.getHost());
-+        } catch (Exception e) {
-+            return false;
-+        }
-+    }
-+
-+    public static boolean isCentral(RemoteRepository remoteRepository) {
-+        return isCentral(remoteRepository.getUrl());
-+    }
-+
-+    public static RemoteRepository get() {
-+        if (maven.isEmpty()) {
-+            ping();
-+        }
-+        return new RemoteRepository.Builder("central", "default", maven).build();
-+    }
-+
-+    public static RemoteRepository get(RemoteRepository remoteRepository) {
-+        if (isCentral(remoteRepository)) {
-+            return new RemoteRepository.Builder("central", "default", maven).build();
-+        }
-+        return remoteRepository;
-+    }
 +
 +    public static void ping() {
 +        mirrors();
@@ -87,10 +69,6 @@ index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32
 +            }
 +        }
 +        selectMirror();
-+    }
-+
-+    public static String replace(String str) {
-+        return Objects.equals(str, central) ? maven : str;
 +    }
 +
 +    private static void mirrors() {
@@ -112,18 +90,90 @@ index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32
 +        }
 +    }
 +
-+    private static void selectMirror() {
-+        ExecutorService executor = Executors.newCachedThreadPool(Thread.ofVirtual().factory());
-+        List<Future<MirrorResult>> futures = new ObjectArrayList<>();
++    /**
++     * Checks if a given URL string belongs to the central Maven repository.
++     *
++     * <pre>{@code
++     * boolean b = Boost.isCentral("https://repo.maven.apache.org/maven2");
++     * }</pre>
++     *
++     * @param str the repository URL to check
++     * @return {@code true} if the URL matches the central Maven repository, {@code false} otherwise
++     */
++    public static boolean isCentral(@NotNull String str) {
++        try {
++            String s = URI.create(str).getHost();
++            return Objects.equals(s, centralUri.getHost()) || Objects.equals(s, central2Uri.getHost());
++        } catch (Exception e) {
++            return false;
++        }
++    }
 +
++    /**
++     * Checks if a given {@link RemoteRepository} belongs to the central Maven repository.
++     *
++     * @param remoteRepository the repository to check
++     * @return {@code true} if the repository matches the central Maven repository, {@code false} otherwise
++     */
++    public static boolean isCentral(@NotNull RemoteRepository remoteRepository) {
++        return isCentral(remoteRepository.getUrl());
++    }
++
++    /**
++     * Retrieves a {@link RemoteRepository} instance for the selected fastest Maven repository mirror.
++     *
++     * @return a {@link RemoteRepository} pointing to the fastest selected mirror
++     */
++    public static RemoteRepository get() {
++        if (maven.isEmpty()) ping();
++        return new RemoteRepository.Builder("central", "default", maven).build();
++    }
++
++    /**
++     * Replaces a central repository URL with the selected fastest mirror URL, if applicable.
++     *
++     * @param remoteRepository the repository whose URL is to be replaced
++     * @return a new {@link RemoteRepository} with the mirror URL if the repository is central,
++     * or the original repository otherwise
++     */
++    public static RemoteRepository get(RemoteRepository remoteRepository) {
++        if (isCentral(remoteRepository)) return get();
++        return remoteRepository;
++    }
++
++    /**
++     * Replaces the provided repository URL string with the selected fastest mirror URL
++     * if the URL matches the central Maven repository.
++     *
++     * <pre>{@code
++     * boolean b = Boost.replace("https://repo.maven.apache.org/maven2");
++     * }</pre>
++     *
++     * @param str the repository URL to potentially replace, not be {@code null}.
++     * @return the mirror URL if the repository is central, or the original URL otherwise, not be {@code null}.
++     */
++    public static @NotNull String replace(@NotNull String str) {
++        return Objects.equals(str, central) ? maven : str;
++    }
++
++    /**
++     * Selects the fastest available mirror from the predefined list by testing their response times.
++     * The mirror with the shortest response time is selected as the default Maven repository.
++     */
++    private static void selectMirror() {
++        if (!Objects.equals(maven, "")) return;
++        ExecutorService executor = Executors.newCachedThreadPool(Thread.ofVirtual().factory());
++        ObjectArrayList<Future<MirrorResult>> futures = new ObjectArrayList<>();
 +        for (Map.Entry<String, String> entry : mirrors.entrySet()) {
 +            futures.add(executor.submit(() -> testMirror(entry.getKey(), entry.getValue())));
 +        }
 +
 +        long bestTime = Long.MAX_VALUE;
 +        String bestMirror = central;
++        String bestMirrorName = "central";
 +
 +        if (futures.isEmpty()) {
++            maven = central;
 +            executor.shutdown();
 +            return;
 +        }
@@ -134,6 +184,7 @@ index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32
 +                if (result.time < bestTime) {
 +                    bestTime = result.time;
 +                    bestMirror = result.url;
++                    bestMirrorName = result.name;
 +                }
 +            } catch (TimeoutException | InterruptedException | ExecutionException e) {
 +                logger.warn("Error testing mirror: {}", e.getMessage());
@@ -141,12 +192,19 @@ index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32
 +        }
 +
 +        maven = bestMirror;
-+        logger.info("The fastest mirror is selected: {} ({} ms)", bestMirror, bestTime);
++        logger.info("The fastest mirror is selected: {}: {} ({} ms)", bestMirrorName, bestMirror, bestTime);
 +
 +        executor.shutdown();
 +    }
 +
-+    private static MirrorResult testMirror(String name, String url) {
++    /**
++     * Tests the response time of a given mirror by sending a GET request and measuring the round-trip time.
++     *
++     * @param name the name of the mirror being tested, not be {@code null}.
++     * @param url  the URL of the mirror being tested, not be {@code null}.
++     * @return a {@link MirrorResult} object containing the mirror URL and the response time, not be {@code null}.
++     */
++    private static @NotNull MirrorResult testMirror(@NotNull String name, @NotNull String url) {
 +        long start = System.currentTimeMillis();
 +        HttpURLConnection connection = null;
 +        try {
@@ -159,7 +217,7 @@ index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32
 +            if (responseCode == 200 || responseCode == 404 || responseCode == 302 || responseCode == 301) {
 +                long time = System.currentTimeMillis() - start;
 +                logger.info("Mirror {} responded in {} ms", name, time);
-+                return new MirrorResult(url, time);
++                return new MirrorResult(url, name, time);
 +            } else {
 +                logger.warn("Mirror {} failed with response code: {}", name, responseCode);
 +            }
@@ -170,15 +228,20 @@ index 0000000000000000000000000000000000000000..008d6eb0419f100f33b2951a83dfec32
 +                connection.disconnect();
 +            }
 +        }
-+        return new MirrorResult(url, Long.MAX_VALUE);
++        return new MirrorResult(url, name, Long.MAX_VALUE);
 +    }
 +
++    /**
++     * A simple class to store the result of a mirror test, including the URL of the mirror and its response time.
++     */
 +    private static class MirrorResult {
 +        String url;
++        String name;
 +        long time;
 +
-+        MirrorResult(String url, long time) {
++        MirrorResult(String url, String name, long time) {
 +            this.url = url;
++            this.name = name;
 +            this.time = time;
 +        }
 +    }
