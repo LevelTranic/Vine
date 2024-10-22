@@ -1,0 +1,23 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 22 Oct 2024 11:51:47 +0800
+Subject: [PATCH] Kiterino: Allow explosions underwater (/fluids)
+
+
+diff --git a/src/main/java/net/minecraft/world/level/ExplosionDamageCalculator.java b/src/main/java/net/minecraft/world/level/ExplosionDamageCalculator.java
+index 1eb259b48bcab6172c15546744eea410c6a3e1fe..b1c70b2ee0863f9b221241347d0c625d14f0a7b1 100644
+--- a/src/main/java/net/minecraft/world/level/ExplosionDamageCalculator.java
++++ b/src/main/java/net/minecraft/world/level/ExplosionDamageCalculator.java
+@@ -9,6 +9,12 @@ import net.minecraft.world.phys.Vec3;
+ 
+ public class ExplosionDamageCalculator {
+     public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
++        if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
++            // Kiterino start - Allow explosions underwater (/fluids)
++            if (blockState.isAir()) return Optional.empty();
++            if (!fluidState.isEmpty()) return Optional.empty();
++            return Optional.of(blockState.getBlock().getExplosionResistance());
++        } // Kiterino end - Allow explosions underwater (/fluids)
+         return blockState.isAir() && fluidState.isEmpty()
+             ? Optional.empty()
+             : Optional.of(Math.max(blockState.getBlock().getExplosionResistance(), fluidState.getExplosionResistance()));

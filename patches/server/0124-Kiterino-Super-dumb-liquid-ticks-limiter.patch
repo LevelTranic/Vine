@@ -1,0 +1,25 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 22 Oct 2024 11:49:35 +0800
+Subject: [PATCH] Kiterino: Super dumb liquid ticks limiter
+
+
+diff --git a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
+index cf45df1f3e3e5cc22c8b48a0a96e776de6ad0718..2295996241aa827542c6bc51942e6b359e953505 100644
+--- a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
++++ b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
+@@ -835,7 +835,14 @@ public abstract class FlowingFluid extends Fluid {
+                 // CraftBukkit end
+                 world.scheduleTick(pos, fluid1.getType(), i);
+                 world.updateNeighborsAt(pos, iblockdata.getBlock());
++            } // Kiterino start - Super dumb liquid physics limiter to reduce the load
++            else if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
++                if (org.bukkit.Bukkit.isLagging() || org.bukkit.Bukkit.getCurrentTick() % 20 > 12) {
++                    world.scheduleTick(pos, this, 9);
++                    return;
++                }
+             }
++            // Kiterino end
+         }
+ 
+         this.spread(world, pos, state);

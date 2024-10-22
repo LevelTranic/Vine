@@ -1,0 +1,61 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 22 Oct 2024 11:45:16 +0800
+Subject: [PATCH] Kiterino: Preserve waterfalls
+
+Makes waterfalls still somewhat possible with the custom liquid physics
+
+diff --git a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
+index 9780df3f4cacb305ee6cb95f1c3bcbf9bfc4489d..cf45df1f3e3e5cc22c8b48a0a96e776de6ad0718 100644
+--- a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
++++ b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
+@@ -433,6 +433,8 @@ public abstract class FlowingFluid extends Fluid {
+     }
+ 
+     private static final Direction[] HORIZONTAL_DIRECTIONS = new Direction[] {Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST};
++    private static final Direction[] NORTH_SOUTH = new Direction[] {Direction.NORTH, Direction.SOUTH};
++    private static final Direction[] EAST_WEST = new Direction[] {Direction.EAST, Direction.WEST};
+     public static final Direction[] ALLOWED_SOURCE_DIRECTIONS = new Direction[] {Direction.DOWN, Direction.NORTH, Direction.SOUTH, Direction.WEST, Direction.EAST, Direction.UP};
+     public static java.util.Optional<BlockPos> findSource(
+             LevelAccessor world,
+@@ -773,6 +775,12 @@ public abstract class FlowingFluid extends Fluid {
+     private boolean canFlowDownIntoStair(BlockState state) {
+         return state.getValue(net.minecraft.world.level.block.StairBlock.HALF) == net.minecraft.world.level.block.state.properties.Half.BOTTOM;
+     }
++
++    private boolean isWaterfall(Level world, BlockPos pos) {
++        if (world.getFluidState(pos).getAmount() != 1) return false;
++        BlockPos below = pos.below();
++        return world.getBlockState(below).isRedstoneConductor(world, below);
++    }
+     // Vine end
+ 
+     protected abstract int getDropOff(LevelReader world);
+@@ -787,7 +795,26 @@ public abstract class FlowingFluid extends Fluid {
+             FluidState fluid1 = this.getNewLiquid(world, pos, world.getBlockState(pos));
+             int i = this.getSpreadDelay(world, pos, state, fluid1);
+ 
+-            if (fluid1.isEmpty()) {
++            if (fluid1.isEmpty() && one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
++                // Kiterino start
++                if (state.getAmount() == 1 && world.getFluidState(pos.below()).getAmount() == 8) {
++                    int waterfalls = 0;
++                    for (Direction dir1 : NORTH_SOUTH) {
++                        BlockPos relative = pos.relative(dir1);
++                        if (isWaterfall(world, relative)) waterfalls++;
++                        if (waterfalls >= 2) break;
++                        for (Direction dir2 : EAST_WEST) {
++                            if (isWaterfall(world, pos.relative(dir2))) waterfalls++;
++                            if (waterfalls >= 2) break;
++                            if (isWaterfall(world, relative.relative(dir2))) waterfalls++;
++                            if (waterfalls >= 2) break;
++                        }
++                    }
++                    if (waterfalls >= 2) {
++                        return;
++                    }
++                }
++                // Kiterino end
+                 state = fluid1;
+                 // CraftBukkit start
+                 FluidLevelChangeEvent event = CraftEventFactory.callFluidLevelChangeEvent(world, pos, Blocks.AIR.defaultBlockState());
