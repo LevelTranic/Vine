@@ -6,10 +6,10 @@ Subject: [PATCH] Vine Config
 
 diff --git a/src/main/java/one/tranic/vine/config/VineConfig.java b/src/main/java/one/tranic/vine/config/VineConfig.java
 new file mode 100644
-index 0000000000000000000000000000000000000000..fb5b6306efe79a7f7d5ba2fc8e4200997fd09621
+index 0000000000000000000000000000000000000000..f10bcb077e93b4f9d491780de0d546c572ec0d07
 --- /dev/null
 +++ b/src/main/java/one/tranic/vine/config/VineConfig.java
-@@ -0,0 +1,149 @@
+@@ -0,0 +1,154 @@
 +package one.tranic.vine.config;
 +
 +import one.tranic.vine.region.Compression;
@@ -47,7 +47,6 @@ index 0000000000000000000000000000000000000000..fb5b6306efe79a7f7d5ba2fc8e420099
 +        // If the player is blocked on the top of the player's head, he will not try to rebirth the player on the ceiling.
 +        public static boolean disableRespawnCeiling = false;
 +        public static boolean flattenTriangularDistribution = false;
-+        public static boolean liquidPhysics = false;
 +        /**
 +         * Switch to a 1024-bit secure seed to protect it from being cracked.
 +         * Destroy the ambitions of those cheaters.
@@ -71,6 +70,12 @@ index 0000000000000000000000000000000000000000..fb5b6306efe79a7f7d5ba2fc8e420099
 +            public static boolean primedTNT = false;
 +            public static boolean fallingBlock = false;
 +            public static boolean fireworks = false;
++        }
++
++        public static class liquidPhysics {
++            public static boolean base = false;
++            // Allow explosions underwater
++            public static boolean aeu = false;
 +        }
 +
 +        public static class Region {

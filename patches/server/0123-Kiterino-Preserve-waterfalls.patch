@@ -6,7 +6,7 @@ Subject: [PATCH] Kiterino: Preserve waterfalls
 Makes waterfalls still somewhat possible with the custom liquid physics
 
 diff --git a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
-index 9780df3f4cacb305ee6cb95f1c3bcbf9bfc4489d..cf45df1f3e3e5cc22c8b48a0a96e776de6ad0718 100644
+index e413226becf02d3a710e1d79a28e4074cb27e159..242c529c30e03484ce8da6b1929e3428c2b6772d 100644
 --- a/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
 +++ b/src/main/java/net/minecraft/world/level/material/FlowingFluid.java
 @@ -433,6 +433,8 @@ public abstract class FlowingFluid extends Fluid {
@@ -31,28 +31,28 @@ index 9780df3f4cacb305ee6cb95f1c3bcbf9bfc4489d..cf45df1f3e3e5cc22c8b48a0a96e776d
      // Vine end
  
      protected abstract int getDropOff(LevelReader world);
-@@ -787,7 +795,26 @@ public abstract class FlowingFluid extends Fluid {
-             FluidState fluid1 = this.getNewLiquid(world, pos, world.getBlockState(pos));
+@@ -788,6 +796,27 @@ public abstract class FlowingFluid extends Fluid {
              int i = this.getSpreadDelay(world, pos, state, fluid1);
  
--            if (fluid1.isEmpty()) {
-+            if (fluid1.isEmpty() && one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
-+                // Kiterino start
-+                if (state.getAmount() == 1 && world.getFluidState(pos.below()).getAmount() == 8) {
-+                    int waterfalls = 0;
-+                    for (Direction dir1 : NORTH_SOUTH) {
-+                        BlockPos relative = pos.relative(dir1);
-+                        if (isWaterfall(world, relative)) waterfalls++;
-+                        if (waterfalls >= 2) break;
-+                        for (Direction dir2 : EAST_WEST) {
-+                            if (isWaterfall(world, pos.relative(dir2))) waterfalls++;
+             if (fluid1.isEmpty()) {
++                if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics.base) {
++                    // Kiterino start
++                    if (state.getAmount() == 1 && world.getFluidState(pos.below()).getAmount() == 8) {
++                        int waterfalls = 0;
++                        for (Direction dir1 : NORTH_SOUTH) {
++                            BlockPos relative = pos.relative(dir1);
++                            if (isWaterfall(world, relative)) waterfalls++;
 +                            if (waterfalls >= 2) break;
-+                            if (isWaterfall(world, relative.relative(dir2))) waterfalls++;
-+                            if (waterfalls >= 2) break;
++                            for (Direction dir2 : EAST_WEST) {
++                                if (isWaterfall(world, pos.relative(dir2))) waterfalls++;
++                                if (waterfalls >= 2) break;
++                                if (isWaterfall(world, relative.relative(dir2))) waterfalls++;
++                                if (waterfalls >= 2) break;
++                            }
 +                        }
-+                    }
-+                    if (waterfalls >= 2) {
-+                        return;
++                        if (waterfalls >= 2) {
++                            return;
++                        }
 +                    }
 +                }
 +                // Kiterino end

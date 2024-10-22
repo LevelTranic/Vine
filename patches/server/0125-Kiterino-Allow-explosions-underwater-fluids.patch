@@ -5,14 +5,14 @@ Subject: [PATCH] Kiterino: Allow explosions underwater (/fluids)
 
 
 diff --git a/src/main/java/net/minecraft/world/level/ExplosionDamageCalculator.java b/src/main/java/net/minecraft/world/level/ExplosionDamageCalculator.java
-index 1eb259b48bcab6172c15546744eea410c6a3e1fe..b1c70b2ee0863f9b221241347d0c625d14f0a7b1 100644
+index 1eb259b48bcab6172c15546744eea410c6a3e1fe..c2df1bd45bcb637c9bd40e064beb44b6189a0d47 100644
 --- a/src/main/java/net/minecraft/world/level/ExplosionDamageCalculator.java
 +++ b/src/main/java/net/minecraft/world/level/ExplosionDamageCalculator.java
 @@ -9,6 +9,12 @@ import net.minecraft.world.phys.Vec3;
  
  public class ExplosionDamageCalculator {
      public Optional<Float> getBlockExplosionResistance(Explosion explosion, BlockGetter world, BlockPos pos, BlockState blockState, FluidState fluidState) {
-+        if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics) {
++        if (one.tranic.vine.config.VineConfig.Feature.liquidPhysics.aeu) {
 +            // Kiterino start - Allow explosions underwater (/fluids)
 +            if (blockState.isAir()) return Optional.empty();
 +            if (!fluidState.isEmpty()) return Optional.empty();

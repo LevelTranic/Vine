@@ -37,6 +37,34 @@ index 0000000000000000000000000000000000000000..657642f146baea146e6b2274052eb76a
 +    }
 +}
 \ No newline at end of file
+diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/LiquidPhysics.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/LiquidPhysics.kt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3e1b0a8928b6703fcaffef38476a66e090650841
+--- /dev/null
++++ b/src/main/kotlin/one/tranic/vine/config/module/feature/LiquidPhysics.kt
+@@ -0,0 +1,21 @@
++package one.tranic.vine.config.module.feature
++
++import one.tranic.vine.config.VineConfig.Feature
++import one.tranic.vine.config.impl.ConfigImpl
++import one.tranic.vine.config.util.ConfigHelper
++
++object LiquidPhysics : ConfigImpl, ConfigHelper() {
++    private const val BASEPATH = "feature.liquid-physics"
++    override fun default() {
++        addDefault("$BASEPATH.base", false)
++        addDefault("$BASEPATH.aeu", false, "Allow explosions to destroy fluids")
++        addComment(BASEPATH, "The new liquid physics system may affect some mechanisms.")
++    }
++
++    override fun load() {
++        Feature.liquidPhysics.base = getBoolean("$BASEPATH.base")
++        Feature.liquidPhysics.aeu = getBoolean("$BASEPATH.aeu")
++    }
++
++
++}
+\ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/PlayerProfile.kt
 new file mode 100644
 index 0000000000000000000000000000000000000000..4c9654fd67f8b68a30af044b0886e146412cf34b
@@ -161,10 +189,10 @@ index 0000000000000000000000000000000000000000..0beda6c4679b93cdde58c58cd5b69e86
 \ No newline at end of file
 diff --git a/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
 new file mode 100644
-index 0000000000000000000000000000000000000000..782e236848d0d684750f152b28df1ef145227b54
+index 0000000000000000000000000000000000000000..7853408d6788116deb8822721c325dc9f958b63c
 --- /dev/null
 +++ b/src/main/kotlin/one/tranic/vine/config/module/feature/Value.kt
-@@ -0,0 +1,59 @@
+@@ -0,0 +1,57 @@
 +package one.tranic.vine.config.module.feature
 +
 +import one.tranic.vine.config.VineConfig.Feature
@@ -193,7 +221,6 @@ index 0000000000000000000000000000000000000000..782e236848d0d684750f152b28df1ef1
 +                "With that edge cases are more likely to happen"
 +            )
 +        )
-+        addDefault("feature.liquid-physics", false, "The new liquid physics system may affect some mechanisms.")
 +        addDefault(
 +            "feature.secure-seed", false, listOf(
 +                "Changes the seed from 64bit to 1024bit, this will strictly secure your seed,",
@@ -211,7 +238,6 @@ index 0000000000000000000000000000000000000000..782e236848d0d684750f152b28df1ef1
 +        Feature.disableSpark = getBoolean("feature.disable-spark")
 +        Feature.disableRespawnCeiling = getBoolean("feature.disable-respawn-ceiling")
 +        Feature.flattenTriangularDistribution = getBoolean("feature.flatten-triangular-distribution")
-+        Feature.liquidPhysics = getBoolean("feature.liquid-physics")
 +        getBoolean("feature.secure-seed") {
 +            if (Locker.secureSeed == null) {
 +                Feature.secureSeed = it

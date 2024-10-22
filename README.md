@@ -49,9 +49,6 @@
 - And some fixes from various places.
 <br />
 
-## Compatibility
-- `CoreProtect` is incompatible with `feature.liquid-physics` (Generates an error, but does not cause the server to crash)
-
 ## Benchmark
 I don't know
 
