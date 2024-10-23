@@ -5,7 +5,7 @@ Subject: [PATCH] Kotlin api
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index ab1116a3abbce6c3c5a6fb484a00530291fd0153..f60e269d861a157798ee46e730a46f83bc6a82a0 100644
+index ab1116a3abbce6c3c5a6fb484a00530291fd0153..7cb844b49caa3b98f3fefcc3bb90ce51780adfa0 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -58,6 +58,16 @@ dependencies {
@@ -13,13 +13,13 @@ index ab1116a3abbce6c3c5a6fb484a00530291fd0153..f60e269d861a157798ee46e730a46f83
      // Paper end
  
 +    // Vine start
-+    api("org.jetbrains.kotlin:kotlin-stdlib:2.0.20")
-+    api("org.jetbrains.kotlin:kotlin-reflect:2.0.20")
-+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
-+    api("org.jetbrains.kotlinx:kotlinx-io-core:0.5.2")
-+    api("org.jetbrains.kotlinx:atomicfu:0.25.0")
-+    api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.2")
-+    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
++    api("org.jetbrains.kotlin:kotlin-stdlib:2.0.21")
++    api("org.jetbrains.kotlin:kotlin-reflect:2.0.21")
++    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
++    api("org.jetbrains.kotlinx:kotlinx-io-core:0.5.4")
++    api("org.jetbrains.kotlinx:atomicfu:0.26.0")
++    api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.7.3")
++    api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
 +    // Vine end
 +
      api("org.apache.maven:maven-resolver-provider:3.9.6") // Paper - make API dependency for Paper Plugins
