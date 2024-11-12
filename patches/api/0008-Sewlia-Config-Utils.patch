@@ -1,0 +1,104 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 12 Nov 2024 22:17:02 +0800
+Subject: [PATCH] Sewlia: Config Utils
+
+
+diff --git a/src/main/java/one/tranic/sewlia/config/annotation/Comment.java b/src/main/java/one/tranic/sewlia/config/annotation/Comment.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..7c826a89f2076626393a10b925ff4031c652d149
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/annotation/Comment.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.annotation;
++
++import org.jetbrains.annotations.NotNull;
++
++import java.lang.annotation.ElementType;
++import java.lang.annotation.Retention;
++import java.lang.annotation.RetentionPolicy;
++import java.lang.annotation.Target;
++
++@Retention(RetentionPolicy.RUNTIME)
++@Target(ElementType.FIELD)
++public @interface Comment {
++    @NotNull String value();
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/annotation/Comments.java b/src/main/java/one/tranic/sewlia/config/annotation/Comments.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..86047fca0abb3ae1b47f5194e413381d5d4c9ea1
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/annotation/Comments.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.annotation;
++
++import org.jetbrains.annotations.NotNull;
++
++import java.lang.annotation.ElementType;
++import java.lang.annotation.Retention;
++import java.lang.annotation.RetentionPolicy;
++import java.lang.annotation.Target;
++
++@Retention(RetentionPolicy.RUNTIME)
++@Target(ElementType.FIELD)
++public @interface Comments {
++    @NotNull String[] value();
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/annotation/DisableReload.java b/src/main/java/one/tranic/sewlia/config/annotation/DisableReload.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c202409af9be89b6c5da0fb6c6e1f535ae90f675
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/annotation/DisableReload.java
+@@ -0,0 +1,11 @@
++package one.tranic.sewlia.config.annotation;
++
++import java.lang.annotation.ElementType;
++import java.lang.annotation.Retention;
++import java.lang.annotation.RetentionPolicy;
++import java.lang.annotation.Target;
++
++@Retention(RetentionPolicy.RUNTIME)
++@Target(ElementType.FIELD)
++public @interface DisableReload {
++}
+\ No newline at end of file
+diff --git a/src/main/java/one/tranic/sewlia/config/annotation/InlineComment.java b/src/main/java/one/tranic/sewlia/config/annotation/InlineComment.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..ace252d2216952f464bec812a89a16677e53ca34
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/annotation/InlineComment.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.annotation;
++
++import org.jetbrains.annotations.NotNull;
++
++import java.lang.annotation.ElementType;
++import java.lang.annotation.Retention;
++import java.lang.annotation.RetentionPolicy;
++import java.lang.annotation.Target;
++
++@Retention(RetentionPolicy.RUNTIME)
++@Target(ElementType.FIELD)
++public @interface InlineComment {
++    @NotNull String value();
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/annotation/InlineComments.java b/src/main/java/one/tranic/sewlia/config/annotation/InlineComments.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a48348c7847602a19a02b56557d5934990802f1e
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/annotation/InlineComments.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.annotation;
++
++import org.jetbrains.annotations.NotNull;
++
++import java.lang.annotation.ElementType;
++import java.lang.annotation.Retention;
++import java.lang.annotation.RetentionPolicy;
++import java.lang.annotation.Target;
++
++@Retention(RetentionPolicy.RUNTIME)
++@Target(ElementType.FIELD)
++public @interface InlineComments {
++    @NotNull String[] value();
++}

@@ -1,0 +1,1168 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 12 Nov 2024 22:23:26 +0800
+Subject: [PATCH] Vine Config v2
+
+
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/DisableRespawnCeiling.java b/src/main/java/one/tranic/sewlia/config/mod/feature/DisableRespawnCeiling.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..9072bccd0bc5f5590d72c5bf14f2d6635410a0eb
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/DisableRespawnCeiling.java
+@@ -0,0 +1,10 @@
++package one.tranic.sewlia.config.mod.feature;
++
++import one.tranic.sewlia.config.annotation.Comments;
++
++public class DisableRespawnCeiling {
++    @Comments({"If the player is blocked on the top of the player's head, he will not try to rebirth ",
++            "the player on the ceiling.",
++            "This is suitable for those servers with ceilings."})
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/DisableSpark.java b/src/main/java/one/tranic/sewlia/config/mod/feature/DisableSpark.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a21a695b0018b5a7d70d9a9f7e4e8b2de76bc494
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/DisableSpark.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.feature;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class DisableSpark {
++    @DisableReload
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/FlattenTriangularDistribution.java b/src/main/java/one/tranic/sewlia/config/mod/feature/FlattenTriangularDistribution.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..f29ef1158f1465536f1c15577e5396ededca7b44
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/FlattenTriangularDistribution.java
+@@ -0,0 +1,9 @@
++package one.tranic.sewlia.config.mod.feature;
++
++import one.tranic.sewlia.config.annotation.Comments;
++
++public class FlattenTriangularDistribution {
++    @Comments({"Change all triangle distribution in Minecraft randomizers into uniform distribution",
++            "With that edge cases are more likely to happen"})
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/ZeroTickPlants.java b/src/main/java/one/tranic/sewlia/config/mod/feature/ZeroTickPlants.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..0dcf90a1f2d08bf57cdfc8e64cbed90c1edfcfaa
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/ZeroTickPlants.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.feature;
++
++public class ZeroTickPlants {
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/FallingBlock.java b/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/FallingBlock.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..165532ee51fe816af51e83733cc62d74be22c261
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/FallingBlock.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.feature.dont_save_entity;
++
++public class FallingBlock {
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/Fireworks.java b/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/Fireworks.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae23f0c09c360fe934c666d8117591a2e09c878f
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/Fireworks.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.feature.dont_save_entity;
++
++public class Fireworks {
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/PrimedTnt.java b/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/PrimedTnt.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..15a16a05e2590ab92a3633235bffc579e920795f
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/dont_save_entity/PrimedTnt.java
+@@ -0,0 +1,10 @@
++package one.tranic.sewlia.config.mod.feature.dont_save_entity;
++
++import one.tranic.sewlia.config.annotation.Comments;
++
++public class PrimedTnt {
++    @Comments({"Disable save primed tnt on chunk unloads.",
++            "Useful for redstone server, can prevent machine be exploded by TNT,",
++            "when player disconnected caused by Internet issue."})
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/hopper/VanillaMode.java b/src/main/java/one/tranic/sewlia/config/mod/feature/hopper/VanillaMode.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a7a4e6a086316816229073cb10d626b7c4b17491
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/hopper/VanillaMode.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.feature.hopper;
++
++public class VanillaMode {
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/liquid_physics/Aeu.java b/src/main/java/one/tranic/sewlia/config/mod/feature/liquid_physics/Aeu.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..5e833d6e3f1526b498f403a6cc64ed8119fe3379
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/liquid_physics/Aeu.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.feature.liquid_physics;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class Aeu {
++    @Comment("Allow explosions to destroy fluids")
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/liquid_physics/Base.java b/src/main/java/one/tranic/sewlia/config/mod/feature/liquid_physics/Base.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..71f748c33894d244977b59bddd257b4cc9e12be8
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/liquid_physics/Base.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.feature.liquid_physics;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class Base {
++    @Comment("The new liquid physics system may affect some mechanisms.")
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/secure_seed/Enable.java b/src/main/java/one/tranic/sewlia/config/mod/feature/secure_seed/Enable.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..22ce9f802a88da2c65b3e9f27a024cf37ad7c9bf
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/secure_seed/Enable.java
+@@ -0,0 +1,11 @@
++package one.tranic.sewlia.config.mod.feature.secure_seed;
++
++import one.tranic.sewlia.config.annotation.Comments;
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class Enable {
++    @DisableReload
++    @Comments({"Rejected possible hacking attempts by upgrading the world seed generator to 1024-bit.",
++            "You must delete the existing map before you can toggle it on or off."})
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/secure_seed/SecureRandom.java b/src/main/java/one/tranic/sewlia/config/mod/feature/secure_seed/SecureRandom.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e92b64a6680ae33dd34cd0dee9be3b81f58d8d74
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/secure_seed/SecureRandom.java
+@@ -0,0 +1,10 @@
++package one.tranic.sewlia.config.mod.feature.secure_seed;
++
++import one.tranic.sewlia.config.annotation.Comment;
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class SecureRandom {
++    @Comment("Whether to enable the secure RNG generator in secure seed operations, at the expense of some performance.")
++    @DisableReload
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/AsyncScheduler.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/AsyncScheduler.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa69e4abc7780f721b2b156d8e3165cfdca03620
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/AsyncScheduler.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.bukkit;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class AsyncScheduler {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/CraftScheduler.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/CraftScheduler.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..b1d544475ea86d7035bbffb3dd3d92f6d850fb1f
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/CraftScheduler.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.bukkit;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class CraftScheduler {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/ServerMain.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/ServerMain.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..7e23ddb5b13355aa5728ce80dfd001247e09db8d
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/bukkit/ServerMain.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.bukkit;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class ServerMain {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable runnable, final String name) {
++        return value ? Thread.ofVirtual().name(name).unstarted(runnable) : new Thread(runnable, name);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/Client.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/Client.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..cde297f3c3ce4bf7b98ec4a9310fdb98ca83c0ea
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/Client.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.chase;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class Client {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable runnable, final String name) {
++        return value ? Thread.ofVirtual().name(name).unstarted(runnable) : new Thread(runnable, name);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/ServerAcceptor.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/ServerAcceptor.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1b82eaf05d07c25189f2b7cf88d1b35ec841467c
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/ServerAcceptor.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.chase;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class ServerAcceptor {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable runnable, final String name) {
++        return value ? Thread.ofVirtual().name(name).unstarted(runnable) : new Thread(runnable, name);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/ServerSender.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/ServerSender.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1e5ebedb1e5d4a01a3c82933c292064da740615e
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/chase/ServerSender.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.chase;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class ServerSender {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable runnable, final String name) {
++        return value ? Thread.ofVirtual().name(name).unstarted(runnable) : new Thread(runnable, name);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/folia/AsyncScheduler.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/folia/AsyncScheduler.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..448760cfc9f70ea7e1bda12d6fa7841d9910f9bf
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/folia/AsyncScheduler.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.folia;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class AsyncScheduler {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable runnable) {
++        return value ? Thread.ofVirtual().unstarted(runnable) : new Thread(runnable);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/AsyncChat.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/AsyncChat.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..854534a080742b46a1293f98607f5d69b8e71467
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/AsyncChat.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class AsyncChat {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/AsyncDebug.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/AsyncDebug.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..6005d96b0c3a7f26f55d95dc29c0655a06707973
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/AsyncDebug.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class AsyncDebug {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable r) {
++        return value ? Thread.ofVirtual().unstarted(r) : new Thread(r);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Console.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Console.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..b8e0b5075e990ad74ec16165aebad0d8bef31860
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Console.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class Console {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final String name, final Runnable r) {
++        return value ? Thread.ofVirtual().name(name).unstarted(r) : new Thread(r, name);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Datafixer.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Datafixer.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..151af73dd502aa89b02bb828aedd438722c2369f
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Datafixer.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class Datafixer {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Gui.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Gui.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..f4deb7fb7987f0d94599f1e790ed8fadaa621e12
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/Gui.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class Gui {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable r) {
++        return value ? Thread.ofVirtual().unstarted(r) : new Thread(r);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/NamedThread.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/NamedThread.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..b2d3d47ea7b458b418c600a532d4dd77306a65d2
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/NamedThread.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++
++public class NamedThread {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(@Nullable ThreadGroup group, Runnable task, @NotNull String name, long stackSize) {
++        return value ? Thread.ofVirtual().name(name).unstarted(task) : new Thread(group, task, name, stackSize);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/ServerWatchdog.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/ServerWatchdog.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..4334821efb7a509c4672cf55e791525fccef3788
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/ServerWatchdog.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class ServerWatchdog {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable r) {
++        return value ? Thread.ofVirtual().unstarted(r) : new Thread(r);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/DimensionData.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/DimensionData.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..4571dc1fe87ff932f81636b34da308d5496b8b6b
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/DimensionData.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.io;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class DimensionData {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/Noise.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/Noise.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..229cced655e7de62c68eb95c2d17ee0d0acec912
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/Noise.java
+@@ -0,0 +1,10 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.io;
++
++import one.tranic.sewlia.config.annotation.Comment;
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class Noise {
++    @DisableReload
++    @Comment("Scheduling noise generation to virtual threads may lead to some unpredictable consequences, so enable it with caution.")
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/Worker.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/Worker.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d22f244bf1ef047b18c6e3e6581277c4c19f00d4
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/Worker.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.io;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class Worker {
++    @DisableReload
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/WorldUpgrader.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/WorldUpgrader.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a66347a61c952a8392eab167e9ad5af39659e54
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/io/WorldUpgrader.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.io;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class WorldUpgrader {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/ChatFilterClient.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/ChatFilterClient.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..3df1bc7e5703e1805b086cd39595ec46de64ccc4
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/ChatFilterClient.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.network;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class ChatFilterClient {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable runnable) {
++        return value ? Thread.ofVirtual().unstarted(runnable) : new Thread(runnable);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/Download.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/Download.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d8bdae9408fc366e8cedb9d94a445326d455b754
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/Download.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.network;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class Download {
++    @DisableReload
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/ProfileLookup.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/ProfileLookup.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..94a97342f21b2449617e43472836cfb20e78f76a
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/ProfileLookup.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.network;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class ProfileLookup {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable runnable) {
++        return value ? Thread.ofVirtual().unstarted(runnable) : new Thread(runnable);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/RconGeneric.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/RconGeneric.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e6d4f97404d538780cecd609b5aab59707924f90
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/RconGeneric.java
+@@ -0,0 +1,12 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.network;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class RconGeneric {
++    @DisableReload
++    public static boolean value = false;
++
++    public static Thread getThread(final Runnable r, final String name) {
++        return value ? Thread.ofVirtual().name(name).unstarted(r) : new Thread(r, name);
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/YggdrasilServices.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/YggdrasilServices.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..77e180732b9cc7c2fbd444cf2ae6257dfb6cd247
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/minecraft/network/YggdrasilServices.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.minecraft.network;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class YggdrasilServices {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/Client.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/Client.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..9c39bee4ef318f7f0a6de4d58ff70c3d3228e7b9
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/Client.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.netty;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class Client {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/EpollClient.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/EpollClient.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1e53f37d50f4a4c2f271c4bb43166ca15439dc49
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/EpollClient.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.netty;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class EpollClient {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/EpollServer.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/EpollServer.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..ea5094b61e3208f083f9533ac7885453dd099808
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/EpollServer.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.netty;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class EpollServer {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/LocalClient.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/LocalClient.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..f4b429c7b9575f2cf216e4bb292ef6c037f613f5
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/LocalClient.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.netty;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class LocalClient {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/Server.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/Server.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..cb3d5cda54a4ed6085e95ed48f17823cabe0021d
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/netty/Server.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.netty;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class Server {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/AsyncCommandBuilder.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/AsyncCommandBuilder.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..42351217e6786cd92e91700478b3b6aa734d4f56
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/AsyncCommandBuilder.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.paper;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class AsyncCommandBuilder {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/AsyncTaskHandler.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/AsyncTaskHandler.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..bc7a08d1eae8597d9c7357f51576d6e9213189b8
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/AsyncTaskHandler.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.paper;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class AsyncTaskHandler {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/PluginRemapper.java b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/PluginRemapper.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..7a8aaa9962832a5b7a429dbcb84bb15fb3734422
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/feature/virtual_thread/paper/PluginRemapper.java
+@@ -0,0 +1,14 @@
++package one.tranic.sewlia.config.mod.feature.virtual_thread.paper;
++
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++import java.util.concurrent.ThreadFactory;
++
++public class PluginRemapper {
++    @DisableReload
++    public static boolean value = false;
++
++    public static ThreadFactory getThreadFactory() {
++        return value ? Thread.ofVirtual().factory() : Thread.ofPlatform().factory();
++    }
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/fix/ExplosionBreaksItemFrameInWater.java b/src/main/java/one/tranic/sewlia/config/mod/fix/ExplosionBreaksItemFrameInWater.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c857e9bf865ab17da69cee844ffd5bfbf0ca3248
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/fix/ExplosionBreaksItemFrameInWater.java
+@@ -0,0 +1,9 @@
++package one.tranic.sewlia.config.mod.fix;
++
++import one.tranic.sewlia.config.annotation.Comments;
++
++public class ExplosionBreaksItemFrameInWater {
++    @Comments({"Fixes Explosions being able to destroy item frames in water",
++            "Fixes: https://bugs.mojang.com/browse/MC-3697"})
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/fix/IncorrectBounceLogic.java b/src/main/java/one/tranic/sewlia/config/mod/fix/IncorrectBounceLogic.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..63733bb2ef667d37e0876f7a9ebbcf3c7a5c2475
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/fix/IncorrectBounceLogic.java
+@@ -0,0 +1,9 @@
++package one.tranic.sewlia.config.mod.fix;
++
++import one.tranic.sewlia.config.annotation.Comments;
++
++public class IncorrectBounceLogic {
++    @Comments({"Fixes some entities not bouncing on slime blocks and getting stuck",
++            "Fixes: https://bugs.mojang.com/browse/MC-216985"})
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/fix/NetherPortal.java b/src/main/java/one/tranic/sewlia/config/mod/fix/NetherPortal.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..9dda5509ed0f0607d9a69af351fbe2f4bfd40ed8
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/fix/NetherPortal.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.fix;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class NetherPortal {
++    @Comment("Ensures correct destinations when travelling back and forth through Nether Portals in Multiplayer.")
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/fix/VillagersDontReleaseMemory.java b/src/main/java/one/tranic/sewlia/config/mod/fix/VillagersDontReleaseMemory.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e7315d3a9e4843f4038e3298019d3e36caa55ae8
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/fix/VillagersDontReleaseMemory.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.fix;
++
++public class VillagersDontReleaseMemory {
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/fix/anvil_drop/Debug.java b/src/main/java/one/tranic/sewlia/config/mod/fix/anvil_drop/Debug.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..90260a1b65a0ca88d84b82ab6a9e92bfe6ae72a8
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/fix/anvil_drop/Debug.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.fix.anvil_drop;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class Debug {
++    @Comment("Whether to print detailed information to the console when this issue is triggered")
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/fix/anvil_drop/Enable.java b/src/main/java/one/tranic/sewlia/config/mod/fix/anvil_drop/Enable.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..8234a65d2aa6b5b3d607cec95453efe41e9f82d9
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/fix/anvil_drop/Enable.java
+@@ -0,0 +1,9 @@
++package one.tranic.sewlia.config.mod.fix.anvil_drop;
++
++import one.tranic.sewlia.config.annotation.Comments;
++
++public class Enable {
++    @Comments({"This fix will attempt to prevent the bug in https://github.com/PaperMC/Folia/issues/217, ",
++            "it may cause some unexpected effects but should be harmless."})
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/misc/cache_player_profile/Enable.java b/src/main/java/one/tranic/sewlia/config/mod/misc/cache_player_profile/Enable.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1a6b6d39a0d656beb1d98d6d1f0db713be9a7437
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/misc/cache_player_profile/Enable.java
+@@ -0,0 +1,11 @@
++package one.tranic.sewlia.config.mod.misc.cache_player_profile;
++
++import one.tranic.sewlia.config.annotation.Comments;
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class Enable {
++    @DisableReload
++    @Comments({"Cache the player profile result on they first join.",
++            "It's useful if Mojang's verification server is down."})
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/misc/cache_player_profile/ResultTimeout.java b/src/main/java/one/tranic/sewlia/config/mod/misc/cache_player_profile/ResultTimeout.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e3e62aafe376e822295fdb6c9f62847f3aa9ccc9
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/misc/cache_player_profile/ResultTimeout.java
+@@ -0,0 +1,10 @@
++package one.tranic.sewlia.config.mod.misc.cache_player_profile;
++
++import one.tranic.sewlia.config.annotation.Comment;
++import one.tranic.sewlia.config.annotation.DisableReload;
++
++public class ResultTimeout {
++    @DisableReload
++    @Comment("The timeout of the cache. Unit: Minutes.")
++    public static int value = 1440;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/misc/fetch/UseMars.java b/src/main/java/one/tranic/sewlia/config/mod/misc/fetch/UseMars.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..c221e121b22887239f864442ebcd094c7384d0ed
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/misc/fetch/UseMars.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.misc.fetch;
++
++public class UseMars {
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/misc/fetch/UseNewFetch.java b/src/main/java/one/tranic/sewlia/config/mod/misc/fetch/UseNewFetch.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..ebfd4fa27c691204f2cd4e2b886a9c1fca085578
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/misc/fetch/UseNewFetch.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.misc.fetch;
++
++public class UseNewFetch {
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/AcquirePoiForStuckEntity.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/AcquirePoiForStuckEntity.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..cc4fcb4b31bebe9dee7a0ab5a58ab534a638ad88
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/AcquirePoiForStuckEntity.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.optimize;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class AcquirePoiForStuckEntity {
++    @Comment("Reduce acquire POI for stuck entities")
++    public static int value = 60;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/FasterStructureGenFutureSequencing.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/FasterStructureGenFutureSequencing.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..7bafd18e2143920a759c5cd3aa396c40a5678a7b
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/FasterStructureGenFutureSequencing.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.optimize;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class FasterStructureGenFutureSequencing {
++    @Comment("May cause the inconsistent order of future compose tasks.")
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/FloatingPointPositive.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/FloatingPointPositive.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e551a792b53219170e4c277c486760555deec3fe
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/FloatingPointPositive.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize;
++
++public class FloatingPointPositive {
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/MobRePathfinding.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/MobRePathfinding.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..fb47901bc4dd1a8b0535dfe892183029c1538a11
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/MobRePathfinding.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.optimize;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class MobRePathfinding {
++    @Comment("If true, disables the frequent pathfinds done while already following a path")
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/NoiseGeneration.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/NoiseGeneration.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..00cbbc3cf1cc3e3d4999adbc776d25fdb3497c82
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/NoiseGeneration.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize;
++
++public class NoiseGeneration {
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/SkipSelfRaidCheck.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/SkipSelfRaidCheck.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..87f76d5d199ea66b21349e256212958b47773fa3
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/SkipSelfRaidCheck.java
+@@ -0,0 +1,9 @@
++package one.tranic.sewlia.config.mod.optimize;
++
++import one.tranic.sewlia.config.annotation.Comments;
++
++public class SkipSelfRaidCheck {
++    @Comments({"Whether to skip some raid checks.",
++            "Enabling this will significantly reduce the server's performance."})
++    public static boolean value = false;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/EnemyRateChance.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/EnemyRateChance.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..8c9e8ec7720d8f75b8ae2f5ee0186d213bafbc79
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/EnemyRateChance.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal;
++
++public class EnemyRateChance {
++    public static int value = 10;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/MaxPathRates.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/MaxPathRates.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..5d048ad7b4ecca6fb89f3dfa054839e9a3e3ee92
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/MaxPathRates.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal;
++
++public class MaxPathRates {
++    public static int value = 2;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/Cutoff.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/Cutoff.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..5138dc0bdb447d36ca1621bb774a5886d8bfe588
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/Cutoff.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.player;
++
++public class Cutoff {
++    public static int value = 12;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/Optimize.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/Optimize.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..2740868b6e13538122c0de40f40ab9e48eee88bd
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/Optimize.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.player;
++
++public class Optimize {
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/ProximityScanRate.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/ProximityScanRate.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..2ba7476f3ab0ad269459a40340f67bd27946cb3d
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/player/ProximityScanRate.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.player;
++
++public class ProximityScanRate {
++    public static int value = 40;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/Delay.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/Delay.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..4bb1aaf7dfb20cbeeeb137df5ccd7a142eb034ff
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/Delay.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.wandering;
++
++public class Delay {
++    public static int value = 100;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/Optimize.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/Optimize.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..8627126c6fa3e29d8daf848895822728372ef79d
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/Optimize.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.wandering;
++
++public class Optimize {
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/PercentChance.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/PercentChance.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..619ceb0a9ada4c47771b46a2e6f2c4da794e7869
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/PercentChance.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.wandering;
++
++public class PercentChance {
++    public static int value = 100;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/ReducedRateMultiplier.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/ReducedRateMultiplier.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..f45a664d2ed14decf406d5f1da5df97d4336d34f
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/wandering/ReducedRateMultiplier.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.wandering;
++
++public class ReducedRateMultiplier {
++    public static int value = 6;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/zombie_village/Optimize.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/zombie_village/Optimize.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e02733fd6897f1706f3ced8240cffb2909569add
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/zombie_village/Optimize.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.zombie_village;
++
++public class Optimize {
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/zombie_village/RaidChance.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/zombie_village/RaidChance.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..52f3b7b4dc0215902bcbfc007cac1a38a93a99fb
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/entity_goal/zombie_village/RaidChance.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.entity_goal.zombie_village;
++
++public class RaidChance {
++    public static int value = 33;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/load_chunks/ActivateClimbingEntities.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/load_chunks/ActivateClimbingEntities.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..b4c6a29f0231242eb1f8c5a8d4f2707a09cdbf78
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/load_chunks/ActivateClimbingEntities.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.load_chunks;
++
++public class ActivateClimbingEntities {
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/load_chunks/SpawnPhantoms.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/load_chunks/SpawnPhantoms.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..29cd0603b5e78a9f01d2b54d0bca115fb95d9f62
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/load_chunks/SpawnPhantoms.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.load_chunks;
++
++public class SpawnPhantoms {
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/minecart/Enable.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/minecart/Enable.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..a170a53e86b31913b6f49accfdf64c0ac527dc16
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/minecart/Enable.java
+@@ -0,0 +1,10 @@
++package one.tranic.sewlia.config.mod.optimize.minecart;
++
++import one.tranic.sewlia.config.annotation.Comments;
++
++public class Enable {
++    @Comments({"Enable this feature to handle large amount of stacked Minecart better.",
++            "By skipping tick collisions to reduce expense getting entities list",
++            "and bukkit event calls, useful for the anarchy server."})
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/minecart/SkipTickCount.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/minecart/SkipTickCount.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..9fc5d43fc092b3da1eeb1537abc7d3dcc68b755c
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/minecart/SkipTickCount.java
+@@ -0,0 +1,5 @@
++package one.tranic.sewlia.config.mod.optimize.minecart;
++
++public class SkipTickCount {
++    public static int value = 30;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/turtle_egg_search/Enable.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/turtle_egg_search/Enable.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..147d3840a95298b075e9a960b6a21a5a7a7876e3
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/turtle_egg_search/Enable.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.optimize.turtle_egg_search;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class Enable {
++    @Comment("If true, optimizes the expensive searching done to find a turtle egg to crush, for zombies/husks, by default fully disabling it")
++    public static boolean value = true;
++}
+diff --git a/src/main/java/one/tranic/sewlia/config/mod/optimize/turtle_egg_search/PercentChance.java b/src/main/java/one/tranic/sewlia/config/mod/optimize/turtle_egg_search/PercentChance.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..e69b3f3d0bfc2ec9df3eb44b860755d6e0dacdb2
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/config/mod/optimize/turtle_egg_search/PercentChance.java
+@@ -0,0 +1,8 @@
++package one.tranic.sewlia.config.mod.optimize.turtle_egg_search;
++
++import one.tranic.sewlia.config.annotation.Comment;
++
++public class PercentChance {
++    @Comment("Percent chance to run for task: zombie seeking turtle eggs to destroy")
++    public static int value = 40;
++}
