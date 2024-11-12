@@ -1,0 +1,114 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: 404Setup <153366651+404Setup@users.noreply.github.com>
+Date: Tue, 12 Nov 2024 22:07:30 +0800
+Subject: [PATCH] Sewlia: Reflect Utils
+
+
+diff --git a/src/main/java/one/tranic/sewlia/Reflect.java b/src/main/java/one/tranic/sewlia/Reflect.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..439433730f0c3c0e72b8c7c68ed116b1fdefc10b
+--- /dev/null
++++ b/src/main/java/one/tranic/sewlia/Reflect.java
+@@ -0,0 +1,102 @@
++package one.tranic.sewlia;
++
++import com.google.common.collect.ImmutableSet;
++import com.google.common.reflect.ClassPath;
++import net.intelie.tinymap.TinySet;
++import net.intelie.tinymap.TinySetBuilder;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++
++import java.io.IOException;
++
++public class Reflect {
++    public static <T extends Class<?>> @Nullable TinySet<T> scanPackage(@Nullable T clazz, @NotNull String packageName) {
++        @Nullable TinySet<String> set = scanPackageString(clazz, packageName);
++        if (set == null || set.isEmpty()) return null;
++        try {
++            TinySetBuilder<T> builder = TinySet.builder();
++            for (String s : set) builder.add((T) Class.forName(s));
++            return builder.build();
++        } catch (ClassNotFoundException e) {
++            return null;
++        }
++    }
++
++    public static <T extends Class<?>> @Nullable TinySet<T> scanPackage(@NotNull String packageName) {
++        return scanPackage(null, packageName);
++    }
++
++    public static <T extends Class<?>> @Nullable TinySet<String> scanPackageString(@Nullable T clazz, @NotNull String packageName) {
++        try {
++            ClassPath classs = ClassPath.from(Thread.currentThread().getContextClassLoader());
++            ImmutableSet<ClassPath.ClassInfo> cla = classs.getTopLevelClassesRecursive(packageName);
++            if (cla.isEmpty()) return null;
++
++            TinySetBuilder<String> builder = TinySet.builder();
++            if (clazz == null) {
++                for (ClassPath.ClassInfo c : cla) builder.add(c.getName());
++            } else for (ClassPath.ClassInfo c : cla) if (c.getClass().isAssignableFrom(clazz)) builder.add(c.getName());
++            return builder.build();
++        } catch (Exception e) {
++            return null;
++        }
++    }
++
++    public static @Nullable TinySet<String> scanPackageString(@NotNull String packageName) {
++        return scanPackageString(null, packageName);
++    }
++
++    public static <T> @Nullable TinySet<T> findObjectClass(String packageName, Class<T> type) throws IOException {
++        return findClass(packageName, type, true, false);
++    }
++
++    public static <T> @Nullable TinySet<T> findAllObjectClass(String packageName, Class<T> type) throws IOException {
++        return findClass(packageName, type, true, true);
++    }
++
++    public static <T> @Nullable TinySet<T> findClass(String packageName, Class<T> type) throws IOException {
++        return findClass(packageName, type, false, false);
++    }
++
++    public static <T> @Nullable TinySet<T> findAllClass(String packageName, Class<T> type) throws IOException {
++        return findClass(packageName, type, false, true);
++    }
++
++    private static <T> @Nullable TinySet<T> findClass(String packageName, Class<T> type, boolean isObject, boolean allClass) throws IOException {
++        TinySetBuilder<T> implSet = TinySet.builder();
++        ClassPath classPath = ClassPath.from(Thread.currentThread().getContextClassLoader());
++        Iterable<ClassPath.ClassInfo> classes = allClass ? classPath.getTopLevelClassesRecursive(packageName) : classPath.getTopLevelClasses(packageName);
++
++        for (ClassPath.ClassInfo classInfo : classes) {
++            try {
++                Class<?> clazz = Class.forName(classInfo.getName());
++                if (!type.isAssignableFrom(clazz)) continue;
++
++                T objInstance = null;
++                if (isObject) {
++                    objInstance = getObjectInstance(clazz, type);
++                } else {
++                    if (!clazz.isAnnotation() && !clazz.isEnum() && !clazz.isInterface()) {
++                        objInstance = (T) clazz.getDeclaredConstructor().newInstance();
++                    }
++                }
++
++                if (objInstance != null) {
++                    implSet.add(objInstance);
++                }
++            } catch (Exception e) {
++                // Handle exceptions (logging or ignoring based on requirements)
++            }
++        }
++        return implSet.build();
++    }
++
++    @SuppressWarnings("unchecked")
++    private static <T> T getObjectInstance(Class<?> clazz, Class<T> type) {
++        try {
++            return (T) clazz.getField("INSTANCE").get(null);
++        } catch (Exception e) {
++            return null;
++        }
++    }
++}

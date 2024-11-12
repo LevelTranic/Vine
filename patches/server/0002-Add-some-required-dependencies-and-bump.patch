@@ -5,7 +5,7 @@ Subject: [PATCH] Add some required dependencies and bump
 
 
 diff --git a/build.gradle.kts b/build.gradle.kts
-index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..e9618559e28da476e02d938966a4d6a14a9902d5 100644
+index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..a042f4548b9e17d765d2c19d0ef5502135ee03df 100644
 --- a/build.gradle.kts
 +++ b/build.gradle.kts
 @@ -27,13 +27,13 @@ dependencies {
@@ -34,7 +34,7 @@ index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..e9618559e28da476e02d938966a4d6a1
      implementation ("me.carleslc.Simple-YAML:Simple-Yaml:1.8.4") {
          exclude(group="org.yaml", module="snakeyaml")
      }
-@@ -79,12 +79,31 @@ dependencies {
+@@ -79,12 +79,29 @@ dependencies {
  
      // Vine start
      implementation(kotlin("reflect"))
@@ -54,8 +54,6 @@ index 5ecc93bb8a1828bbe44e0cc76c72eeb41b120001..e9618559e28da476e02d938966a4d6a1
 +    implementation("org.lz4:lz4-java:1.8.0")
 +
 +    implementation("com.github.weisj:darklaf-core:3.0.2") // Swing Theme
-+
-+    implementation("net.intelie.tinymap:tinymap:0.7")
 +
 +    val brotli4jVersion = "1.17.0"
 +    implementation ( group = "com.aayushatharva.brotli4j", name = "brotli4j", version = brotli4jVersion )
